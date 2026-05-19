@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIRA — База</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .base-table { font-size: 11px; }
+  .base-table th { font-size: 10px; padding: 6px 8px; white-space: nowrap; }
+  .base-table td { padding: 5px 8px; white-space: nowrap; }
+  .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 16px; }
+  .page-btn { padding: 6px 10px; font-size: 11px; background: white; border: 1px solid var(--border);
+              border-radius: 4px; cursor: pointer; }
+  .page-btn:hover { background: var(--gray-50); }
+  .page-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+  .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .badge-sale { background: var(--green-light); color: var(--green-dark); }
+  .badge-return { background: var(--red-light); color: var(--red-dark); }
+  .badge-log { background: var(--blue-bg); color: var(--navy); }
+  .badge-fine { background: var(--amber-light); color: var(--amber-dark); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <main class="page">
+
+      <div class="page-header">
+        <h1 class="page-title">База</h1>
+        <p class="page-subtitle">Hamma sotuv qatorlari — formulalar bilan avtomat hisoblangan</p>
+      </div>
+
+      <div id="content"></div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/storage.js"></script>
+<script src="js/app-init.js"></script>
+<script src="js/baza-formulas.js"></script>
+<script src="js/calculator.js"></script>
+<script src="js/main.js"></script>
+
+<script>
+  window.initPage = function() {
+setupLayout('base');
+
+  const base = Storage.getBase();
+  const content = document.getElementById('content');
+  const settings = Storage.getSettings();
+  const cur = settings.currency;
+
+  if (base.length === 0) {
+    renderEmpty(content, {
+      icon: '📊',
+      title: 'База bo\'sh',
+      message: 'Подробный отчёт fayllarini yuklang — bu yerda hamma sotuv qatorlari ko\'rinadi',
+      link: 'upload.html',
+      linkText: '📤 Yuklash sahifasiga'
+    });
+  } else {
+    // Asinx hisoblash — katta baza uchun progress modal
+    (async function() {
+      const ctx = {
+        costs: Storage.getCosts(),
+        settings: Storage.getSettings(),
+        samovikupy: Storage.getSelfPurchases(),
+        extExpenses: Storage.getExtExpenses(),
+        listReports: Storage.getListReports()
+      };
+
+      const baseLen = base.length;
+      const showProgress = baseLen > 10000;
+
+      let calculated;
+      if (showProgress) {
+        Calculator.showProgress();
+        try {
+          calculated = await Calculator.getCalculated((current, total, pct) => {
+            Calculator.updateProgress(current, total, pct);
+          });
+        } finally {
+          Calculator.hideProgress();
+        }
+      } else {
+        calculated = await Calculator.getCalculated();
+      }
+
+      window._calculated = calculated;
+      window._ctx = ctx;
+      renderBase();
+    })();
+  }
+
+  function renderBase() {
+    const calculated = window._calculated;
+    const ctx = window._ctx;
+
+    // Filtrlar
+    const uniqueReports = [...new Set(calculated.map(r => r.report_num))].filter(Boolean).sort();
+    const uniqueArticles = [...new Set(calculated.map(r => r.AT || r.article))].filter(Boolean).sort();
+
+    let filterReport = '';
+    let filterArticle = '';
+    let filterType = '';
+    let searchText = '';
+    let currentPage = 1;
+    const pageSize = 50;
+
+    function getFiltered() {
+      let filtered = calculated;
+      if (filterReport) filtered = filtered.filter(r => String(r.report_num) === String(filterReport));
+      if (filterArticle) filtered = filtered.filter(r => (r.AT || r.article) === filterArticle);
+      if (filterType === 'sale') filtered = filtered.filter(r => r.A === 1);
+      if (filterType === 'return') filtered = filtered.filter(r => r.A === -1);
+      if (filterType === 'logistics') filtered = filtered.filter(r => r.operation_reason === 'Логистика' || r.operation_reason === 'Логистика сторно');
+      if (filterType === 'fine') filtered = filtered.filter(r => (r.fine || 0) !== 0 || (r.AE || 0) !== 0);
+      if (searchText) {
+        const q = searchText.toLowerCase();
+        filtered = filtered.filter(r =>
+          String(r.article || '').toLowerCase().includes(q) ||
+          String(r.product_name || '').toLowerCase().includes(q) ||
+          String(r.wb_article || '').toLowerCase().includes(q) ||
+          String(r.srid || '').toLowerCase().includes(q)
+        );
+      }
+      return filtered;
+    }
+
+    function getOperationBadge(r) {
+      if (r.operation_type === 'Продажа') return '<span class="check-cell badge-sale">Продажа</span>';
+      if (r.operation_type === 'Возврат') return '<span class="check-cell badge-return">Возврат</span>';
+      if (r.operation_reason && r.operation_reason.includes('Логистика')) return '<span class="check-cell badge-log">Логистика</span>';
+      if (r.fine || r.AE || r.AF) return '<span class="check-cell badge-fine">Штраф</span>';
+      return r.operation_reason || '—';
+    }
+
+    function render() {
+      const filtered = getFiltered();
+      const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+      if (currentPage > totalPages) currentPage = totalPages;
+      const start = (currentPage - 1) * pageSize;
+      const pageRows = filtered.slice(start, start + pageSize);
+
+      // KPI'lar (filtrlangan qatorlar uchun)
+      const kpi = BazaFormulas.calculateKPI(filtered, ctx);
+
+      content.innerHTML = `
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Jami qatorlar</div>
+            <div class="kpi-value">${fmt(filtered.length)}</div>
+            <div class="kpi-change">${calculated.length === filtered.length ? '' : 'jami ' + fmt(calculated.length) + ' dan'}</div>
+          </div>
+          <div class="kpi-card success">
+            <div class="kpi-label">Выручка</div>
+            <div class="kpi-value">${fmtMoneyShort(kpi.revenue, cur)}</div>
+            <div class="kpi-change">${fmt(kpi.sales_qty)} dona sotilgan</div>
+          </div>
+          <div class="kpi-card warning">
+            <div class="kpi-label">WB ushlanmalari</div>
+            <div class="kpi-value">${fmtMoneyShort(kpi.all_wb_deductions, cur)}</div>
+            <div class="kpi-change">${fmtPercent(kpi.all_ded_pct)} daromaddan</div>
+          </div>
+          <div class="kpi-card success">
+            <div class="kpi-label">Оплата на РС</div>
+            <div class="kpi-value">${fmtMoneyShort(kpi.to_pay_rs, cur)}</div>
+          </div>
+          <div class="kpi-card ${kpi.net_profit >= 0 ? 'success' : 'danger'}">
+            <div class="kpi-label">Toza foyda</div>
+            <div class="kpi-value">${fmtMoneyShort(kpi.net_profit, cur)}</div>
+            <div class="kpi-change ${kpi.net_profit >= 0 ? 'up' : 'down'}">Marja ${fmtPercent(kpi.margin_pct)}</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">База — sotuv qatorlari</div>
+              <div class="card-subtitle">123 ustun, lekin asosiy 18 tasi ko'rsatiladi</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-outline" onclick="exportCsv()" style="font-size: 11px;">📥 CSV eksport</button>
+              ${filterReport
+                ? `<button class="btn btn-outline" onclick="clearOneReport('${filterReport}')" style="font-size: 11px; color: var(--amber-dark);">🗑 Faqat № ${filterReport} o'chirish</button>`
+                : ''}
+              <button class="btn btn-outline" onclick="clearBaseAll()" style="font-size: 11px; color: var(--red); background: var(--red-light);">🗑 Hamma Bazani o'chirish</button>
+            </div>
+          </div>
+
+          <div class="filters">
+            <div class="filter-group">
+              <span class="filter-label">Achot:</span>
+              <select class="filter-select" id="filterReport" style="min-width: 150px;">
+                <option value="">Hammasi</option>
+                ${uniqueReports.map(rn => `<option value="${rn}" ${rn === filterReport ? 'selected' : ''}>№ ${rn}</option>`).join('')}
+              </select>
+            </div>
+            <div class="filter-group">
+              <span class="filter-label">Tovar:</span>
+              <select class="filter-select" id="filterArticle" style="min-width: 180px;">
+                <option value="">Hammasi</option>
+                ${uniqueArticles.map(a => `<option value="${a}" ${a === filterArticle ? 'selected' : ''}>${a}</option>`).join('')}
+              </select>
+            </div>
+            <div class="filter-group">
+              <span class="filter-label">Tur:</span>
+              <select class="filter-select" id="filterType" style="min-width: 120px;">
+                <option value="">Hammasi</option>
+                <option value="sale" ${filterType==='sale'?'selected':''}>Sotuv</option>
+                <option value="return" ${filterType==='return'?'selected':''}>Qaytarish</option>
+                <option value="logistics" ${filterType==='logistics'?'selected':''}>Logistika</option>
+                <option value="fine" ${filterType==='fine'?'selected':''}>Shtraf</option>
+              </select>
+            </div>
+            <div class="search-box" style="flex: 1; max-width: 280px;">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round"/></svg>
+              <input type="text" id="searchInput" placeholder="Artikul, tovar nomi..." value="${searchText}">
+            </div>
+          </div>
+
+          <div class="table-wrapper" style="max-height: 600px;">
+            <table class="table base-table">
+              <thead>
+                <tr>
+                  <th>№ Отчёта</th>
+                  <th>Tur</th>
+                  <th>Artikul</th>
+                  <th>Tovar</th>
+                  <th class="num">Прод. шт.</th>
+                  <th class="num">Возвр. шт.</th>
+                  <th class="num">Выручка</th>
+                  <th class="num">К перечисл.</th>
+                  <th class="num">Комиссия</th>
+                  <th class="num">Эквайринг</th>
+                  <th class="num">Лог. прям.</th>
+                  <th class="num">Лог. обр.</th>
+                  <th class="num">Штраф</th>
+                  <th class="num">Хранение</th>
+                  <th class="num">Себест.</th>
+                  <th class="num">Налог</th>
+                  <th class="num">Опл. РС</th>
+                  <th>Дата</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${pageRows.length === 0 ? `
+                  <tr><td colspan="18" style="text-align: center; padding: 30px; color: var(--text-tertiary);">
+                    Filtrga mos qatorlar topilmadi
+                  </td></tr>
+                ` : pageRows.map(r => `
+                  <tr>
+                    <td style="font-weight: 600; color: var(--blue);">${r.report_num || '—'}</td>
+                    <td>${getOperationBadge(r)}</td>
+                    <td><strong>${r.AT || r.article || '—'}</strong></td>
+                    <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;" title="${r.product_name || ''}">${(r.AU || r.product_name || '').substring(0, 30)}${(r.AU || r.product_name || '').length > 30 ? '…' : ''}</td>
+                    <td class="num">${r.D || 0}</td>
+                    <td class="num">${r.E || 0}</td>
+                    <td class="num ${r.I > 0 ? 'num-positive' : (r.I < 0 ? 'num-negative' : '')}">${r.I ? fmtMoney(r.I, cur) : '—'}</td>
+                    <td class="num">${r.J ? fmtMoney(r.J, cur) : '—'}</td>
+                    <td class="num num-negative">${r.K ? fmtMoney(r.K, cur) : '—'}</td>
+                    <td class="num num-negative">${r.L ? fmtMoney(r.L, cur) : '—'}</td>
+                    <td class="num num-negative">${r.S ? fmtMoney(r.S, cur) : '—'}</td>
+                    <td class="num num-negative">${r.T ? fmtMoney(r.T, cur) : '—'}</td>
+                    <td class="num num-negative">${r.fine ? fmtMoney(-r.fine, cur) : '—'}</td>
+                    <td class="num num-negative">${r.AD ? fmtMoney(-r.AD, cur) : '—'}</td>
+                    <td class="num num-negative">${r.AC ? fmtMoney(-r.AC, cur) : '—'}</td>
+                    <td class="num num-negative">${r.AB ? fmtMoney(-r.AB, cur) : '—'}</td>
+                    <td class="num ${r.Y > 0 ? 'num-positive' : 'num-negative'}" style="font-weight: 600;">${r.Y ? fmtMoney(r.Y, cur) : '—'}</td>
+                    <td style="font-size: 10px;">${r.sale_date ? fmtDate(r.sale_date) : (r.order_date ? fmtDate(r.order_date) : '—')}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination">
+            <button class="page-btn" id="prevBtn" ${currentPage === 1 ? 'disabled' : ''}>← Oldingi</button>
+            <span style="font-size: 12px; color: var(--text-secondary);">
+              Sahifa <strong>${currentPage}</strong> / ${totalPages}
+              · ${fmt(filtered.length)} qator
+            </span>
+            <button class="page-btn" id="nextBtn" ${currentPage >= totalPages ? 'disabled' : ''}>Keyingi →</button>
+          </div>
+        </div>
+      `;
+
+      // Event listenerlar
+      document.getElementById('filterReport').addEventListener('change', e => { filterReport = e.target.value; currentPage = 1; render(); });
+      document.getElementById('filterArticle').addEventListener('change', e => { filterArticle = e.target.value; currentPage = 1; render(); });
+      document.getElementById('filterType').addEventListener('change', e => { filterType = e.target.value; currentPage = 1; render(); });
+      document.getElementById('searchInput').addEventListener('input', e => { searchText = e.target.value; currentPage = 1; render(); });
+      document.getElementById('prevBtn').addEventListener('click', () => { if (currentPage > 1) { currentPage--; render(); }});
+      document.getElementById('nextBtn').addEventListener('click', () => { if (currentPage < totalPages) { currentPage++; render(); }});
+    }
+
+    window.exportCsv = function() {
+      const filtered = getFiltered();
+      const headers = ['№ отчёта','Тип','Артикул','Товар','Прод.шт','Возвр.шт','Выручка',
+                       'К перечисл','Комиссия','Эквайринг','Лог.прям','Лог.обр',
+                       'Штраф','Хранение','Себест','Налог','Опл.РС','Дата'];
+      const rows = filtered.map(r => [
+        r.report_num, r.operation_type || r.operation_reason || '', r.AT || r.article || '',
+        r.AU || r.product_name || '',
+        r.D || 0, r.E || 0, r.I || 0, r.J || 0, r.K || 0, r.L || 0,
+        r.S || 0, r.T || 0, r.fine || 0, r.AD || 0, r.AC || 0, r.AB || 0, r.Y || 0,
+        r.sale_date || ''
+      ]);
+      const csv = [headers, ...rows].map(row => row.map(c => {
+        const s = String(c || '');
+        return s.includes(';') || s.includes('"') ? `"${s.replace(/"/g, '""')}"` : s;
+      }).join(';')).join('\n');
+      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `aira-baza-${new Date().toISOString().substring(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      notify('CSV eksport tayyor', 'success');
+    };
+
+    // BAZANI O'CHIRISH — 2 marta tasdiq bilan
+    window.clearBaseAll = function() {
+      const baseCount = Storage.getBase().length;
+      const uniqueReports = new Set(Storage.getBase().map(r => String(r.report_num))).size;
+
+      const msg1 = `⚠️ Diqqat!\n\nHamma БАЗА ma'lumotlari o'chiriladi:\n• ${fmt(baseCount)} ta qator\n• ${uniqueReports} ta achotning qatorlari\n\nRostakammi o'chirasizmi?`;
+
+      if (!confirm(msg1)) {
+        notify('Bekor qilindi', 'info');
+        return;
+      }
+
+      // 2-marta tasdiq
+      const msg2 = `🚨 OXIRGI TASDIQLASH!\n\nHamma БАЗА ma'lumotlari o'chiriladi va QAYTARIB BO'LMAYDI!\n\n("Список отчётов" va "Себестоимость" saqlanib qoladi)\n\nDavom etasizmi?`;
+
+      if (!confirm(msg2)) {
+        notify('Bekor qilindi', 'info');
+        return;
+      }
+
+      Storage.clearBase();
+      notify(`✓ ${fmt(baseCount)} ta qator o'chirildi`, 'warning');
+      setTimeout(() => window.location.reload(), 1000);
+    };
+
+    // BITTA ACHOT O'CHIRISH
+    window.clearOneReport = function(reportNum) {
+      const count = Storage.getBase().filter(r => String(r.report_num) === String(reportNum)).length;
+
+      const msg = `№ ${reportNum} achotning ${count} ta qatori o'chiriladi.\n\nRostakammi o'chirasizmi?`;
+
+      if (!confirm(msg)) {
+        notify('Bekor qilindi', 'info');
+        return;
+      }
+
+      Storage.removeBaseByReport(reportNum);
+      notify(`✓ № ${reportNum} achotning ${count} ta qatori o'chirildi`, 'warning');
+      setTimeout(() => window.location.reload(), 1000);
+    };
+
+    render();
+  }
+  };
+</script>
+
+</body>
+</html>

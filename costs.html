@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIRA — Себестоимость</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .cost-row input { width: 100%; border: none; background: transparent; padding: 4px 6px; }
+  .cost-row input:focus { background: var(--blue-bg); outline: none; border-radius: 4px; }
+  .cost-row { transition: background 0.15s; }
+  .cost-row.editing { background: var(--blue-bg); }
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5);
+                   display: flex; align-items: center; justify-content: center; z-index: 200; }
+  .modal { background: white; padding: 24px; border-radius: 12px; max-width: 500px; width: 90%; }
+  .form-row { display: grid; grid-template-columns: 130px 1fr; gap: 12px; margin-bottom: 12px; align-items: center; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <main class="page">
+
+      <div class="page-header">
+        <h1 class="page-title">Себестоимость</h1>
+        <p class="page-subtitle">Tannarx ma'lumotlari — sotuvni hisoblash uchun zarur</p>
+      </div>
+
+      <div class="tip-box info">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" stroke-linecap="round"/></svg>
+        <div class="tip-content">
+          <strong>База sahifasidagi formula:</strong> AC = VLOOKUP(BB+BD, Себестоимость, 7) yoki VLOOKUP(BD, F:G, 2)
+          <br>Ya'ni: <strong>Код номенклатуры</strong> orqali tannarx topiladi va sotilgan dona soniga ko'paytiriladi
+        </div>
+      </div>
+
+      <div id="content"></div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Modal: yangi tovar qo'shish -->
+<div class="modal-overlay" id="costModal" style="display: none;">
+  <div class="modal">
+    <h3 style="margin-bottom: 16px;">Yangi tovar qo'shish</h3>
+
+    <div class="form-row">
+      <label class="form-label">Brend:</label>
+      <input type="text" id="newBrand" class="form-input" value="Piccino">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Artikul:</label>
+      <input type="text" id="newArticle" class="form-input" placeholder="masalan dvoyka-persik">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Tovar nomi:</label>
+      <input type="text" id="newProduct" class="form-input" placeholder="Tovar to'liq nomi">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Код номенклатуры:</label>
+      <input type="text" id="newCode" class="form-input" placeholder="masalan 452443644">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Tannarx ₽:</label>
+      <input type="number" id="newCost" class="form-input" step="1" placeholder="235">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Guruh:</label>
+      <input type="text" id="newGroup" class="form-input" placeholder="ixtiyoriy">
+    </div>
+
+    <div style="display: flex; gap: 8px; margin-top: 16px;">
+      <button class="btn btn-primary" onclick="saveNewCost()" style="flex: 1;">💾 Qo'shish</button>
+      <button class="btn btn-outline" onclick="closeModal()" style="flex: 1;">Bekor</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/lib/xlsx.full.min.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/app-init.js"></script>
+<script src="js/main.js"></script>
+
+<script>
+  window.initPage = function() {
+setupLayout('costs');
+
+  const content = document.getElementById('content');
+
+  function render() {
+    const costs = Storage.getCosts();
+    const base = Storage.getBase();
+    const settings = Storage.getSettings();
+    const cur = settings.currency;
+
+    // База dagi unikal artikullar — Проверка qilish uchun
+    const usedCodes = new Set(
+      base.map(r => String(r.wb_article || '')).filter(c => c && c !== '0' && c !== 'undefined')
+    );
+
+    // Tannarxlardan qaysilari ishlatilyapti
+    const definedCodes = new Set(costs.map(c => String(c.code)));
+
+    // Базада ishlatilgan, lekin tannarxda yo'q kodlar
+    const missingCodes = [...usedCodes].filter(c => c && !definedCodes.has(c));
+
+    const avgCost = costs.length > 0 ? costs.reduce((s, c) => s + (c.cost || 0), 0) / costs.length : 0;
+
+    content.innerHTML = `
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Jami tovarlar</div>
+          <div class="kpi-value">${costs.length}</div>
+          <div class="kpi-change">Tannarx jadvalida</div>
+        </div>
+        <div class="kpi-card success">
+          <div class="kpi-label">Ishlatilgan</div>
+          <div class="kpi-value">${costs.filter(c => usedCodes.has(String(c.code))).length}</div>
+          <div class="kpi-change">База da bor</div>
+        </div>
+        <div class="kpi-card ${missingCodes.length > 0 ? 'danger' : 'success'}">
+          <div class="kpi-label">Tannarxsiz qolgan</div>
+          <div class="kpi-value">${missingCodes.length}</div>
+          <div class="kpi-change">${missingCodes.length > 0 ? '⚠ qo\'shing!' : '✓ hammasi joyida'}</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">O'rtacha tannarx</div>
+          <div class="kpi-value">${fmtMoney(avgCost, cur)}</div>
+        </div>
+      </div>
+
+      ${missingCodes.length > 0 ? `
+        <div class="tip-box warning">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" stroke-linecap="round"/></svg>
+          <div class="tip-content">
+            <strong>⚠ База da ${missingCodes.length} ta tovar tannarxsiz!</strong>
+            <br>Bu tovarlar uchun tannarx kiritish kerak, aks holda foyda noto'g'ri hisoblanadi.
+            <br>Tannarxsiz kodlar: <strong>${missingCodes.slice(0, 5).join(', ')}${missingCodes.length > 5 ? `... +${missingCodes.length - 5}` : ''}</strong>
+          </div>
+        </div>
+      ` : ''}
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Tovarlar jadvali</div>
+            <div class="card-subtitle">Sizning Excel "Себестоимость" varagi kabi</div>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <button class="btn btn-primary" onclick="openModal()" style="font-size: 11px;">+ Yangi tovar</button>
+
+            <!-- Excel dropdown -->
+            <div style="position: relative; display: inline-block;">
+              <button class="btn btn-outline" onclick="toggleExcelMenu()" style="font-size: 11px; background: linear-gradient(135deg, #6F4FD8, #534AB7); color: white; border: none;">
+                📊 Excel ▾
+              </button>
+              <div id="excelMenu" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 4px; background: white; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.12); min-width: 220px; z-index: 100; overflow: hidden;">
+                <button onclick="exportToExcel(); toggleExcelMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; padding: 10px 14px; text-align: left; background: none; border: none; cursor: pointer; font-size: 12px; color: var(--text);">
+                  📥 Выгрузить в Excel
+                  <span style="font-size: 10px; color: var(--text-tertiary); margin-left: auto;">.xlsx</span>
+                </button>
+                <button onclick="document.getElementById('importExcel').click(); toggleExcelMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; padding: 10px 14px; text-align: left; background: none; border: none; cursor: pointer; font-size: 12px; color: var(--text); border-top: 1px solid var(--border-light);">
+                  📤 Загрузить из Excel
+                  <span style="font-size: 10px; color: var(--text-tertiary); margin-left: auto;">.xlsx</span>
+                </button>
+                <button onclick="downloadTemplate(); toggleExcelMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; padding: 10px 14px; text-align: left; background: none; border: none; cursor: pointer; font-size: 12px; color: var(--text); border-top: 1px solid var(--border-light);">
+                  📋 Bo'sh shablon yuklab olish
+                  <span style="font-size: 10px; color: var(--text-tertiary); margin-left: auto;">.xlsx</span>
+                </button>
+                <button onclick="clearAllCosts(); toggleExcelMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; padding: 10px 14px; text-align: left; background: none; border: none; cursor: pointer; font-size: 12px; color: var(--red-dark); border-top: 1px solid var(--border-light);">
+                  🗑 Hammasini tozalash
+                  <span style="font-size: 10px; color: var(--text-tertiary); margin-left: auto;">profil</span>
+                </button>
+              </div>
+              <input type="file" id="importExcel" accept=".xlsx,.xls" style="display: none;" onchange="importFromExcel(event)">
+            </div>
+
+            <button class="btn btn-outline" onclick="exportCsv()" style="font-size: 11px;">CSV</button>
+          </div>
+        </div>
+
+        <div class="table-wrapper" style="border: none;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Брeнд</th>
+                <th>Артикул поставщика</th>
+                <th>Товар</th>
+                <th>Код номенклатуры</th>
+                <th class="num">Себестоимость</th>
+                <th>Группа</th>
+                <th>Проверка</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${costs.map((c, i) => {
+                const used = usedCodes.has(String(c.code));
+                return `
+                  <tr class="cost-row" data-idx="${i}">
+                    <td>${i + 1}</td>
+                    <td><input type="text" value="${c.brand || ''}" data-field="brand" data-idx="${i}"></td>
+                    <td><input type="text" value="${c.article || ''}" data-field="article" data-idx="${i}" style="font-weight: 600;"></td>
+                    <td><input type="text" value="${c.product || ''}" data-field="product" data-idx="${i}"></td>
+                    <td><input type="text" value="${c.code || ''}" data-field="code" data-idx="${i}" style="color: var(--blue);"></td>
+                    <td class="num"><input type="number" value="${c.cost || ''}" data-field="cost" data-idx="${i}" step="1" style="text-align: right; font-weight: 600; color: var(--green-dark);"></td>
+                    <td><input type="text" value="${c.group || ''}" data-field="group" data-idx="${i}"></td>
+                    <td>
+                      ${(!c.cost || c.cost === 0)
+                        ? '<span class="check-cell check-err">Нет ССт</span>'
+                        : used
+                          ? '<span class="check-cell check-ok">Ok</span>'
+                          : '<span class="check-cell check-warn">Не используется</span>'}
+                    </td>
+                    <td>
+                      <button onclick="removeCost(${i})" style="background: none; border: none; cursor: pointer; color: var(--red); font-size: 16px;">×</button>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      ${missingCodes.length > 0 ? `
+        <div class="card" style="background: var(--amber-light); border: 2px solid var(--amber);">
+          <div class="card-header" style="border-bottom-color: var(--amber);">
+            <div>
+              <div class="card-title" style="color: var(--amber-dark);">⚠ Yangi artikullar topildi — Tannarx kerak (${missingCodes.length} ta)</div>
+              <div class="card-subtitle" style="color: var(--amber-dark);">База'da bor, lekin tannarx kiritilmagan</div>
+            </div>
+            <button class="btn btn-primary" onclick="exportToExcel()" style="font-size: 11px; background: var(--purple);">
+              📊 Excel'ga olib chiqish va tannarx kiritish
+            </button>
+          </div>
+          <div style="font-size: 12px; line-height: 1.8;">
+            ${missingCodes.slice(0, 20).map(code => {
+              const example = base.find(r => String(r.wb_article) === String(code));
+              const escapedArticle = (example?.article || '').replace(/'/g, "\\'");
+              const escapedProduct = (example?.product_name || '').replace(/'/g, "\\'");
+              return `<div style="padding: 8px 10px; margin: 4px 0; background: white; border-radius: 6px; display: flex; align-items: center; gap: 10px; justify-content: space-between;">
+                <div style="flex: 1; min-width: 0;">
+                  <strong style="color: var(--blue);">${code}</strong>
+                  ${example ? ` · <strong>${example.article || '—'}</strong> · ${(example.product_name || '').substring(0, 50)}${example.product_name && example.product_name.length > 50 ? '…' : ''}` : ''}
+                </div>
+                <button class="btn btn-primary" onclick="quickAdd('${code}', '${escapedArticle}', '${escapedProduct}', '${example?.brand || 'Piccino'}')" style="font-size: 11px; padding: 5px 10px; flex-shrink: 0;">+ Qo'shish</button>
+              </div>`;
+            }).join('')}
+            ${missingCodes.length > 20 ? `<div style="padding: 10px; text-align: center; color: var(--amber-dark); font-weight: 600;">... va yana ${missingCodes.length - 20} ta. Excel orqali hammasini qo'shing yuqoridagi tugma bilan ↑</div>` : ''}
+          </div>
+        </div>
+      ` : ''}
+    `;
+
+    // Inline tahrirlash
+    document.querySelectorAll('.cost-row input').forEach(input => {
+      input.addEventListener('change', e => {
+        const idx = parseInt(e.target.getAttribute('data-idx'));
+        const field = e.target.getAttribute('data-field');
+        let value = e.target.value;
+        if (field === 'cost') value = parseFloat(value) || 0;
+        Storage.updateCost(idx, { [field]: value });
+        notify('Saqlandi', 'success');
+        render();
+      });
+    });
+  }
+
+  window.openModal = function() {
+    document.getElementById('costModal').style.display = 'flex';
+  };
+  window.closeModal = function() {
+    document.getElementById('costModal').style.display = 'none';
+    ['newBrand', 'newArticle', 'newProduct', 'newCode', 'newCost', 'newGroup'].forEach(id => {
+      if (id !== 'newBrand') document.getElementById(id).value = '';
+    });
+  };
+
+  window.saveNewCost = function() {
+    const brand = document.getElementById('newBrand').value.trim();
+    const article = document.getElementById('newArticle').value.trim();
+    const product = document.getElementById('newProduct').value.trim();
+    const code = document.getElementById('newCode').value.trim();
+    const cost = parseFloat(document.getElementById('newCost').value) || 0;
+    const group = document.getElementById('newGroup').value.trim();
+
+    if (!article || !code) {
+      alert('Artikul va Kod majburiy');
+      return;
+    }
+
+    Storage.addCost({ brand, article, product, code, cost, group });
+    notify('Tovar qo\'shildi', 'success');
+    closeModal();
+    render();
+  };
+
+  window.quickAdd = function(code, article, product, brand) {
+    document.getElementById('newBrand').value = brand || 'Piccino';
+    document.getElementById('newArticle').value = article || '';
+    document.getElementById('newProduct').value = product || '';
+    document.getElementById('newCode').value = code || '';
+    document.getElementById('newCost').value = '';
+    document.getElementById('newGroup').value = '';
+    openModal();
+    setTimeout(() => document.getElementById('newCost').focus(), 100);
+  };
+
+  window.removeCost = function(idx) {
+    const costs = Storage.getCosts();
+    if (confirm(`"${costs[idx].article}" o'chirilsinmi?`)) {
+      Storage.removeCost(idx);
+      notify('O\'chirildi', 'warning');
+      render();
+    }
+  };
+
+  // Tabiiy tartiblash: "1yosh", "2yosh", "10yosh" to'g'ri tartiblanadi
+  function naturalCompare(a, b) {
+    const sa = String(a || '');
+    const sb = String(b || '');
+    return sa.localeCompare(sb, undefined, { numeric: true, sensitivity: 'base' });
+  }
+
+  window.exportCsv = function() {
+    const costs = Storage.getCosts();
+    const base = Storage.getBase();
+
+    // Code → sizes map
+    const codeSizes = {};
+    for (const r of base) {
+      const c = String(r.wb_article || '');
+      if (!c || c === '0') continue;
+      if (!codeSizes[c]) codeSizes[c] = new Set();
+      if (r.size) codeSizes[c].add(String(r.size).trim());
+    }
+
+    // Tartiblash: brand → article → size
+    const sortedCosts = [...costs].map(c => {
+      const sizes = codeSizes[String(c.code)] || new Set();
+      const sizesArr = Array.from(sizes).sort(naturalCompare);
+      return { ...c, _sizes: sizesArr.join(', '), _first: sizesArr[0] || '' };
+    }).sort((a, b) => {
+      const x = (a.brand || '').toLowerCase().localeCompare((b.brand || '').toLowerCase(), 'ru');
+      if (x !== 0) return x;
+      const y = (a.article || '').toLowerCase().localeCompare((b.article || '').toLowerCase(), 'ru');
+      if (y !== 0) return y;
+      return naturalCompare(a._first, b._first);
+    });
+
+    const headers = ['Brend', 'Artikul', 'Razmer', 'Tovar', 'Kod', 'Tannarx', 'Guruh'];
+    const rows = sortedCosts.map(c => [c.brand || '', c.article || '', c._sizes || '', c.product || '', c.code || '', c.cost || 0, c.group || '']);
+    const csv = [headers, ...rows].map(r => r.map(v => {
+      const s = String(v);
+      return s.includes(';') ? `"${s}"` : s;
+    }).join(';')).join('\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `aira-sebestomet-${new Date().toISOString().substring(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    notify('CSV eksport tayyor', 'success');
+  };
+
+  // ============ EXCEL EKSPORT/IMPORT ============
+
+  // Joriy profilning hamma tannarxlarini tozalash (2 ta tasdiq bilan)
+  window.clearAllCosts = function() {
+    const costs = Storage.getCosts();
+    if (costs.length === 0) {
+      notify('Tannarxlar jadvali allaqachon bo\'sh', 'info');
+      return;
+    }
+    const profileName = (Storage.getActiveProfile && Storage.getActiveProfile()) ? Storage.getActiveProfile().name : 'joriy profil';
+    if (!confirm(`"${profileName}" profilining HAMMA tannarx ma'lumotlari (${costs.length} ta tovar) o'chiriladi.\n\nDavom etasizmi?`)) return;
+    if (!confirm(`ROSTAKAMMI?\n\nBu amalni qaytarib bo'lmaydi! Bu profil uchun tannarx jadvali butunlay bo'shaydi.`)) return;
+    Storage.setCosts([]);
+    if (typeof Calculator !== 'undefined') Calculator.invalidate();
+    notify('✓ Hamma tannarxlar o\'chirildi', 'warning');
+    setTimeout(() => render(), 600);
+  };
+
+  window.toggleExcelMenu = function() {
+    const m = document.getElementById('excelMenu');
+    m.style.display = m.style.display === 'none' ? 'block' : 'none';
+  };
+
+  // Tashqi bosishni yopadi
+  document.addEventListener('click', e => {
+    const m = document.getElementById('excelMenu');
+    if (!m) return;
+    if (!e.target.closest('[onclick*="toggleExcelMenu"]') && !m.contains(e.target)) {
+      m.style.display = 'none';
+    }
+  });
+
+  // 1️⃣ TIZIMDAGI BARCHA TOVARLARNI EXCEL'GA EKSPORT
+  window.exportToExcel = function() {
+    const costs = Storage.getCosts();
+    const base = Storage.getBase();
+
+    // Базада ishlatilgan kodlar
+    const usedInBase = new Set(
+      base.map(r => String(r.wb_article || ''))
+          .filter(c => c && c !== '0' && c !== 'undefined')
+    );
+
+    // Code → {sizes: Set, example: row, brand, article, product} map
+    const codeInfo = {};
+    for (const r of base) {
+      const c = String(r.wb_article || '');
+      if (!c || c === '0' || c === 'undefined') continue;
+      if (!codeInfo[c]) {
+        codeInfo[c] = {
+          sizes: new Set(),
+          brand: r.brand || '',
+          article: r.article || '',
+          product: r.product_name || ''
+        };
+      }
+      if (r.size) codeInfo[c].sizes.add(String(r.size).trim());
+      // Bo'sh maydonlarni to'ldirib turish
+      if (!codeInfo[c].brand && r.brand) codeInfo[c].brand = r.brand;
+      if (!codeInfo[c].article && r.article) codeInfo[c].article = r.article;
+      if (!codeInfo[c].product && r.product_name) codeInfo[c].product = r.product_name;
+    }
+
+    // Tovarlar - jadvalda bor yoki Bazada ishlatilgan
+    const existingCodes = new Set(costs.map(c => String(c.code)));
+    const missingFromCosts = [...usedInBase].filter(c => !existingCodes.has(c));
+
+    // Yangi (Базаda bor, lekin Tannarx jadvalida yo'q) qatorlarni qo'shamiz
+    const allRows = [...costs];
+    for (const code of missingFromCosts) {
+      const info = codeInfo[code];
+      if (info) {
+        allRows.push({
+          brand: info.brand,
+          article: info.article,
+          product: info.product,
+          code: code,
+          cost: 0,
+          group: '',
+          _missing: true
+        });
+      }
+    }
+
+    // Har qator uchun razmer'larni to'ldiramiz (Базаdan)
+    for (const row of allRows) {
+      const info = codeInfo[String(row.code)];
+      if (info && info.sizes.size > 0) {
+        row._sizes_arr = Array.from(info.sizes).sort(naturalCompare);
+        row._size_label = row._sizes_arr.join(', ');
+        row._first_size = row._sizes_arr[0] || '';
+      } else {
+        row._sizes_arr = [];
+        row._size_label = '';
+        row._first_size = '';
+      }
+    }
+
+    // TARTIBLASH: Бренд → Артикул → Размер
+    allRows.sort((a, b) => {
+      const bA = (a.brand || '').toLowerCase();
+      const bB = (b.brand || '').toLowerCase();
+      if (bA !== bB) return bA.localeCompare(bB, 'ru');
+
+      const aA = (a.article || '').toLowerCase();
+      const aB = (b.article || '').toLowerCase();
+      if (aA !== aB) return aA.localeCompare(aB, 'ru');
+
+      return naturalCompare(a._first_size || '', b._first_size || '');
+    });
+
+    // SheetJS bilan Excel yaratish
+    const wb = XLSX.utils.book_new();
+
+    // Header qator (Размер qo'shildi)
+    const aoa = [
+      ['№', 'Бренд', 'Артикул поставщика', 'Размер', 'Товар', 'Код номенклатуры', 'Себестоимость', 'Группа']
+    ];
+
+    allRows.forEach((c, i) => {
+      aoa.push([
+        i + 1,
+        c.brand || '',
+        c.article || '',
+        c._size_label || '',
+        c.product || '',
+        c.code || '',
+        c.cost || 0,
+        c.group || ''
+      ]);
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+    // Ustun kengligi (Размер qo'shildi)
+    ws['!cols'] = [
+      { wch: 5 },   // №
+      { wch: 12 },  // Brend
+      { wch: 22 },  // Artikul
+      { wch: 16 },  // Razmer (yangi)
+      { wch: 50 },  // Tovar
+      { wch: 16 },  // Kod
+      { wch: 14 },  // Tannarx
+      { wch: 12 }   // Guruh
+    ];
+
+    // Header rangi
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    for (let c = range.s.c; c <= range.e.c; c++) {
+      const addr = XLSX.utils.encode_cell({ r: 0, c });
+      if (!ws[addr]) continue;
+      ws[addr].s = {
+        fill: { fgColor: { rgb: '185FA5' } },
+        font: { color: { rgb: 'FFFFFF' }, bold: true },
+        alignment: { horizontal: 'center', vertical: 'center' }
+      };
+    }
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Себестоимость');
+
+    // 2-varaq: Yo'riqnoma
+    const helpAoa = [
+      ['📋 YO\'RIQNOMA — Tannarx shabloni'],
+      [''],
+      ['1.', 'Birinchi varaqdagi (Себестоимость) "Себестоимость" ustuniga tovaringizning tannarxini kiriting (₽)'],
+      ['2.', 'Yangi tovar qo\'shish uchun pastdagi bo\'sh qatorga to\'ldiring'],
+      ['3.', '"Код номенклатуры" — WB Подробный отчёт\'dan keladi (avtomat moslashtirish uchun)'],
+      ['4.', 'Faylni saqlang va saytdagi "Загрузить из Excel" tugmasi orqali yuklang'],
+      ['5.', 'Hamma narsa avtomat ravishda saytga joylashadi va Dashboard yangilanadi'],
+      [''],
+      ['⚠️ MUHIM:'],
+      ['', 'Faqat "Себестоимость" varag\'idagi raqamlarni o\'zgartiring.'],
+      ['', 'Ustun nomlarini va tartibni o\'zgartirmang.'],
+      ['', '"Код номенклатуры" ustun majburiy (avtomat moslashtirish uchun).']
+    ];
+    const wsHelp = XLSX.utils.aoa_to_sheet(helpAoa);
+    wsHelp['!cols'] = [{ wch: 5 }, { wch: 80 }];
+    XLSX.utils.book_append_sheet(wb, wsHelp, 'Yo\'riqnoma');
+
+    XLSX.writeFile(wb, `aira-sebestomet-${new Date().toISOString().substring(0,10)}.xlsx`);
+    notify(`✓ ${allRows.length} ta tovar Excel'ga eksport qilindi`, 'success');
+  };
+
+  // 2️⃣ EXCEL DAN TANNARXLARNI IMPORT QILISH
+  window.importFromExcel = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: 'array' });
+
+      // Birinchi varaqni o'qiymiz
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+      if (rows.length < 2) {
+        notify('Excel bo\'sh yoki noto\'g\'ri format', 'error');
+        return;
+      }
+
+      // Header'ni topish
+      let headerIdx = -1;
+      for (let i = 0; i < Math.min(10, rows.length); i++) {
+        const text = (rows[i] || []).join(' ').toLowerCase();
+        if (text.includes('артикул') && (text.includes('код') || text.includes('себестоимость'))) {
+          headerIdx = i;
+          break;
+        }
+      }
+      if (headerIdx === -1) headerIdx = 0;
+
+      const headers = (rows[headerIdx] || []).map(h => String(h || '').toLowerCase().trim());
+
+      // Ustun indekslarini topish
+      const colIdx = {
+        brand: -1, article: -1, product: -1, code: -1, cost: -1, group: -1
+      };
+
+      headers.forEach((h, i) => {
+        if (h.includes('бренд')) colIdx.brand = i;
+        else if (h.includes('артикул')) colIdx.article = i;
+        else if (h.includes('товар') || h.includes('название')) colIdx.product = i;
+        else if (h.includes('код')) colIdx.code = i;
+        else if (h.includes('себестоимость') || h.includes('tannarx')) colIdx.cost = i;
+        else if (h.includes('группа') || h.includes('guruh')) colIdx.group = i;
+      });
+
+      if (colIdx.code === -1 && colIdx.article === -1) {
+        notify('Артикул yoki Код ustunlari topilmadi', 'error');
+        return;
+      }
+
+      // Yangi tannarxlarni yig'amiz
+      const newCosts = {};
+      for (let i = headerIdx + 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || row.length === 0) continue;
+
+        const code = colIdx.code >= 0 ? String(row[colIdx.code] || '').trim() : '';
+        const article = colIdx.article >= 0 ? String(row[colIdx.article] || '').trim() : '';
+        const cost = colIdx.cost >= 0 ? parseFloat(String(row[colIdx.cost] || '').replace(',', '.')) || 0 : 0;
+        const brand = colIdx.brand >= 0 ? String(row[colIdx.brand] || '').trim() : '';
+        const product = colIdx.product >= 0 ? String(row[colIdx.product] || '').trim() : '';
+        const group = colIdx.group >= 0 ? String(row[colIdx.group] || '').trim() : '';
+
+        if (!code && !article) continue;
+
+        const key = code || article;
+        newCosts[key] = { brand, article, product, code, cost, group };
+      }
+
+      // Hozirgi tannarxlarni yangilash yoki yangi qo'shish
+      const existing = Storage.getCosts();
+      let updated = 0;
+      let added = 0;
+
+      for (const [key, newC] of Object.entries(newCosts)) {
+        const idx = existing.findIndex(c => String(c.code) === key || String(c.article) === key);
+        if (idx >= 0) {
+          // Yangilash
+          existing[idx] = { ...existing[idx], ...newC };
+          updated++;
+        } else {
+          // Qo'shish
+          existing.push(newC);
+          added++;
+        }
+      }
+
+      Storage.setCosts(existing);
+
+      // Cache invalidatsiya
+      if (typeof Calculator !== 'undefined') Calculator.invalidate();
+
+      notify(`✓ Import tugadi: ${updated} ta yangilandi, ${added} ta qo'shildi`, 'success');
+      setTimeout(() => render(), 800);
+    } catch (err) {
+      console.error(err);
+      notify('Import xatosi: ' + err.message, 'error');
+    } finally {
+      event.target.value = '';
+    }
+  };
+
+  // 3️⃣ BO'SH SHABLON YUKLAB OLISH (faqat ustun nomlari + namuna qatori)
+  window.downloadTemplate = function() {
+    const wb = XLSX.utils.book_new();
+
+    const aoa = [
+      ['№', 'Бренд', 'Артикул поставщика', 'Размер', 'Товар', 'Код номенклатуры', 'Себестоимость', 'Группа'],
+      ['1', 'Piccino', 'dvoyka-persik', '1yosh', 'Костюм для новорожденных', '452443644', 235, ''],
+      ['2', 'Piccino', 'dvoyka-persik', '2yosh', 'Костюм для новорожденных', '452443645', 235, ''],
+      ['3', 'Piccino', 'dvoyka-hovoren', '1yosh', 'Костюм для новорожденных', '453387617', 235, '']
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    ws['!cols'] = [
+      { wch: 5 }, { wch: 12 }, { wch: 22 }, { wch: 16 }, { wch: 50 },
+      { wch: 16 }, { wch: 14 }, { wch: 12 }
+    ];
+    XLSX.utils.book_append_sheet(wb, ws, 'Себестоимость');
+
+    XLSX.writeFile(wb, 'aira-sebestomet-shablon.xlsx');
+    notify('Shablon yuklab olindi', 'success');
+  };
+
+  // Modal yopish overlay bosilganda
+  document.getElementById('costModal').addEventListener('click', e => {
+    if (e.target.classList.contains('modal-overlay')) closeModal();
+  });
+
+  render();
+  };
+</script>
+
+</body>
+</html>

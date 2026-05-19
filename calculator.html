@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIRA — Калькулятор прибыли</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* ============================================
+     CALCULATOR — PREMIUM GOLD DESIGN
+     ============================================ */
+
+  /* HERO */
+  .calc-hero {
+    background:
+      radial-gradient(ellipse 700px 360px at 88% -10%, rgba(250, 199, 117, 0.35) 0%, transparent 55%),
+      radial-gradient(ellipse 500px 280px at 10% 110%, rgba(186, 117, 23, 0.32) 0%, transparent 55%),
+      linear-gradient(135deg, #2a1a05 0%, #4A2E0B 30%, #854F0B 75%, #BA7517 100%);
+    color: white;
+    border-radius: 20px;
+    padding: 32px 36px 28px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 22px 60px -20px rgba(74, 46, 11, 0.5);
+  }
+  .calc-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Ccircle cx='2' cy='2' r='0.4' fill='%23ffd7a0' opacity='0.08'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  .calc-hero::after {
+    content: '';
+    position: absolute;
+    top: -60%;
+    right: -10%;
+    width: 480px;
+    height: 480px;
+    background: radial-gradient(circle, rgba(250, 199, 117, 0.18) 0%, transparent 60%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .calc-hero-content { position: relative; z-index: 1; }
+  .calc-hero-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(250, 220, 170, 0.7);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .calc-hero-eyebrow::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: rgba(250, 220, 170, 0.5);
+  }
+  .calc-hero-title {
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+    background: linear-gradient(180deg, #ffffff 0%, #fad9a0 130%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .calc-hero-subtitle {
+    color: rgba(250, 220, 170, 0.75);
+    font-size: 14px;
+    max-width: 560px;
+    line-height: 1.55;
+  }
+  .calc-defaults-bar {
+    margin-top: 22px;
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+  .calc-defaults-label {
+    font-size: 10px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(250, 220, 170, 0.7);
+    font-weight: 700;
+  }
+  .calc-default-chip {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .calc-default-chip strong {
+    color: white;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .calc-default-chip .label-tiny {
+    font-size: 9px;
+    color: rgba(250, 220, 170, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-right: 1px;
+  }
+
+  /* MAIN LAYOUT — form left, results right */
+  .calc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.05fr;
+    gap: 18px;
+    margin-bottom: 18px;
+  }
+
+  .calc-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--border-light);
+    overflow: hidden;
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+  .calc-card:nth-child(1) { animation-delay: 0.05s; }
+  .calc-card:nth-child(2) { animation-delay: 0.12s; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .calc-card-head {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(180deg, #fafbfc 0%, #ffffff 100%);
+    position: relative;
+  }
+  .calc-card-head::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold, #BA7517), transparent);
+    opacity: 0.7;
+  }
+  .calc-card-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #BA7517, #854F0B);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 6px 18px -6px #BA7517;
+  }
+  .calc-card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: -0.2px;
+  }
+  .calc-card-subtitle {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+  }
+  .calc-card-body { padding: 20px 22px; }
+
+  /* FORM */
+  .calc-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .calc-field { display: flex; flex-direction: column; gap: 5px; }
+  .calc-field.full { grid-column: 1 / -1; }
+
+  .calc-field-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .calc-field-label .hint {
+    color: var(--text-tertiary);
+    font-weight: 500;
+    text-transform: none;
+    font-size: 10px;
+    letter-spacing: 0;
+  }
+
+  .calc-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .calc-input {
+    width: 100%;
+    padding: 11px 38px 11px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 600;
+    background: white;
+    font-variant-numeric: tabular-nums;
+    transition: all 0.15s;
+    outline: none;
+  }
+  .calc-input:focus {
+    border-color: #BA7517;
+    box-shadow: 0 0 0 3px rgba(186, 117, 23, 0.12);
+  }
+  .calc-input:hover:not(:focus) { border-color: var(--border); }
+  .calc-input.bigprice { font-size: 17px; }
+  .calc-input-suffix {
+    position: absolute;
+    right: 12px;
+    color: var(--text-tertiary);
+    font-size: 11px;
+    font-weight: 600;
+    pointer-events: none;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  /* QUICK ADJUST */
+  .calc-quickadjust {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .calc-qa-btn {
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.12s;
+    font-variant-numeric: tabular-nums;
+  }
+  .calc-qa-btn:hover {
+    border-color: #BA7517;
+    color: #BA7517;
+    background: #FAEEDA;
+  }
+  .calc-qa-btn.dec { color: var(--red); }
+  .calc-qa-btn.dec:hover { border-color: var(--red); color: var(--red-dark); background: #FBE5E5; }
+
+  /* ACTIONS */
+  .calc-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px dashed var(--border-light);
+  }
+  .calc-action {
+    flex: 1;
+    font-size: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: white;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+  .calc-action:hover { border-color: #BA7517; color: #BA7517; background: #FAEEDA; }
+  .calc-action.primary {
+    background: linear-gradient(135deg, #BA7517, #854F0B);
+    color: white;
+    border-color: #854F0B;
+    box-shadow: 0 4px 14px -4px #BA7517;
+  }
+  .calc-action.primary:hover { background: linear-gradient(135deg, #d18a25, #9c5d10); }
+
+  /* RESULTS — Right panel */
+  .result-headline {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 8px 0 20px;
+    border-bottom: 2px solid var(--border-light);
+    margin-bottom: 16px;
+  }
+  .result-headline-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+  }
+  .result-headline-value {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    font-variant-numeric: tabular-nums;
+    transition: color 0.2s;
+  }
+  .result-headline-value.positive { color: var(--green-dark); }
+  .result-headline-value.negative { color: var(--red-dark); }
+
+  .result-summary-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .result-summary-cell {
+    padding: 12px 14px;
+    background: var(--gray-50);
+    border-radius: 10px;
+    text-align: center;
+  }
+  .result-summary-cell .lbl {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .result-summary-cell .val {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .result-summary-cell.positive .val { color: var(--green-dark); }
+  .result-summary-cell.negative .val { color: var(--red-dark); }
+
+  /* WATERFALL */
+  .result-waterfall {
+    margin-bottom: 14px;
+  }
+  .wf-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 0;
+    font-size: 12px;
+    border-bottom: 1px dashed var(--border-light);
+  }
+  .wf-row:last-child { border-bottom: none; }
+  .wf-label {
+    flex: 1;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .wf-label .wf-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    background: var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  .wf-value {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .wf-pct {
+    color: var(--text-tertiary);
+    font-size: 10px;
+    min-width: 44px;
+    text-align: right;
+  }
+  .wf-row.subtract .wf-value { color: var(--red-dark); }
+  .wf-row.subtract .wf-icon { background: #FBE5E5; }
+  .wf-row.total {
+    border-top: 2px solid var(--border-light);
+    padding-top: 12px;
+    margin-top: 6px;
+  }
+  .wf-row.total .wf-label { font-weight: 700; color: var(--navy); }
+  .wf-row.total .wf-value { font-weight: 700; font-size: 14px; }
+  .wf-row.headline {
+    background: linear-gradient(90deg, #FAEEDA 0%, transparent 100%);
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin: 8px -12px;
+    border: none !important;
+  }
+  .wf-row.headline .wf-label { font-weight: 700; color: #854F0B; }
+  .wf-row.headline .wf-value { font-weight: 800; color: #854F0B; font-size: 14px; }
+
+  /* WARNING / NOTICES */
+  .calc-notice {
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    line-height: 1.5;
+  }
+  .calc-notice.warning { background: var(--amber-light); color: var(--amber-dark); }
+  .calc-notice.danger { background: var(--red-light); color: var(--red-dark); }
+  .calc-notice.success { background: var(--green-light); color: var(--green-dark); }
+  .calc-notice.info { background: var(--blue-bg); color: var(--navy); }
+
+  .calc-notice .notice-icon { font-size: 16px; flex-shrink: 0; }
+
+  /* BREAK-EVEN */
+  .breakeven-card {
+    margin-top: 14px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    border: 1px solid #86efac;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .breakeven-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--green);
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .breakeven-content { flex: 1; }
+  .breakeven-label {
+    font-size: 10px;
+    color: var(--green-dark);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+  .breakeven-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--green-dark);
+    font-variant-numeric: tabular-nums;
+  }
+  .breakeven-hint {
+    font-size: 11px;
+    color: var(--green-dark);
+    opacity: 0.85;
+    margin-top: 2px;
+  }
+
+  /* DONUT CHART */
+  .donut-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--border-light);
+    padding: 20px 22px;
+    margin-bottom: 18px;
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s backwards;
+  }
+  .donut-card-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .donut-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .donut-card-subtitle {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 1px;
+  }
+  .donut-content {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+    align-items: center;
+  }
+  .donut-wrap { position: relative; height: 240px; }
+  .donut-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+  }
+  .donut-center-label {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 600;
+  }
+  .donut-center-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: #854F0B;
+    margin-top: 2px;
+  }
+  .donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .donut-legend .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--border-light);
+  }
+  .donut-legend .legend-row:last-child { border-bottom: none; }
+  .donut-legend .legend-dot {
+    width: 12px; height: 12px;
+    border-radius: 3px; flex-shrink: 0;
+  }
+  .donut-legend .legend-label {
+    flex: 1;
+    color: var(--text-secondary);
+  }
+  .donut-legend .legend-value {
+    font-weight: 700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .donut-legend .legend-pct {
+    color: var(--text-tertiary);
+    font-size: 10px;
+    min-width: 40px;
+    text-align: right;
+  }
+
+  /* COMPARISON */
+  .compare-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--border-light);
+    padding: 22px 24px;
+    margin-bottom: 18px;
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.25s backwards;
+  }
+  .compare-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .compare-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .compare-cell {
+    background: linear-gradient(180deg, #fafbfc 0%, white 100%);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 14px 16px;
+    position: relative;
+  }
+  .compare-cell.best {
+    background: linear-gradient(180deg, #f0fdf4 0%, white 100%);
+    border-color: #86efac;
+    box-shadow: 0 4px 14px -4px rgba(15, 110, 86, 0.2);
+  }
+  .compare-cell.worst {
+    background: linear-gradient(180deg, #fef2f2 0%, white 100%);
+    border-color: #fca5a5;
+  }
+  .compare-cell .badge {
+    position: absolute;
+    top: -8px;
+    left: 12px;
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .compare-cell.best .badge { background: var(--green); color: white; }
+  .compare-cell.worst .badge { background: var(--red); color: white; }
+
+  .compare-cell-price {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+  .compare-cell-input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+    margin-bottom: 12px;
+    font-variant-numeric: tabular-nums;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .compare-cell-input:focus { border-color: #BA7517; }
+
+  .compare-stat { display: flex; justify-content: space-between; padding: 5px 0; font-size: 12px; border-bottom: 1px dashed var(--border-light); }
+  .compare-stat:last-child { border-bottom: none; }
+  .compare-stat .lbl { color: var(--text-tertiary); font-size: 11px; }
+  .compare-stat .val { font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+  .compare-stat.profit .val { color: var(--green-dark); font-weight: 700; font-size: 14px; }
+  .compare-stat.profit.loss .val { color: var(--red-dark); }
+
+  /* SAVED SCENARIOS */
+  .saved-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--border-light);
+    padding: 22px 24px;
+    margin-bottom: 18px;
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s backwards;
+  }
+  .saved-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .saved-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: var(--gray-50);
+    transition: background 0.15s;
+  }
+  .saved-row:hover { background: var(--blue-bg); }
+  .saved-name {
+    font-weight: 600;
+    color: var(--navy);
+    font-size: 13px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .saved-price {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    background: white;
+    padding: 3px 9px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  .saved-profit {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    min-width: 100px;
+    text-align: right;
+  }
+  .saved-profit.positive { color: var(--green-dark); }
+  .saved-profit.negative { color: var(--red-dark); }
+  .saved-action {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 4px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+  .saved-action:hover { background: white; color: var(--navy); border-color: var(--blue); }
+  .saved-action.delete:hover { color: var(--red-dark); border-color: var(--red); }
+  .saved-empty {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-tertiary);
+    font-size: 12px;
+  }
+
+  /* SAVE DIALOG */
+  .save-form {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--gray-50);
+    border-radius: 10px;
+  }
+  .save-form input {
+    flex: 1;
+    padding: 9px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    outline: none;
+  }
+  .save-form input:focus { border-color: #BA7517; }
+  .save-form button {
+    padding: 9px 16px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, #BA7517, #854F0B);
+    color: white;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .save-form button:hover { background: linear-gradient(135deg, #d18a25, #9c5d10); }
+
+  /* EMPTY STATE */
+  .empty-state {
+    background: white;
+    border-radius: 16px;
+    padding: 70px 40px;
+    text-align: center;
+    border: 1px solid var(--border-light);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 1100px) {
+    .calc-grid { grid-template-columns: 1fr; }
+    .donut-content { grid-template-columns: 1fr; }
+    .donut-wrap { height: 260px; margin: 0 auto; max-width: 320px; }
+  }
+  @media (max-width: 700px) {
+    .calc-hero { padding: 24px 22px; border-radius: 16px; }
+    .calc-hero-title { font-size: 28px; }
+    .calc-fields { grid-template-columns: 1fr; }
+    .compare-grid { grid-template-columns: 1fr; }
+    .result-summary-row { grid-template-columns: 1fr 1fr; }
+    .result-headline-value { font-size: 28px; }
+    .saved-row { flex-wrap: wrap; gap: 8px; }
+    .saved-name { flex: 1 0 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <main class="page">
+      <div id="content"></div>
+    </main>
+  </div>
+</div>
+
+<script src="js/lib/chart.umd.min.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/app-init.js"></script>
+<script src="js/baza-formulas.js"></script>
+<script src="js/calculator.js"></script>
+<script src="js/main.js"></script>
+
+<script>
+window.initPage = function() {
+  setupLayout('calculator');
+
+  const base = Storage.getBase();
+  const settings = Storage.getSettings();
+  const cur = settings.currency || '₽';
+  const content = document.getElementById('content');
+
+  // ============ Defaults from history ============
+  // Agar baza bo'sh bo'lsa — sof default qiymatlar
+  let defaults = {
+    cost: 400,
+    price: 1200,
+    commission_pct: 30.8,
+    spp_pct: 12.5,
+    acquiring_pct: 3.6,
+    logistics_per_unit: 190,
+    storage_per_unit: 30,
+    advertising_pct: 1.3,
+    tax_pct: settings.tax_rate || 2,
+    buyout_pct: 99
+  };
+  let useHistoricalDefaults = false;
+
+  // Agar baza bor — tarixiy o'rtachani hisoblash uchun KPI tayyorlash
+  let prepReady = false;
+
+  async function prepareDefaults() {
+    if (prepReady) return;
+    if (base.length === 0) { prepReady = true; return; }
+
+    const ctx = {
+      costs: Storage.getCosts(),
+      settings,
+      samovikupy: Storage.getSelfPurchases(),
+      extExpenses: Storage.getExtExpenses(),
+      listReports: Storage.getListReports()
+    };
+    const calculated = await Calculator.getCalculated();
+    const kpi = BazaFormulas.calculateKPI(calculated, ctx);
+
+    if (kpi.revenue > 0) {
+      // Tarixiy o'rtachalar — siz o'zgartirishingiz mumkin
+      defaults.commission_pct = +(kpi.commission_pct || 30.8).toFixed(1);
+      defaults.spp_pct = +(kpi.spp_pct || 12.5).toFixed(1);
+      defaults.acquiring_pct = +((kpi.acquiring / kpi.revenue * 100) || 3.6).toFixed(2);
+      defaults.advertising_pct = +((kpi.promotion / kpi.revenue * 100) || 1.3).toFixed(2);
+      if (kpi.net_qty > 0) {
+        defaults.logistics_per_unit = Math.round((kpi.logistics_total / kpi.net_qty) || 190);
+        defaults.storage_per_unit = Math.round((kpi.storage / kpi.net_qty) || 30);
+      }
+      // O'rtacha sotuv narxi
+      if (kpi.sales_qty > 0) {
+        defaults.price = Math.round(kpi.revenue / kpi.sales_qty);
+      }
+      // Vykup% = sales / (sales + returns)
+      if (kpi.sales_qty + kpi.returns_qty > 0) {
+        defaults.buyout_pct = +((kpi.sales_qty / (kpi.sales_qty + kpi.returns_qty)) * 100).toFixed(1);
+      }
+      useHistoricalDefaults = true;
+    }
+    prepReady = true;
+  }
+
+  // ============ Joriy ssenariy holati ============
+  const state = { ...defaults };
+  // 3 ta solishtirish ssenariy uchun
+  const scenarios = [
+    { price: 0 },
+    { price: 0 },
+    { price: 0 }
+  ];
+
+  // ============ Saqlangan ssenariylar (localStorage, profil bo'yicha) ============
+  const profileId = (Storage.getActiveProfile && Storage.getActiveProfile()) ? Storage.getActiveProfile().id : 'default';
+  const SAVED_KEY = 'aira_calc_scenarios_' + profileId;
+  function loadSaved() {
+    try { return JSON.parse(localStorage.getItem(SAVED_KEY) || '[]'); }
+    catch (e) { return []; }
+  }
+  function persistSaved(arr) {
+    try { localStorage.setItem(SAVED_KEY, JSON.stringify(arr)); } catch (e) {}
+  }
+  let savedList = loadSaved();
+
+  // ============ Asosiy hisoblash funksiyasi ============
+  // Loyiha formulalariga mos: I (revenue), Z (wb_realized), K (commission), L (acquiring), Y, AC, AB
+  function calculate(s) {
+    const price = +s.price || 0;          // I (revenue per unit, customer pays)
+    const cost = +s.cost || 0;             // AC per unit
+    const comm_pct = +s.commission_pct || 0;
+    const spp_pct = +s.spp_pct || 0;
+    const acq_pct = +s.acquiring_pct || 0;
+    const log_unit = +s.logistics_per_unit || 0;
+    const stor_unit = +s.storage_per_unit || 0;
+    const adv_pct = +s.advertising_pct || 0;
+    const tax_pct = +s.tax_pct || 0;
+    const buyout_pct = +s.buyout_pct || 100;
+
+    const revenue = price;                                    // I
+    const wb_realized = revenue * (1 - spp_pct / 100);        // Z = I × (1 - SPP%)
+    const spp_amount = revenue - wb_realized;                  // N
+    const commission = revenue * comm_pct / 100;               // K (% of revenue)
+    const acquiring = revenue * acq_pct / 100;                 // L
+    const advertising = revenue * adv_pct / 100;               // AE
+    const logistics = log_unit;                                // S+T per unit
+    const storage = stor_unit;                                 // AD per unit
+
+    // To pay to seller (sizga keladigan):
+    const to_seller = revenue - commission - acquiring - advertising - logistics - storage;  // Y
+
+    // Tax base — settings.tax_type ga qarab (default УСН-доходы = WB realized)
+    const tax_type = settings.tax_type || 1;
+    let tax_base;
+    switch (tax_type) {
+      case 1: tax_base = wb_realized; break;       // УСН-доходы
+      case 2: tax_base = to_seller - cost; break;  // УСН Д-Р
+      case 3: tax_base = 0; break;                  // Не считать
+      case 4: tax_base = to_seller; break;          // Считать от РС
+      default: tax_base = wb_realized;
+    }
+    const tax = Math.max(0, tax_base * tax_pct / 100);
+
+    const net_profit = to_seller - cost - tax;
+    const margin_pct = revenue > 0 ? (net_profit / revenue * 100) : 0;
+    const roi_pct = cost > 0 ? (net_profit / cost * 100) : 0;
+
+    // Per BUYURTMA (vykup % hisobga olingan)
+    // Har buyurtma uchun: buyout% sotiladi (yuqori), (1-buyout%) qaytariladi (faqat logistika)
+    const return_loss = log_unit * (1 - buyout_pct / 100);  // qaytarish logistikasi
+    const profit_per_order = (net_profit * buyout_pct / 100) - return_loss;
+
+    return {
+      revenue, wb_realized, spp_amount,
+      commission, acquiring, advertising, logistics, storage,
+      to_seller, cost, tax, tax_base,
+      net_profit, margin_pct, roi_pct,
+      profit_per_order, return_loss
+    };
+  }
+
+  // Break-even narxi (foyda = 0 bo'lgan minimal narx)
+  // 0 = price × (1 - comm%/100 - acq%/100 - adv%/100) - log - stor - cost - tax
+  // tax_type=1: tax = price × (1-spp%/100) × tax%/100
+  function calcBreakeven(s) {
+    const cost = +s.cost || 0;
+    const comm = (+s.commission_pct || 0) / 100;
+    const acq = (+s.acquiring_pct || 0) / 100;
+    const adv = (+s.advertising_pct || 0) / 100;
+    const spp = (+s.spp_pct || 0) / 100;
+    const tax = (+s.tax_pct || 0) / 100;
+    const log = +s.logistics_per_unit || 0;
+    const stor = +s.storage_per_unit || 0;
+    const tax_type = settings.tax_type || 1;
+
+    // price × K = cost + log + stor
+    let K;
+    if (tax_type === 1) {
+      K = 1 - comm - acq - adv - (1 - spp) * tax;
+    } else if (tax_type === 2) {
+      K = (1 - comm - acq - adv) * (1 - tax);
+    } else if (tax_type === 4) {
+      K = (1 - comm - acq - adv) * (1 - tax);
+    } else {
+      K = 1 - comm - acq - adv;
+    }
+
+    if (K <= 0) return null;  // foyda olishning iloji yo'q
+    return (cost + log + stor) / K;
+  }
+
+  // ============ RENDER ============
+  async function render() {
+    await prepareDefaults();
+    // State'ni default bilan to'ldirish (faqat birinchi render uchun)
+    if (state.price === 0 || isNaN(state.price)) {
+      Object.assign(state, defaults);
+    }
+    if (scenarios[0].price === 0) {
+      scenarios[0].price = +state.price;
+      scenarios[1].price = +state.price + 200;
+      scenarios[2].price = +state.price + 500;
+    }
+
+    const r = calculate(state);
+    const breakeven = calcBreakeven(state);
+
+    content.innerHTML = `
+      <!-- HERO -->
+      <section class="calc-hero">
+        <div class="calc-hero-content">
+          <div class="calc-hero-eyebrow">Forecast · Pre-launch tool</div>
+          <h1 class="calc-hero-title">Калькулятор</h1>
+          <p class="calc-hero-subtitle">Sotuvga chiqarishdan oldin: tan narx + sotish narxini yozing — saytdagi formulalardan foydalanib aniq toza foydani hisoblab beradi.</p>
+
+          ${useHistoricalDefaults ? `
+          <div class="calc-defaults-bar">
+            <div class="calc-defaults-label">💡 Default — sizning tarixingiz:</div>
+            <div class="calc-default-chip"><span class="label-tiny">komissiya</span><strong>${defaults.commission_pct}%</strong></div>
+            <div class="calc-default-chip"><span class="label-tiny">spp</span><strong>${defaults.spp_pct}%</strong></div>
+            <div class="calc-default-chip"><span class="label-tiny">эквайринг</span><strong>${defaults.acquiring_pct}%</strong></div>
+            <div class="calc-default-chip"><span class="label-tiny">logistika</span><strong>${defaults.logistics_per_unit}₽</strong></div>
+            <div class="calc-default-chip"><span class="label-tiny">vykup</span><strong>${defaults.buyout_pct}%</strong></div>
+          </div>
+          ` : `
+          <div class="calc-defaults-bar">
+            <div class="calc-defaults-label">⚠️ Tarixiy ma'lumot yo'q — umumiy default'lar ishlatildi</div>
+          </div>
+          `}
+        </div>
+      </section>
+
+      <!-- ASOSIY: FORM va NATIJA -->
+      <div class="calc-grid">
+
+        <!-- LEFT: FORM -->
+        <div class="calc-card">
+          <div class="calc-card-head" style="--gold: #BA7517;">
+            <div class="calc-card-icon">📝</div>
+            <div>
+              <div class="calc-card-title">Kirish maydonlari</div>
+              <div class="calc-card-subtitle">Tan narxni va sotish narxini yozing — qolganini default qabul qiling yoki o'zgartiring</div>
+            </div>
+          </div>
+          <div class="calc-card-body">
+            <div class="calc-fields">
+
+              <!-- TAN NARX (asosiy) -->
+              <div class="calc-field full">
+                <div class="calc-field-label">💰 Tan narx (sebestoimost)</div>
+                <div class="calc-input-wrap">
+                  <input class="calc-input bigprice" type="number" min="0" step="1" id="i_cost" value="${state.cost}">
+                  <span class="calc-input-suffix">${cur}/dona</span>
+                </div>
+                <div class="calc-quickadjust">
+                  <button class="calc-qa-btn dec" data-target="i_cost" data-delta="-50">−50</button>
+                  <button class="calc-qa-btn dec" data-target="i_cost" data-delta="-10">−10</button>
+                  <button class="calc-qa-btn" data-target="i_cost" data-delta="10">+10</button>
+                  <button class="calc-qa-btn" data-target="i_cost" data-delta="50">+50</button>
+                  <button class="calc-qa-btn" data-target="i_cost" data-delta="100">+100</button>
+                </div>
+              </div>
+
+              <!-- SOTISH NARXI (asosiy) -->
+              <div class="calc-field full">
+                <div class="calc-field-label">🏷️ Sotish narxi (listing)</div>
+                <div class="calc-input-wrap">
+                  <input class="calc-input bigprice" type="number" min="0" step="1" id="i_price" value="${state.price}">
+                  <span class="calc-input-suffix">${cur}/dona</span>
+                </div>
+                <div class="calc-quickadjust">
+                  <button class="calc-qa-btn dec" data-target="i_price" data-delta="-100">−100</button>
+                  <button class="calc-qa-btn dec" data-target="i_price" data-delta="-50">−50</button>
+                  <button class="calc-qa-btn" data-target="i_price" data-delta="50">+50</button>
+                  <button class="calc-qa-btn" data-target="i_price" data-delta="100">+100</button>
+                  <button class="calc-qa-btn" data-target="i_price" data-delta="500">+500</button>
+                </div>
+              </div>
+
+              <!-- KOMISSIYA -->
+              <div class="calc-field">
+                <div class="calc-field-label">📊 Komissiya <span class="hint">WB %</span></div>
+                <div class="calc-input-wrap">
+                  <input class="calc-input" type="number" min="0" max="100" step="0.1" id="i_commission_pct" value="${state.commission_pct}">
+                  <span class="calc-input-suffix">%</span>
+                </div>
+              </div>
+
+              <!-- СПП -->
+              <div class="calc-field">
+                <div class="calc-field-label">🎁 СПП <span class="hint">loyallik %</span></div>
+                <div class="calc-input-wrap">
+                  <input class="calc-input" type="number" min="0" max="100" step="0.1" id="i_spp_pct" value="${state.spp_pct}">
+                  <span class="calc-input-suffix">%</span>
+                </div>
+              </div>
+
+              <!-- ACQUIRING -->
+              <div class="calc-field">
+                <div class="calc-field-label">💳 Эквайринг</div>
+                <div class="calc-input-wrap">
+                  <input class="calc-input" type="number" min="0" max="100" step="0.1" id="i_acquiring_pct" value="${state.acquiring_pct}">
+                  <span class="calc-input-suffix">%</span>
+                </div>
+              </div>
+
+              <!-- LOGISTICS -->
+              <div class="calc-field">
+                <div class="calc-field-label">🚚 Logistika <span class="hint">${cur}/dona</span></div>
+                <div class="calc-input-wrap">
+                  <input class="calc-input" type="number" min="0" step="1" id="i_logistics_per_unit" value="${state.logistics_per_unit}">
+                  <span class="calc-input-suffix">${cur}</span>
+                </div>
+              </div>
+
+              <!-- STORAGE -->
+              <div class="calc-field">
+                <div class="calc-field-label">📦 Saqlash <span class="hint">${cur}/dona</span></div>
+                <div class="calc-input-wrap">
+                  <input class="calc-input" type="number" min="0" step="1" id="i_storage_per_unit" value="${state.storage_per_unit}">
+                  <span class="calc-input-suffix">${cur}</span>
+                </div>
+              </div>
+
+              <!-- ADVERTISING -->
+              <div class="calc-field">
+                <div class="calc-field-label">📣 Reklama</div>
+                <div class="calc-input-wrap">
+                  <input class="calc-input" type="number" min="0" max="100" step="0.1" id="i_advertising_pct" value="${state.advertising_pct}">
+                  <span class="calc-input-suffix">%</span>
+                </div>
+              </div>
+
+              <!-- TAX -->
+              <div class="calc-field">
+                <div class="calc-field-label">🧾 Soliq</div>
+                <div class="calc-input-wrap">
+                  <input class="calc-input" type="number" min="0" max="100" step="0.1" id="i_tax_pct" value="${state.tax_pct}">
+                  <span class="calc-input-suffix">%</span>
+                </div>
+              </div>
+
+              <!-- VYKUP -->
+              <div class="calc-field">
+                <div class="calc-field-label">✅ Vykup <span class="hint">sotilish %</span></div>
+                <div class="calc-input-wrap">
+                  <input class="calc-input" type="number" min="0" max="100" step="0.1" id="i_buyout_pct" value="${state.buyout_pct}">
+                  <span class="calc-input-suffix">%</span>
+                </div>
+              </div>
+
+              <div class="calc-field">
+                <div class="calc-field-label">&nbsp;</div>
+                <div style="font-size: 10px; color: var(--text-tertiary); padding: 11px 0; line-height: 1.4;">Tax tipi: <strong style="color: var(--navy);">${settings.tax_type === 1 ? 'УСН-доходы' : settings.tax_type === 2 ? 'УСН Д-Р' : settings.tax_type === 4 ? 'РС бо\'йича' : 'Не считать'}</strong></div>
+              </div>
+
+            </div>
+
+            <div class="calc-actions">
+              <button class="calc-action" id="btn_reset">↻ Default'ga qaytar</button>
+              <button class="calc-action primary" id="btn_save">💾 Saqlash</button>
+            </div>
+
+            <div id="saveForm" style="display: none;">
+              <div class="save-form">
+                <input type="text" id="saveName" placeholder="Ssenariy nomi (masalan: dvoyka-persik 1500₽)" maxlength="60">
+                <button id="saveConfirm">✓ Saqla</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: NATIJA -->
+        <div class="calc-card">
+          <div class="calc-card-head" style="--gold: #0F6E56;">
+            <div class="calc-card-icon" style="background: linear-gradient(135deg, ${r.net_profit >= 0 ? '#0F6E56, #0A4A3A' : '#A32D2D, #6E1F1F'}); box-shadow: 0 6px 18px -6px ${r.net_profit >= 0 ? '#0F6E56' : '#A32D2D'};">${r.net_profit >= 0 ? '✓' : '⚠'}</div>
+            <div>
+              <div class="calc-card-title">Natija — har dona uchun</div>
+              <div class="calc-card-subtitle">Jonli yangilanadi · saytning aniq formulalaridan foydalanadi</div>
+            </div>
+          </div>
+          <div class="calc-card-body">
+
+            <div class="result-headline">
+              <div class="result-headline-label">🎯 Toza foyda</div>
+              <div class="result-headline-value ${r.net_profit >= 0 ? 'positive' : 'negative'}">${fmtMoney(r.net_profit, cur)}</div>
+            </div>
+
+            <div class="result-summary-row">
+              <div class="result-summary-cell ${r.margin_pct >= 0 ? 'positive' : 'negative'}">
+                <div class="lbl">Marja</div>
+                <div class="val">${fmtPercent(r.margin_pct)}</div>
+              </div>
+              <div class="result-summary-cell ${r.roi_pct >= 0 ? 'positive' : 'negative'}">
+                <div class="lbl">ROI</div>
+                <div class="val">${fmtPercent(r.roi_pct)}</div>
+              </div>
+              <div class="result-summary-cell">
+                <div class="lbl">Per order</div>
+                <div class="val" style="color: ${r.profit_per_order >= 0 ? 'var(--green-dark)' : 'var(--red-dark)'};">${fmtMoney(r.profit_per_order, cur)}</div>
+              </div>
+            </div>
+
+            <!-- WATERFALL -->
+            <div class="result-waterfall">
+              <div class="wf-row headline">
+                <div class="wf-label">🛒 Xaridor to'laydi</div>
+                <div class="wf-value">${fmtMoney(r.revenue, cur)}</div>
+              </div>
+
+              <div class="wf-row subtract">
+                <div class="wf-label"><span class="wf-icon">🎁</span>СПП chegirma (WB hisobiga)</div>
+                <div class="wf-value">−${fmtMoney(r.spp_amount, cur)}</div>
+                <div class="wf-pct">${fmtPercent(state.spp_pct)}</div>
+              </div>
+              <div class="wf-row" style="background: var(--blue-bg); padding: 8px 12px; margin: 4px -12px; border-radius: 8px; border: none;">
+                <div class="wf-label" style="color: var(--navy); font-weight: 600;">📊 WB realized (komissiya baz.)</div>
+                <div class="wf-value" style="color: var(--navy);">${fmtMoney(r.wb_realized, cur)}</div>
+              </div>
+
+              <div class="wf-row subtract">
+                <div class="wf-label"><span class="wf-icon">📊</span>Komissiya</div>
+                <div class="wf-value">−${fmtMoney(r.commission, cur)}</div>
+                <div class="wf-pct">${fmtPercent(state.commission_pct)}</div>
+              </div>
+              <div class="wf-row subtract">
+                <div class="wf-label"><span class="wf-icon">💳</span>Эквайринг</div>
+                <div class="wf-value">−${fmtMoney(r.acquiring, cur)}</div>
+                <div class="wf-pct">${fmtPercent(state.acquiring_pct)}</div>
+              </div>
+              <div class="wf-row subtract">
+                <div class="wf-label"><span class="wf-icon">🚚</span>Logistika</div>
+                <div class="wf-value">−${fmtMoney(r.logistics, cur)}</div>
+                <div class="wf-pct">${r.revenue > 0 ? (r.logistics / r.revenue * 100).toFixed(1) : 0}%</div>
+              </div>
+              <div class="wf-row subtract">
+                <div class="wf-label"><span class="wf-icon">📦</span>Saqlash</div>
+                <div class="wf-value">−${fmtMoney(r.storage, cur)}</div>
+                <div class="wf-pct">${r.revenue > 0 ? (r.storage / r.revenue * 100).toFixed(1) : 0}%</div>
+              </div>
+              <div class="wf-row subtract">
+                <div class="wf-label"><span class="wf-icon">📣</span>Reklama</div>
+                <div class="wf-value">−${fmtMoney(r.advertising, cur)}</div>
+                <div class="wf-pct">${fmtPercent(state.advertising_pct)}</div>
+              </div>
+
+              <div class="wf-row total">
+                <div class="wf-label">💼 Sizning hisobingizga</div>
+                <div class="wf-value" style="color: var(--navy);">${fmtMoney(r.to_seller, cur)}</div>
+              </div>
+
+              <div class="wf-row subtract" style="margin-top: 4px;">
+                <div class="wf-label"><span class="wf-icon">💰</span>Tan narx</div>
+                <div class="wf-value">−${fmtMoney(r.cost, cur)}</div>
+                <div class="wf-pct">${r.revenue > 0 ? (r.cost / r.revenue * 100).toFixed(1) : 0}%</div>
+              </div>
+              <div class="wf-row subtract">
+                <div class="wf-label"><span class="wf-icon">🧾</span>Soliq</div>
+                <div class="wf-value">−${fmtMoney(r.tax, cur)}</div>
+                <div class="wf-pct">${fmtPercent(state.tax_pct)}</div>
+              </div>
+
+              <div class="wf-row headline" style="background: linear-gradient(90deg, ${r.net_profit >= 0 ? '#D4F0E5' : '#FBE5E5'} 0%, transparent 100%); margin-top: 6px;">
+                <div class="wf-label" style="color: ${r.net_profit >= 0 ? 'var(--green-dark)' : 'var(--red-dark)'};">🎯 TOZA FOYDA</div>
+                <div class="wf-value" style="color: ${r.net_profit >= 0 ? 'var(--green-dark)' : 'var(--red-dark)'}; font-size: 16px;">${fmtMoney(r.net_profit, cur)}</div>
+              </div>
+            </div>
+
+            ${r.net_profit < 0 ? `
+              <div class="calc-notice danger">
+                <span class="notice-icon">⚠️</span>
+                <div><strong>Diqqat:</strong> Bu narxda zarar ko'rasiz! Sotish narxini oshiring yoki tan narxni kamaytiring.</div>
+              </div>
+            ` : r.margin_pct < 5 ? `
+              <div class="calc-notice warning">
+                <span class="notice-icon">⚠️</span>
+                <div><strong>Past marja:</strong> ${fmtPercent(r.margin_pct)} — kichik o'zgarish ham zararga olib kelishi mumkin.</div>
+              </div>
+            ` : r.margin_pct >= 20 ? `
+              <div class="calc-notice success">
+                <span class="notice-icon">🎉</span>
+                <div><strong>Ajoyib marja:</strong> ${fmtPercent(r.margin_pct)} — yaxshi narx! Ko'paytirishni o'ylab ko'ring.</div>
+              </div>
+            ` : ''}
+
+            ${breakeven !== null && breakeven > 0 ? `
+              <div class="breakeven-card">
+                <div class="breakeven-icon">⚖️</div>
+                <div class="breakeven-content">
+                  <div class="breakeven-label">Minimal sotish narxi (zararsiz)</div>
+                  <div class="breakeven-value">${fmtMoney(Math.ceil(breakeven), cur)}</div>
+                  <div class="breakeven-hint">Bu narxdan past sotsangiz — zarar. Joriy farq: ${state.price >= breakeven ? '+' : ''}${fmtMoney(state.price - Math.ceil(breakeven), cur)}</div>
+                </div>
+              </div>
+            ` : ''}
+
+          </div>
+        </div>
+      </div>
+
+      <!-- DONUT: pul qayerga ketadi -->
+      <div class="donut-card">
+        <div class="donut-card-head">
+          <div class="calc-card-icon" style="background: linear-gradient(135deg, #BA7517, #854F0B);">🍩</div>
+          <div>
+            <div class="donut-card-title">Pul qayerga ketadi</div>
+            <div class="donut-card-subtitle">Har 100 ₽ dan qaysi qism qayerga ketadi</div>
+          </div>
+        </div>
+        <div class="donut-content">
+          <div class="donut-wrap">
+            <canvas id="moneyDonut"></canvas>
+            <div class="donut-center">
+              <div class="donut-center-label">Sizga</div>
+              <div class="donut-center-value">${r.revenue > 0 ? Math.round(r.net_profit / r.revenue * 100) : 0}%</div>
+            </div>
+          </div>
+          <div class="donut-legend" id="moneyDonutLegend"></div>
+        </div>
+      </div>
+
+      <!-- COMPARISON: 3 ssenariy -->
+      <div class="compare-card">
+        <div class="compare-head">
+          <div>
+            <div style="font-size: 16px; font-weight: 700; color: var(--navy);">📊 3 ssenariy solishtirish</div>
+            <div style="font-size: 11px; color: var(--text-tertiary); margin-top: 2px;">Qaysi narx eng yaxshi — bir nazarda</div>
+          </div>
+        </div>
+        <div class="compare-grid" id="compareGrid"></div>
+      </div>
+
+      <!-- SAVED -->
+      <div class="saved-card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 16px; font-weight: 700; color: var(--navy);">💾 Saqlangan ssenariylar</div>
+            <div style="font-size: 11px; color: var(--text-tertiary); margin-top: 2px;">Brauzer xotirasida, faqat sizning profilingizda · ${savedList.length} ta</div>
+          </div>
+          <div style="font-size: 11px; color: var(--text-tertiary);">Profil: ${(Storage.getActiveProfile && Storage.getActiveProfile()) ? Storage.getActiveProfile().name : 'default'}</div>
+        </div>
+        <div class="saved-list" id="savedList"></div>
+      </div>
+    `;
+
+    renderCompare();
+    renderSavedList();
+    renderDonut(r);
+
+    // ============ Event listeners ============
+    function bindField(id, key) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('input', e => {
+        state[key] = parseFloat(e.target.value) || 0;
+        rerender();
+      });
+    }
+    bindField('i_cost', 'cost');
+    bindField('i_price', 'price');
+    bindField('i_commission_pct', 'commission_pct');
+    bindField('i_spp_pct', 'spp_pct');
+    bindField('i_acquiring_pct', 'acquiring_pct');
+    bindField('i_logistics_per_unit', 'logistics_per_unit');
+    bindField('i_storage_per_unit', 'storage_per_unit');
+    bindField('i_advertising_pct', 'advertising_pct');
+    bindField('i_tax_pct', 'tax_pct');
+    bindField('i_buyout_pct', 'buyout_pct');
+
+    // Quick adjust
+    document.querySelectorAll('.calc-qa-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.dataset.target;
+        const delta = parseFloat(btn.dataset.delta);
+        const inp = document.getElementById(targetId);
+        const cur_val = parseFloat(inp.value) || 0;
+        const new_val = Math.max(0, cur_val + delta);
+        inp.value = new_val;
+        const key = targetId.replace('i_', '');
+        state[key] = new_val;
+        rerender();
+      });
+    });
+
+    // Reset
+    const resetBtn = document.getElementById('btn_reset');
+    if (resetBtn) resetBtn.addEventListener('click', () => {
+      Object.assign(state, defaults);
+      rerender();
+    });
+
+    // Save
+    const saveBtn = document.getElementById('btn_save');
+    const saveForm = document.getElementById('saveForm');
+    if (saveBtn) saveBtn.addEventListener('click', () => {
+      saveForm.style.display = saveForm.style.display === 'none' ? 'block' : 'none';
+      if (saveForm.style.display === 'block') {
+        setTimeout(() => document.getElementById('saveName').focus(), 50);
+      }
+    });
+    const saveConfirm = document.getElementById('saveConfirm');
+    const saveName = document.getElementById('saveName');
+    function doSave() {
+      const name = (saveName.value || '').trim() || `Ssenariy ${savedList.length + 1}`;
+      const item = {
+        id: Date.now(),
+        name,
+        state: { ...state },
+        result: calculate(state),
+        createdAt: new Date().toISOString()
+      };
+      savedList.unshift(item);
+      persistSaved(savedList);
+      saveName.value = '';
+      saveForm.style.display = 'none';
+      renderSavedList();
+    }
+    if (saveConfirm) saveConfirm.addEventListener('click', doSave);
+    if (saveName) saveName.addEventListener('keydown', e => { if (e.key === 'Enter') doSave(); });
+
+    // Compare cells - jonli yangilash
+    document.querySelectorAll('.compare-cell-input').forEach(inp => {
+      inp.addEventListener('input', e => {
+        const idx = parseInt(inp.dataset.idx);
+        scenarios[idx].price = parseFloat(e.target.value) || 0;
+        renderCompare();
+      });
+    });
+  }
+
+  function rerender() {
+    // Optimized: faqat natija qismini yangilash
+    render();
+  }
+
+  function renderCompare() {
+    const grid = document.getElementById('compareGrid');
+    if (!grid) return;
+    const results = scenarios.map(s => calculate({ ...state, price: s.price }));
+    const profits = results.map(r => r.net_profit);
+    const maxIdx = profits.indexOf(Math.max(...profits));
+    const minIdx = profits.indexOf(Math.min(...profits));
+
+    grid.innerHTML = scenarios.map((s, i) => {
+      const r = results[i];
+      const cls = profits.every(p => p === profits[0]) ? '' : (i === maxIdx ? 'best' : (i === minIdx && minIdx !== maxIdx ? 'worst' : ''));
+      return `
+        <div class="compare-cell ${cls}">
+          ${cls === 'best' ? '<div class="badge">🏆 Eng yaxshi</div>' : ''}
+          ${cls === 'worst' ? '<div class="badge">⚠ Eng yomon</div>' : ''}
+          <div class="compare-cell-price">Sotish narxi #${i + 1}</div>
+          <input type="number" class="compare-cell-input" data-idx="${i}" value="${s.price}" min="0" step="50">
+          <div class="compare-stat"><span class="lbl">Sizga keladi</span><span class="val">${fmtMoneyShort(r.to_seller, cur)}</span></div>
+          <div class="compare-stat"><span class="lbl">Soliq</span><span class="val">−${fmtMoneyShort(r.tax, cur)}</span></div>
+          <div class="compare-stat"><span class="lbl">Marja</span><span class="val">${fmtPercent(r.margin_pct)}</span></div>
+          <div class="compare-stat"><span class="lbl">ROI</span><span class="val">${fmtPercent(r.roi_pct)}</span></div>
+          <div class="compare-stat profit ${r.net_profit < 0 ? 'loss' : ''}"><span class="lbl">Toza foyda</span><span class="val">${fmtMoney(r.net_profit, cur)}</span></div>
+        </div>
+      `;
+    }).join('');
+
+    // Re-bind inputs
+    document.querySelectorAll('.compare-cell-input').forEach(inp => {
+      inp.addEventListener('input', e => {
+        const idx = parseInt(inp.dataset.idx);
+        scenarios[idx].price = parseFloat(e.target.value) || 0;
+        renderCompare();
+      });
+    });
+  }
+
+  function renderSavedList() {
+    const list = document.getElementById('savedList');
+    if (!list) return;
+    if (savedList.length === 0) {
+      list.innerHTML = '<div class="saved-empty">Hali saqlangan ssenariy yo\'q. Yuqorida 💾 Saqlash bosing va nom bering.</div>';
+      return;
+    }
+    list.innerHTML = savedList.map((item, idx) => `
+      <div class="saved-row">
+        <span class="saved-name" title="${(item.name || '').replace(/"/g, '&quot;')}">${item.name}</span>
+        <span class="saved-price">${fmtMoney(item.state.price, cur)} · tannarx ${fmtMoney(item.state.cost, cur)}</span>
+        <span class="saved-profit ${item.result.net_profit >= 0 ? 'positive' : 'negative'}">${fmtMoney(item.result.net_profit, cur)}</span>
+        <button class="saved-action" data-action="load" data-idx="${idx}">Yuklash</button>
+        <button class="saved-action delete" data-action="delete" data-idx="${idx}">✕</button>
+      </div>
+    `).join('');
+
+    list.querySelectorAll('button[data-action]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx);
+        const action = btn.dataset.action;
+        if (action === 'load') {
+          Object.assign(state, savedList[idx].state);
+          rerender();
+        } else if (action === 'delete') {
+          if (confirm(`"${savedList[idx].name}" o'chirilsinmi?`)) {
+            savedList.splice(idx, 1);
+            persistSaved(savedList);
+            renderSavedList();
+          }
+        }
+      });
+    });
+  }
+
+  let donutChart = null;
+  function renderDonut(r) {
+    const canvas = document.getElementById('moneyDonut');
+    if (!canvas) return;
+    if (donutChart) { try { donutChart.destroy(); } catch(e) {} }
+
+    const items = [
+      { label: '🎯 Sizning toza foydangiz', val: Math.max(0, r.net_profit), color: '#0F6E56' },
+      { label: '💰 Tan narx', val: r.cost, color: '#A32D2D' },
+      { label: '🎁 СПП (WB chegirma)', val: r.spp_amount, color: '#B7332E' },
+      { label: '📊 Komissiya', val: r.commission, color: '#185FA5' },
+      { label: '🚚 Logistika', val: r.logistics, color: '#534AB7' },
+      { label: '💳 Эквайринг', val: r.acquiring, color: '#4A85C8' },
+      { label: '📣 Reklama', val: r.advertising, color: '#7F77DD' },
+      { label: '📦 Saqlash', val: r.storage, color: '#BA7517' },
+      { label: '🧾 Soliq', val: r.tax, color: '#854F0B' }
+    ].filter(d => d.val > 0);
+
+    if (r.net_profit < 0) {
+      // Zararni alohida ko'rsatish
+      items[0] = { label: '⚠ Zarar', val: Math.abs(r.net_profit), color: '#6E1F1F' };
+    }
+
+    const total = items.reduce((s, it) => s + it.val, 0);
+    const ctxD = canvas.getContext('2d');
+    Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    Chart.defaults.font.size = 11;
+
+    donutChart = new Chart(ctxD, {
+      type: 'doughnut',
+      data: {
+        labels: items.map(i => i.label),
+        datasets: [{
+          data: items.map(i => i.val),
+          backgroundColor: items.map(i => i.color),
+          borderWidth: 0,
+          hoverOffset: 7
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '68%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(42, 26, 5, 0.96)',
+            titleColor: '#ffffff',
+            bodyColor: '#fad9a0',
+            padding: 12,
+            cornerRadius: 10,
+            callbacks: {
+              label: (item) => {
+                const pct = total > 0 ? (item.parsed / total * 100).toFixed(1) : 0;
+                return `  ${fmtMoney(item.parsed, cur)} (${pct}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+
+    const legend = document.getElementById('moneyDonutLegend');
+    if (legend) {
+      legend.innerHTML = items.map(i => `
+        <div class="legend-row">
+          <span class="legend-dot" style="background: ${i.color};"></span>
+          <span class="legend-label">${i.label}</span>
+          <span class="legend-value">${fmtMoney(i.val, cur)}</span>
+          <span class="legend-pct">${total > 0 ? (i.val / total * 100).toFixed(1) : 0}%</span>
+        </div>
+      `).join('');
+    }
+  }
+
+  render();
+};
+</script>
+
+</body>
+</html>

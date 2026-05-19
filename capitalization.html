@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIRA — Капитализация</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* ============================================
+     CAPITALIZATION — Premium page
+     ============================================ */
+
+  /* HERO — amber-purple gradient */
+  .cap-hero {
+    background: linear-gradient(135deg, #7C4D0F 0%, #BA7517 35%, #6F4FD8 100%);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .cap-hero::before {
+    content: '';
+    position: absolute;
+    top: -40%; right: -10%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .cap-hero h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    position: relative;
+    z-index: 1;
+  }
+  .cap-hero .subtitle {
+    font-size: 13px;
+    opacity: 0.9;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 1;
+  }
+  .cap-insights {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    position: relative;
+    z-index: 1;
+  }
+  .cap-insight {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .cap-insight .label {
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.85;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .cap-insight .value {
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+  }
+  .cap-insight .hint {
+    font-size: 10px;
+    opacity: 0.75;
+    margin-top: 4px;
+  }
+  .cap-insight.warn {
+    background: rgba(255,200,150,0.20);
+    border-color: rgba(255,180,100,0.4);
+  }
+  .cap-insight.clickable {
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .cap-insight.clickable:hover {
+    background: rgba(255,200,150,0.30);
+    border-color: rgba(255,180,100,0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -8px rgba(255, 180, 100, 0.4);
+  }
+  .cap-insight.clickable .hint {
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 2px;
+  }
+
+  /* ============ MODAL ============ */
+  .cap-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 10, 26, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .cap-modal {
+    background: white;
+    border-radius: 18px;
+    max-width: 720px;
+    width: 100%;
+    max-height: 85vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 30px 80px -20px rgba(0,0,0,0.4);
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .cap-modal-header {
+    background: linear-gradient(135deg, #A32D2D 0%, #6E1F1F 100%);
+    color: white;
+    padding: 22px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+  .cap-modal-header::before {
+    content: '';
+    position: absolute;
+    top: -50%; right: -10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .cap-modal-header .title-wrap {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .cap-modal-header .icon-circle {
+    width: 44px;
+    height: 44px;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+  }
+  .cap-modal-header h2 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .cap-modal-header .subtitle {
+    font-size: 11px;
+    opacity: 0.85;
+  }
+  .cap-modal-close {
+    position: relative;
+    z-index: 1;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .cap-modal-close:hover { background: rgba(255,255,255,0.25); }
+  .cap-modal-body {
+    overflow-y: auto;
+    flex: 1;
+    padding: 0;
+  }
+  .modal-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 28px;
+    border-bottom: 1px solid var(--border-light);
+    transition: background 0.12s;
+  }
+  .modal-item:hover { background: var(--gray-50); }
+  .modal-item .rank {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--gray-100);
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .modal-item.urgent .rank {
+    background: var(--red-light);
+    color: var(--red-dark);
+  }
+  .modal-item .info { flex: 1; min-width: 0; }
+  .modal-item .article {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 2px;
+  }
+  .modal-item .sub {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .modal-item .days {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--red-dark);
+    text-align: right;
+    line-height: 1;
+  }
+  .modal-item .days-label {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-align: right;
+    margin-top: 4px;
+  }
+  .modal-item .qty {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--blue);
+    text-align: right;
+    margin-top: 3px;
+  }
+  .cap-modal-footer {
+    border-top: 1px solid var(--border);
+    padding: 14px 28px;
+    background: var(--gray-50);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+  .cap-modal-footer strong { color: var(--red-dark); font-weight: 700; }
+
+  /* UPLOAD ZONES */
+  .cap-uploads {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .cap-zone {
+    background: white;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .cap-zone:hover { border-color: var(--blue); background: var(--blue-bg); }
+  .cap-zone.dragover { border-color: var(--blue); background: var(--blue-bg); transform: scale(1.02); }
+  .cap-zone.uploaded { border-style: solid; border-color: var(--green); background: rgba(15, 110, 86, 0.04); }
+  .cap-zone .icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  .cap-zone .title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 4px;
+  }
+  .cap-zone .desc {
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+  .cap-zone .meta {
+    margin-top: 8px;
+    font-size: 10px;
+    color: var(--green-dark);
+    font-weight: 600;
+  }
+  .cap-zone input[type=file] { display: none; }
+  .cap-zone-clear {
+    position: absolute;
+    top: 6px; right: 6px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 6px;
+    cursor: pointer;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .cap-zone.uploaded:hover .cap-zone-clear { opacity: 1; }
+
+  /* PARAMS PANEL */
+  .cap-params {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+  }
+  .cap-param {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .cap-param label {
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    font-weight: 600;
+  }
+  .cap-param input, .cap-param select {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    color: var(--navy);
+    font-weight: 600;
+    background: white;
+    font-family: inherit;
+  }
+  .cap-param input:focus, .cap-param select:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.1);
+  }
+
+  /* MAIN TABLE */
+  .cap-table-wrapper {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .cap-table-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .cap-table-header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .cap-table-header .stats {
+    display: flex;
+    gap: 14px;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+  .cap-table-header .stats strong {
+    color: var(--navy);
+    font-weight: 700;
+  }
+  .cap-table-scroll {
+    overflow-x: auto;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+  .cap-tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .cap-tbl thead {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--gray-50);
+  }
+  .cap-tbl th {
+    padding: 10px 8px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    font-size: 11px;
+  }
+  .cap-tbl th.num { text-align: right; }
+  .cap-tbl td {
+    padding: 9px 8px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text);
+    vertical-align: middle;
+  }
+  .cap-tbl td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .cap-tbl tbody tr:hover { background: var(--gray-50); }
+
+  .cap-tbl tr.row-red { background: rgba(163, 45, 45, 0.04); }
+  .cap-tbl tr.row-red:hover { background: rgba(163, 45, 45, 0.08); }
+  .cap-tbl tr.row-amber { background: rgba(186, 117, 23, 0.04); }
+  .cap-tbl tr.row-amber:hover { background: rgba(186, 117, 23, 0.08); }
+  .cap-tbl tr.row-green:hover { background: rgba(15, 110, 86, 0.06); }
+
+  .cap-tbl .signal {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .signal-red { background: var(--red-light); color: var(--red-dark); }
+  .signal-amber { background: var(--amber-light); color: var(--amber-dark); }
+  .signal-green { background: var(--green-light); color: var(--green-dark); }
+  .signal-gray { background: var(--gray-100); color: var(--text-tertiary); }
+
+  /* Inline cost edit */
+  .cost-edit {
+    background: rgba(186, 117, 23, 0.08);
+    border: 1px dashed var(--amber);
+    border-radius: 4px;
+    padding: 4px 6px;
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--amber-dark);
+    transition: all 0.15s;
+    display: inline-block;
+    min-width: 60px;
+    text-align: right;
+  }
+  .cost-edit:hover { background: rgba(186, 117, 23, 0.15); }
+  .cost-edit-input {
+    width: 75px;
+    padding: 3px 6px;
+    border: 1px solid var(--blue);
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--navy);
+    text-align: right;
+    font-family: inherit;
+  }
+
+  /* RAW DATA accordions */
+  .raw-section {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .raw-header {
+    padding: 12px 18px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+  }
+  .raw-header:hover { background: var(--gray-50); }
+  .raw-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .raw-toggle { color: var(--text-tertiary); transition: transform 0.2s; }
+  .raw-section.open .raw-toggle { transform: rotate(180deg); }
+  .raw-body { display: none; padding: 0 18px 16px; overflow-x: auto; max-height: 400px; overflow-y: auto; }
+  .raw-section.open .raw-body { display: block; }
+  .raw-tbl { width: 100%; font-size: 11px; border-collapse: collapse; }
+  .raw-tbl th { padding: 6px 8px; background: var(--gray-50); border-bottom: 1px solid var(--border); font-weight: 600; color: var(--text-secondary); position: sticky; top: 0; text-align: left; }
+  .raw-tbl td { padding: 5px 8px; border-bottom: 1px solid var(--border-light); }
+
+  /* EMPTY STATE */
+  .cap-empty {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-tertiary);
+  }
+  .cap-empty .icon { font-size: 48px; margin-bottom: 16px; }
+  .cap-empty h3 { font-size: 16px; color: var(--navy); margin-bottom: 8px; }
+  .cap-empty p { font-size: 13px; max-width: 480px; margin: 0 auto; }
+
+  /* SKLAD highlight in table when filter applied */
+  .sklad-chip {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--blue-bg);
+    color: var(--blue);
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  .sklad-other-list {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+  }
+
+  /* Responsive */
+  @media (max-width: 1100px) {
+    .cap-insights { grid-template-columns: repeat(2, 1fr); }
+    .cap-params { grid-template-columns: repeat(2, 1fr); }
+    .cap-uploads { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <main class="page">
+
+      <div id="content"></div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/lib/xlsx.full.min.js"></script>
+<script src="js/lib/jszip.min.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/app-init.js"></script>
+<script src="js/main.js"></script>
+
+<script>
+window.initPage = function() {
+  setupLayout('capitalization');
+
+  const content = document.getElementById('content');
+
+  // ============ Render boshlash ============
+  function renderPage() {
+    const stock = Storage.getCapStock() || [];
+    const sales = Storage.getCapSales() || [];
+    const nomenclature = Storage.getCapNomenclature() || [];
+    const params = Storage.getCapParams();
+    const hasData = stock.length > 0 && sales.length > 0;
+
+    // Hisoblash
+    const computed = hasData ? computeCapitalization(stock, sales, nomenclature, params) : null;
+
+    content.innerHTML = `
+      <!-- HERO -->
+      <div class="cap-hero">
+        <h1>📦 Капитализация</h1>
+        <div class="subtitle">Sklad qoldiqlari, sotuvlar va yetkazib berish rejasi — hammasi bir joyda</div>
+
+        <div class="cap-insights">
+          <div class="cap-insight">
+            <div class="label">💰 Kapitalizatsiya jami</div>
+            <div class="value">${computed ? fmt(Math.round(computed.totalCapitalization)) : '—'} ₽</div>
+            <div class="hint">Omborda turgan tovarlar qiymati</div>
+          </div>
+          <div class="cap-insight">
+            <div class="label">📦 Jami qoldiq</div>
+            <div class="value">${computed ? fmt(computed.totalStock) : '—'}</div>
+            <div class="hint">${computed ? `${computed.skuCount} ta SKU` : 'dona'}</div>
+          </div>
+          <div class="cap-insight">
+            <div class="label">🚀 Kunlik tezlik</div>
+            <div class="value">${computed ? computed.avgPerDay.toFixed(1) : '—'}</div>
+            <div class="hint">o'rtacha sotuv / kun</div>
+          </div>
+          <div class="cap-insight ${computed && computed.lowStockCount > 0 ? 'warn clickable' : ''}" ${computed && computed.lowStockCount > 0 ? 'onclick="showLowStockModal()"' : ''}>
+            <div class="label">⚠ Tezda tugaydi</div>
+            <div class="value">${computed ? computed.lowStockCount : '—'}</div>
+            <div class="hint">${computed && computed.lowStockCount > 0 ? `Batafsil ko'rish →` : computed ? `${params.delivery_days} kunda yetib qolmaydi` : 'ta artikul'}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UPLOAD ZONES -->
+      <div class="cap-uploads">
+        ${renderZone('stock', '📦', 'Отчёт по остаткам', 'Stock fayl (xlsx)', stock.length, params.stock_uploaded_at)}
+        ${renderZone('sales', '🛒', 'Отчёт по продажам', 'Sales fayl (xlsx)', sales.length, params.sales_uploaded_at)}
+        ${renderZone('nomenclature', '📋', 'Перечень номенклатур', "Barkod ro'yxati (xlsx, ixtiyoriy)", nomenclature.length, params.nomenclature_uploaded_at)}
+      </div>
+
+      ${hasData ? renderParamsAndTable(computed, params, stock) : renderEmpty()}
+
+      <!-- RAW DATA -->
+      ${stock.length > 0 ? renderRawSection('stock', '📦 Отчёт по остаткам', stock) : ''}
+      ${sales.length > 0 ? renderRawSection('sales', '🛒 Отчёт по продажам', sales) : ''}
+      ${nomenclature.length > 0 ? renderRawSection('nomenclature', '📋 Перечень номенклатур', nomenclature) : ''}
+    `;
+
+    // Bind events
+    bindUploadZones();
+    bindParamInputs();
+    bindCostEdits();
+  }
+
+  // ============ Zone HTML ============
+  function renderZone(type, icon, title, desc, count, uploadedAt) {
+    const isUploaded = count > 0;
+    const uploadedDate = uploadedAt ? new Date(uploadedAt).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
+    return `
+      <div class="cap-zone ${isUploaded ? 'uploaded' : ''}" data-type="${type}">
+        ${isUploaded ? `<button class="cap-zone-clear" onclick="event.stopPropagation(); clearZone('${type}')">✕ tozalash</button>` : ''}
+        <div class="icon">${icon}</div>
+        <div class="title">${title}</div>
+        <div class="desc">${desc} <span style="opacity:0.55; font-size:10px;">· xlsx · zip</span></div>
+        ${isUploaded ? `<div class="meta">✓ ${count} qator · ${uploadedDate}</div>` : ''}
+        <input type="file" accept=".xlsx,.xls,.zip" onchange="handleFileUpload('${type}', event)">
+      </div>
+    `;
+  }
+
+  // ============ Bo'sh holat ============
+  function renderEmpty() {
+    return `
+      <div class="cap-empty">
+        <div class="icon">📊</div>
+        <h3>Boshlash uchun fayllarni yuklang</h3>
+        <p>WB shaxsiy kabinetidan <strong>Отчёт по остаткам</strong> va <strong>Отчёт по продажам</strong> Excel'larini yuklang. <strong>Перечень номенклатур</strong> — ixtiyoriy (yuklasangiz barkodlar to'liqroq aniqlanadi).</p>
+      </div>
+    `;
+  }
+
+  // ============ Parametrlar + asosiy jadval ============
+  function renderParamsAndTable(computed, params, stock) {
+    const warehouses = collectWarehouses(stock);
+
+    return `
+      <!-- PARAMS -->
+      <div class="cap-params">
+        <div class="cap-param">
+          <label>За сколько дней продажи</label>
+          <input type="number" min="1" max="365" id="param_days_of_sales" value="${params.days_of_sales}">
+        </div>
+        <div class="cap-param">
+          <label>Через сколько дней поставка</label>
+          <input type="number" min="0" max="365" id="param_delivery_days" value="${params.delivery_days}">
+        </div>
+        <div class="cap-param">
+          <label>На сколько дней запас</label>
+          <input type="number" min="0" max="365" id="param_reserve_days" value="${params.reserve_days}">
+        </div>
+        <div class="cap-param">
+          <label>Стоимость поставки ₽</label>
+          <input type="number" min="0" id="param_delivery_cost" value="${params.delivery_cost}">
+        </div>
+        <div class="cap-param">
+          <label>Sklad filtri</label>
+          <select id="param_warehouse">
+            <option value="Все склады" ${params.selected_warehouse === 'Все склады' ? 'selected' : ''}>Все склады</option>
+            ${warehouses.map(w => `<option value="${escapeHtml(w)}" ${params.selected_warehouse === w ? 'selected' : ''}>${escapeHtml(w)}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+
+      <!-- MAIN TABLE -->
+      <div class="cap-table-wrapper">
+        <div class="cap-table-header">
+          <h3>📊 Hisoblash jadvali</h3>
+          <div class="stats">
+            <span>Jami SKU: <strong>${computed.rows.length}</strong></span>
+            <span>Sklad: <strong>${escapeHtml(params.selected_warehouse)}</strong></span>
+            <span>Стоимость закупки: <strong>${fmt(Math.round(computed.totalPurchaseCost))} ₽</strong></span>
+          </div>
+        </div>
+        <div class="cap-table-scroll">
+          <table class="cap-tbl">
+            <thead>
+              <tr>
+                <th>Бренд</th>
+                <th>Артикул</th>
+                <th>Razmer</th>
+                <th>Баркод</th>
+                <th class="num">Тannarx ✏</th>
+                <th class="num">Остатки</th>
+                <th class="num">Заказано</th>
+                <th class="num">Sред/день</th>
+                <th class="num">Запас</th>
+                <th class="num">Капитализация</th>
+                <th class="num">Ост. посл. пост.</th>
+                <th class="num">Сколько поставить</th>
+                <th class="num">Стоимость закупки</th>
+                <th>Signal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${computed.rows.map(r => renderRow(r, params)).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  // ============ Asosiy jadval qator ============
+  function renderRow(r, params) {
+    const isRed = r.signal === 'red';
+    const isAmber = r.signal === 'amber';
+    const isGreen = r.signal === 'green';
+    const rowClass = isRed ? 'row-red' : isAmber ? 'row-amber' : 'row-green';
+    const signalHTML = (() => {
+      if (r.signal === 'red') return `<span class="signal signal-red">⚠ Tezda tugaydi</span>`;
+      if (r.signal === 'amber') return `<span class="signal signal-amber">Yetmaydi</span>`;
+      if (r.signal === 'green') return `<span class="signal signal-green">✓ Yetadi</span>`;
+      if (r.signal === 'no-orders') return `<span class="signal signal-gray">Sotilmayapti</span>`;
+      return `<span class="signal signal-gray">—</span>`;
+    })();
+
+    return `
+      <tr class="${rowClass}">
+        <td>${escapeHtml(r.brand || '')}</td>
+        <td><strong>${escapeHtml(r.article || '')}</strong></td>
+        <td>${escapeHtml(String(r.size || ''))}</td>
+        <td style="font-family: monospace; font-size: 10px;">${escapeHtml(String(r.barcode || ''))}</td>
+        <td class="num">
+          <span class="cost-edit" data-barcode="${r.barcode}" data-code="${r.code}" data-cost="${r.cost}">${r.cost > 0 ? fmt(r.cost) + ' ₽' : '—'}</span>
+        </td>
+        <td class="num"><strong>${fmt(r.stock)}</strong></td>
+        <td class="num">${fmt(r.ordered)}</td>
+        <td class="num">${r.avgPerDay > 0 ? r.avgPerDay.toFixed(1) : '—'}</td>
+        <td class="num">${r.daysLeft === null ? '—' : r.daysLeft.toFixed(0) + ' кун'}</td>
+        <td class="num"><strong>${r.capitalization > 0 ? fmt(Math.round(r.capitalization)) + ' ₽' : '—'}</strong></td>
+        <td class="num">${fmt(Math.round(r.stockAfterDelivery))}</td>
+        <td class="num"><strong style="color: ${r.toSupply > 0 ? 'var(--blue)' : 'var(--text-tertiary)'};">${fmt(Math.round(r.toSupply))}</strong></td>
+        <td class="num">${r.purchaseCost > 0 ? fmt(Math.round(r.purchaseCost)) + ' ₽' : '—'}</td>
+        <td>${signalHTML}</td>
+      </tr>
+    `;
+  }
+
+  // ============ RAW SECTIONS ============
+  function renderRawSection(type, title, data) {
+    const headers = data.length > 0 ? Object.keys(data[0]).filter(k => !k.startsWith('_')) : [];
+    return `
+      <div class="raw-section" id="raw_${type}">
+        <div class="raw-header" onclick="document.getElementById('raw_${type}').classList.toggle('open')">
+          <div class="raw-title">${title} <span style="color: var(--text-tertiary); font-weight: 400; font-size: 11px;">(${data.length} qator)</span></div>
+          <svg class="raw-toggle" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="raw-body">
+          <table class="raw-tbl">
+            <thead><tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr></thead>
+            <tbody>
+              ${data.slice(0, 200).map(row => `<tr>${headers.map(h => `<td>${escapeHtml(String(row[h] !== null && row[h] !== undefined ? row[h] : ''))}</td>`).join('')}</tr>`).join('')}
+            </tbody>
+          </table>
+          ${data.length > 200 ? `<div style="padding: 12px; text-align: center; color: var(--text-tertiary); font-size: 11px;">Birinchi 200 qator ko'rsatildi (jami ${data.length})</div>` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  // ============ HISOBLASH ============
+  function computeCapitalization(stockData, salesData, nomenclatureData, params) {
+    const sklad = params.selected_warehouse || 'Все склады';
+    const days = Number(params.days_of_sales) || 7;
+    const deliveryDays = Number(params.delivery_days) || 7;
+    const reserveDays = Number(params.reserve_days) || 7;
+
+    // Sotuvlardan barkod bo'yicha xarita
+    const salesByBarcode = {};
+    for (const s of salesData) {
+      const bc = String(s.barcode || '');
+      if (!bc) continue;
+      if (!salesByBarcode[bc]) salesByBarcode[bc] = { total: 0, perSklad: {} };
+      const ord = Number(s.ordered || 0);
+      salesByBarcode[bc].total += ord;
+      const skl = s.sklad || '';
+      salesByBarcode[bc].perSklad[skl] = (salesByBarcode[bc].perSklad[skl] || 0) + ord;
+    }
+
+    // Har stock qator uchun hisoblash
+    const rows = [];
+    let totalCapitalization = 0;
+    let totalStock = 0;
+    let totalOrders = 0;
+    let totalPurchaseCost = 0;
+    let lowStockCount = 0;
+
+    for (const s of stockData) {
+      const barcode = String(s.barcode || '');
+      if (!barcode) continue;
+
+      // Stock: All warehouses → I + J (returns + in stock). Specific sklad → that column value.
+      let stock = 0;
+      if (sklad === 'Все склады') {
+        stock = (Number(s.returns_en_route) || 0) + (Number(s.total_in_warehouses) || 0);
+      } else {
+        stock = Number(s.warehouses && s.warehouses[sklad]) || 0;
+      }
+
+      // Orders for this barcode in selected sklad
+      const salesInfo = salesByBarcode[barcode] || { total: 0, perSklad: {} };
+      const ordered = sklad === 'Все склады' ? salesInfo.total : (salesInfo.perSklad[sklad] || 0);
+
+      // Cost lookup: barkod priority, code fallback
+      const costInfo = Storage.findCostForRow(barcode, s.code) || { cost: 0, cost_future: 0 };
+      const cost = costInfo.cost || 0;
+      const costFuture = costInfo.cost_future || cost;
+
+      // Calculations (Excel formulalariga aniq mos)
+      const avgPerDay = ordered > 0 ? ordered / days : 0;
+      const daysLeft = avgPerDay > 0 ? stock / avgPerDay : null;
+      const capitalization = stock * cost;
+
+      // Excel: IF(I6=0, J6, MAX(0, ROUND(H6 - J6*M2, 0)))
+      let stockAfterDelivery;
+      if (ordered === 0) {
+        stockAfterDelivery = avgPerDay;  // fallback
+      } else {
+        stockAfterDelivery = Math.max(0, Math.round(stock - avgPerDay * deliveryDays));
+      }
+
+      // Excel: IF(I6=0, 0, MAX(0, ROUND(reserveDays*avg - stockAfterDelivery, 0)))
+      let toSupply = 0;
+      if (ordered > 0) {
+        const target = reserveDays * avgPerDay;
+        toSupply = target > stockAfterDelivery ? Math.round(target - stockAfterDelivery) : 0;
+      }
+
+      const purchaseCost = toSupply * costFuture;
+
+      // Signal
+      let signal = 'none';
+      if (ordered === 0) signal = 'no-orders';
+      else if (daysLeft !== null && daysLeft < deliveryDays) signal = 'red';
+      else if (stockAfterDelivery === 0 && toSupply > 0) signal = 'amber';
+      else signal = 'green';
+
+      // Counters
+      totalCapitalization += capitalization;
+      totalStock += stock;
+      totalOrders += ordered;
+      totalPurchaseCost += purchaseCost;
+      if (signal === 'red') lowStockCount++;
+
+      rows.push({
+        brand: s.brand,
+        article: s.article,
+        code: s.code,
+        barcode,
+        size: s.size,
+        stock,
+        ordered,
+        cost,
+        costFuture,
+        avgPerDay,
+        daysLeft,
+        capitalization,
+        stockAfterDelivery,
+        toSupply,
+        purchaseCost,
+        signal
+      });
+    }
+
+    // Sort: 1) red signal (eng tezda tugaydigan birinchi),
+    //       2) amber (yetmaydiganlar),
+    //       3) green (yetadi — kapitalizatsiya bo'yicha katta birinchi),
+    //       4) no-orders (sotilmagan — eng oxirgi)
+    const priority = { red: 0, amber: 1, green: 2, none: 3, 'no-orders': 4 };
+    rows.sort((a, b) => {
+      const pa = priority[a.signal] !== undefined ? priority[a.signal] : 5;
+      const pb = priority[b.signal] !== undefined ? priority[b.signal] : 5;
+      if (pa !== pb) return pa - pb;
+
+      // Red bo'lsa — eng kam kun qolgan birinchi
+      if (a.signal === 'red' && b.signal === 'red') {
+        return (a.daysLeft || 999) - (b.daysLeft || 999);
+      }
+      // Amber bo'lsa — eng ko'p yetkazish kerak birinchi
+      if (a.signal === 'amber' && b.signal === 'amber') {
+        return (b.toSupply || 0) - (a.toSupply || 0);
+      }
+      // Green/qolganlari — kapitalizatsiya bo'yicha
+      return (b.capitalization || 0) - (a.capitalization || 0);
+    });
+
+    return {
+      rows,
+      totalCapitalization,
+      totalStock,
+      totalOrders,
+      totalPurchaseCost,
+      avgPerDay: rows.length > 0 ? rows.reduce((s, r) => s + r.avgPerDay, 0) / rows.length : 0,
+      lowStockCount,
+      skuCount: rows.length
+    };
+  }
+
+  // ============ Sklad listini Stock'dan to'plash ============
+  function collectWarehouses(stockData) {
+    const set = new Set();
+    for (const s of stockData) {
+      if (s.warehouses) {
+        for (const w of Object.keys(s.warehouses)) {
+          if (w && (s.warehouses[w] || 0) > 0) set.add(w);
+        }
+      }
+    }
+    return [...set].sort();
+  }
+
+  // ============ FILE UPLOAD ============
+  window.handleFileUpload = async function(type, event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    try {
+      notify('Fayl o\'qilmoqda...', 'info');
+      const data = await readExcelFile(file);
+      let parsed;
+      if (type === 'stock') parsed = parseStockFile(data);
+      else if (type === 'sales') parsed = parseSalesFile(data);
+      else if (type === 'nomenclature') parsed = parseNomenclatureFile(data);
+
+      if (!parsed || parsed.length === 0) {
+        notify('Fayl strukturasi mos kelmadi yoki bo\'sh', 'error');
+        return;
+      }
+
+      // Saqlash
+      if (type === 'stock') Storage.setCapStock(parsed);
+      else if (type === 'sales') Storage.setCapSales(parsed);
+      else Storage.setCapNomenclature(parsed);
+
+      const params = Storage.getCapParams();
+      params[type + '_uploaded_at'] = new Date().toISOString();
+      Storage.setCapParams(params);
+
+      notify(`✓ ${parsed.length} qator yuklandi`, 'success');
+      renderPage();
+    } catch (err) {
+      console.error(err);
+      notify('Xato: ' + err.message, 'error');
+    } finally {
+      event.target.value = '';
+    }
+  };
+
+  window.clearZone = function(type) {
+    if (!confirm('Bu fayl ma\'lumotlari o\'chiriladi. Davom etasizmi?')) return;
+    if (type === 'stock') Storage.clearCapStock();
+    else if (type === 'sales') Storage.clearCapSales();
+    else Storage.clearCapNomenclature();
+
+    const params = Storage.getCapParams();
+    params[type + '_uploaded_at'] = null;
+    Storage.setCapParams(params);
+
+    notify('Tozalandi', 'warning');
+    renderPage();
+  };
+
+  // ============ Excel/ZIP file → workbook ============
+  function readExcelFile(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          // ZIP fayl bo'lsa — avval ochib, ichidagi xlsx'ni topamiz
+          const fileName = (file.name || '').toLowerCase();
+          if (fileName.endsWith('.zip')) {
+            if (typeof JSZip === 'undefined') {
+              reject(new Error('ZIP qo\'llab-quvvatlash kutubxonasi topilmadi'));
+              return;
+            }
+            const zip = await JSZip.loadAsync(data);
+            // Ichidagi xlsx fayllarni qidiramiz
+            const xlsxFiles = Object.keys(zip.files).filter(n =>
+              /\.xlsx?$/i.test(n) && !zip.files[n].dir
+            );
+            if (xlsxFiles.length === 0) {
+              reject(new Error('ZIP ichida xlsx fayl topilmadi'));
+              return;
+            }
+            // Eng katta xlsx'ni olamiz (asosiy hisobot)
+            const sorted = xlsxFiles.map(n => ({ name: n, size: zip.files[n]._data.uncompressedSize || 0 }))
+              .sort((a, b) => b.size - a.size);
+            const targetName = sorted[0].name;
+            const innerData = await zip.files[targetName].async('uint8array');
+            const wb = XLSX.read(innerData, { type: 'array' });
+            resolve(wb);
+            return;
+          }
+          // Oddiy xlsx fayl
+          const wb = XLSX.read(data, { type: 'array' });
+          resolve(wb);
+        } catch (err) { reject(err); }
+      };
+      reader.onerror = () => reject(new Error('Faylni o\'qib bo\'lmadi'));
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  // ============ PARSERS ============
+
+  // STOCK parser: Бренд|Предмет|Артикул продавца|Артикул WB|Объем|Баркод|Размер вещи|В пути до получ|В пути возвраты|Всего находится|+sklads
+  function parseStockFile(wb) {
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+    if (rows.length < 2) return [];
+
+    const header = rows[0].map(h => String(h || '').trim());
+    const idx = {
+      brand: header.findIndex(h => /^Бренд$/i.test(h)),
+      product: header.findIndex(h => /^Предмет$/i.test(h)),
+      article: header.findIndex(h => /Артикул продавца/i.test(h)),
+      code: header.findIndex(h => /Артикул WB/i.test(h)),
+      barcode: header.findIndex(h => /^Баркод$/i.test(h)),
+      size: header.findIndex(h => /Размер/i.test(h)),
+      in_route: header.findIndex(h => /В пути до получ/i.test(h)),
+      returns: header.findIndex(h => /В пути возвраты/i.test(h)),
+      total: header.findIndex(h => /Всего находится/i.test(h))
+    };
+
+    // Sklad ustunlari: 'Всего находится' keyin keladiganlar
+    const skladStartIdx = idx.total + 1;
+    const skladCols = [];
+    for (let i = skladStartIdx; i < header.length; i++) {
+      const h = header[i];
+      if (h && h.trim()) skladCols.push({ idx: i, name: h.trim() });
+    }
+
+    const result = [];
+    for (let i = 1; i < rows.length; i++) {
+      const r = rows[i];
+      const barcode = String(r[idx.barcode] || '').trim();
+      if (!barcode) continue;
+
+      const warehouses = {};
+      for (const sc of skladCols) {
+        const v = Number(r[sc.idx]) || 0;
+        if (v > 0) warehouses[sc.name] = v;
+      }
+
+      result.push({
+        brand: r[idx.brand] || '',
+        product: r[idx.product] || '',
+        article: r[idx.article] || '',
+        code: String(r[idx.code] || ''),
+        barcode,
+        size: r[idx.size] || '',
+        in_route: Number(r[idx.in_route]) || 0,
+        returns_en_route: Number(r[idx.returns]) || 0,
+        total_in_warehouses: Number(r[idx.total]) || 0,
+        warehouses
+      });
+    }
+    return result;
+  }
+
+  // SALES parser: row 1 = title, row 2 = headers
+  function parseSalesFile(wb) {
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+    if (rows.length < 3) return [];
+
+    // Headers may be in row 0 or row 1 (depends on file)
+    // Detect: try row 0 first
+    let headerRowIdx = 0;
+    let header = rows[0].map(h => String(h || '').trim());
+    if (!header.includes('Бренд') && !header.find(h => /^Бренд$/i.test(h))) {
+      headerRowIdx = 1;
+      header = rows[1].map(h => String(h || '').trim());
+    }
+
+    const idx = {
+      brand: header.findIndex(h => /^Бренд$/i.test(h)),
+      product: header.findIndex(h => /^Предмет$/i.test(h)),
+      article: header.findIndex(h => /Артикул продавца/i.test(h)),
+      code: header.findIndex(h => /Артикул WB/i.test(h)),
+      barcode: header.findIndex(h => /^Баркод$/i.test(h)),
+      size: header.findIndex(h => /^Размер$/i.test(h)),
+      sklad: header.findIndex(h => /^Склад$/i.test(h)),
+      ordered: header.findIndex(h => /^шт\.?$/i.test(h) || /Заказано/i.test(h)),
+      revenue: header.findIndex(h => /Сумма заказов/i.test(h)),
+      purchased: header.findIndex(h => /Выкупили/i.test(h)),
+      payout: header.findIndex(h => /К перечислению/i.test(h)),
+      current_stock: header.findIndex(h => /Текущий остаток/i.test(h))
+    };
+
+    const result = [];
+    for (let i = headerRowIdx + 1; i < rows.length; i++) {
+      const r = rows[i];
+      const barcode = String(r[idx.barcode] || '').trim();
+      if (!barcode) continue;
+      result.push({
+        brand: r[idx.brand] || '',
+        product: r[idx.product] || '',
+        article: r[idx.article] || '',
+        code: String(r[idx.code] || ''),
+        barcode,
+        size: r[idx.size] || '',
+        sklad: r[idx.sklad] || '',
+        ordered: Number(r[idx.ordered]) || 0,
+        revenue: Number(r[idx.revenue]) || 0,
+        purchased: Number(r[idx.purchased]) || 0,
+        payout: Number(r[idx.payout]) || 0,
+        current_stock: Number(r[idx.current_stock]) || 0
+      });
+    }
+    return result;
+  }
+
+  // NOMENCLATURE parser
+  function parseNomenclatureFile(wb) {
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+    if (rows.length < 2) return [];
+
+    const header = rows[0].map(h => String(h || '').trim());
+    const idx = {
+      brand: header.findIndex(h => /^Бренд$/i.test(h)),
+      product: header.findIndex(h => /^Предмет$/i.test(h)),
+      chrt_id: header.findIndex(h => /Код размера|chrt_id/i.test(h)),
+      article: header.findIndex(h => /Артикул продавца/i.test(h)),
+      code: header.findIndex(h => /Артикул WB/i.test(h)),
+      size: header.findIndex(h => /^Размер$/i.test(h)),
+      barcode: header.findIndex(h => /^Баркод$/i.test(h)),
+      volume: header.findIndex(h => /Объем/i.test(h)),
+      composition: header.findIndex(h => /Состав/i.test(h))
+    };
+
+    const result = [];
+    for (let i = 1; i < rows.length; i++) {
+      const r = rows[i];
+      const barcode = String(r[idx.barcode] || '').trim();
+      if (!barcode) continue;
+      result.push({
+        brand: r[idx.brand] || '',
+        product: r[idx.product] || '',
+        chrt_id: r[idx.chrt_id] || '',
+        article: r[idx.article] || '',
+        code: String(r[idx.code] || ''),
+        size: r[idx.size] || '',
+        barcode,
+        volume: r[idx.volume] || '',
+        composition: r[idx.composition] || ''
+      });
+    }
+    return result;
+  }
+
+  // ============ DRAG & DROP ============
+  function bindUploadZones() {
+    document.querySelectorAll('.cap-zone').forEach(zone => {
+      const type = zone.getAttribute('data-type');
+      const fileInput = zone.querySelector('input[type=file]');
+
+      zone.addEventListener('click', (e) => {
+        if (e.target.classList.contains('cap-zone-clear')) return;
+        fileInput.click();
+      });
+
+      zone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        zone.classList.add('dragover');
+      });
+      zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+      zone.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (!file) return;
+        // Simulate file input
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        fileInput.files = dt.files;
+        fileInput.dispatchEvent(new Event('change'));
+      });
+    });
+  }
+
+  // ============ PARAM INPUTS ============
+  function bindParamInputs() {
+    const params = Storage.getCapParams();
+    const paramKeys = ['days_of_sales', 'delivery_days', 'reserve_days', 'delivery_cost', 'warehouse'];
+    paramKeys.forEach(k => {
+      const el = document.getElementById('param_' + k);
+      if (!el) return;
+      el.addEventListener('change', () => {
+        const newParams = Storage.getCapParams();
+        if (k === 'warehouse') {
+          newParams.selected_warehouse = el.value;
+        } else {
+          newParams[k] = Number(el.value) || 0;
+        }
+        Storage.setCapParams(newParams);
+        renderPage();
+      });
+    });
+  }
+
+  // ============ INLINE COST EDIT ============
+  function bindCostEdits() {
+    document.querySelectorAll('.cost-edit').forEach(el => {
+      el.addEventListener('click', () => startCostEdit(el));
+    });
+  }
+
+  function startCostEdit(el) {
+    const barcode = el.getAttribute('data-barcode');
+    const code = el.getAttribute('data-code');
+    const currentCost = Number(el.getAttribute('data-cost')) || 0;
+
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.className = 'cost-edit-input';
+    input.value = currentCost || '';
+    input.placeholder = '0';
+    el.replaceWith(input);
+    input.focus();
+    input.select();
+
+    const save = () => {
+      const newCost = Number(input.value) || 0;
+      saveCostForBarcode(barcode, code, newCost);
+      renderPage();
+    };
+    input.addEventListener('blur', save);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') input.blur();
+      else if (e.key === 'Escape') { renderPage(); }
+    });
+  }
+
+  function saveCostForBarcode(barcode, code, newCost) {
+    const costs = Storage.getCosts();
+    // 1. Barkod bilan mavjud entry topish
+    let existing = costs.find(c => c.barcode && String(c.barcode) === String(barcode));
+    if (existing) {
+      existing.cost = newCost;
+    } else {
+      // 2. Code bilan topib, barkodli yangi entry yaratish
+      const sample = costs.find(c => String(c.code) === String(code));
+      const newEntry = {
+        id: Date.now(),
+        brand: sample ? sample.brand : '',
+        article: sample ? sample.article : '',
+        product: sample ? sample.product : '',
+        code: code,
+        barcode: barcode,
+        cost: newCost,
+        cost_future: newCost,
+        group: sample ? sample.group : ''
+      };
+      costs.push(newEntry);
+    }
+    Storage.setCosts(costs);
+    // Cache invalidation
+    if (typeof Calculator !== 'undefined' && Calculator.invalidate) {
+      Calculator.invalidate();
+    } else {
+      Storage.remove(Storage._profileKey(Storage.KEYS.BASE_CALCULATED));
+      Storage.remove(Storage._profileKey(Storage.KEYS.KPI_CACHE));
+    }
+    notify('Tannarx saqlandi: ' + fmt(newCost) + ' ₽', 'success');
+  }
+
+  // ============ Util ============
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // ============ MODAL — tezda tugaydigan tovarlar ============
+  window.showLowStockModal = function() {
+    const stock = Storage.getCapStock() || [];
+    const sales = Storage.getCapSales() || [];
+    if (stock.length === 0 || sales.length === 0) return;
+
+    const params = Storage.getCapParams();
+    const computed = computeCapitalization(stock, sales, Storage.getCapNomenclature() || [], params);
+    const lowItems = computed.rows.filter(r => r.signal === 'red');
+    // Eng tezda tugayotganlar birinchi
+    lowItems.sort((a, b) => (a.daysLeft || 999) - (b.daysLeft || 999));
+
+    // Total summary
+    const totalToSupply = lowItems.reduce((s, r) => s + r.toSupply, 0);
+    const totalPurchaseCost = lowItems.reduce((s, r) => s + r.purchaseCost, 0);
+
+    const modal = document.createElement('div');
+    modal.className = 'cap-modal-backdrop';
+    modal.innerHTML = `
+      <div class="cap-modal" onclick="event.stopPropagation()">
+        <div class="cap-modal-header">
+          <div class="title-wrap">
+            <div class="icon-circle">⚠</div>
+            <div>
+              <h2>Tezda tugaydigan tovarlar</h2>
+              <div class="subtitle">${lowItems.length} ta SKU · ${params.delivery_days} kunda yetib qolmaydi · Sklad: ${escapeHtml(params.selected_warehouse)}</div>
+            </div>
+          </div>
+          <button class="cap-modal-close" onclick="closeLowStockModal()">✕</button>
+        </div>
+        <div class="cap-modal-body">
+          ${lowItems.length === 0 ? `
+            <div style="padding: 60px 20px; text-align: center; color: var(--text-tertiary);">
+              <div style="font-size: 48px; margin-bottom: 12px; opacity: 0.4;">✅</div>
+              <div style="font-size: 14px; color: var(--navy); font-weight: 600;">Hammasi yaxshi!</div>
+              <div style="font-size: 12px; margin-top: 4px;">Hozir tezda tugaydigan tovar yo'q</div>
+            </div>
+          ` : lowItems.map((r, i) => `
+            <div class="modal-item ${i < 3 ? 'urgent' : ''}">
+              <div class="rank">${i + 1}</div>
+              <div class="info">
+                <div class="article">${escapeHtml(r.article || '')} ${r.size ? `<span style="font-weight:600; color:var(--text-tertiary); font-size:11px;">· ${escapeHtml(String(r.size))}</span>` : ''}</div>
+                <div class="sub">
+                  <span>📦 Qoldiq: <strong style="color:var(--navy);">${fmt(r.stock)}</strong></span>
+                  <span>🚀 ${r.avgPerDay.toFixed(1)} kun/o'rt</span>
+                  <span style="font-family:monospace; font-size:10px; opacity:0.7;">${r.barcode}</span>
+                </div>
+              </div>
+              <div>
+                <div class="days">${r.daysLeft !== null ? Math.round(r.daysLeft) : '—'}</div>
+                <div class="days-label">kun qoldi</div>
+                ${r.toSupply > 0 ? `<div class="qty">+ ${fmt(r.toSupply)} dona</div>` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        ${lowItems.length > 0 ? `
+          <div class="cap-modal-footer">
+            <span>Jami yetkazib berish kerak: <strong>${fmt(totalToSupply)} dona</strong></span>
+            <span>Stoimost zakupki: <strong>${fmt(Math.round(totalPurchaseCost))} ₽</strong></span>
+          </div>
+        ` : ''}
+      </div>
+    `;
+    modal.addEventListener('click', closeLowStockModal);
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeLowStockModal = function() {
+    const modal = document.querySelector('.cap-modal-backdrop');
+    if (modal) {
+      modal.style.animation = 'fadeIn 0.15s ease reverse';
+      setTimeout(() => modal.remove(), 150);
+    }
+    document.body.style.overflow = '';
+  };
+
+  // Escape tugma bilan yopish
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLowStockModal();
+  });
+
+  // ============ Hisoblash boshlandi ============
+  renderPage();
+};
+</script>
+
+</body>
+</html>

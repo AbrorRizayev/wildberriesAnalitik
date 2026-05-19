@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIRA — Самовыкупы</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(4, 44, 83, 0.5); display: none; align-items: center; justify-content: center; z-index: 999; }
+  .modal-overlay.show { display: flex; }
+  .modal-content { background: white; padding: 24px; border-radius: 12px; max-width: 480px; width: 90%; max-height: 90vh; overflow-y: auto; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <main class="page">
+      <div id="content"></div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal-content">
+    <h3 style="margin: 0 0 6px 0; color: var(--navy); font-size: 16px;">Самовыкуп qo'shish</h3>
+    <p style="margin: 0 0 16px 0; color: var(--text-tertiary); font-size: 12px;">O'zingiz sotib olgan tovar (SRID bo'yicha)</p>
+
+    <div style="margin-bottom: 10px;">
+      <label class="form-label">SRID *</label>
+      <input type="text" id="newSrid" class="form-input" placeholder="e815080dd4b436e9..." style="width: 100%;">
+      <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 3px;">Bazadagi SRID ni nusxalang (WB Excel BE ustun)</div>
+    </div>
+    <div style="margin-bottom: 10px;">
+      <label class="form-label">Artikul</label>
+      <input type="text" id="newArticle" class="form-input" placeholder="dvoyka-persik" style="width: 100%;">
+    </div>
+    <div style="margin-bottom: 10px;">
+      <label class="form-label">Sana</label>
+      <input type="date" id="newDate" class="form-input" style="width: 100%;">
+    </div>
+    <div style="margin-bottom: 10px;">
+      <label class="form-label">Tannarx (so'm/rubl)</label>
+      <input type="number" id="newCost" class="form-input" placeholder="235" step="0.01" style="width: 100%;">
+    </div>
+    <div style="margin-bottom: 10px;">
+      <label class="form-label">Logistika</label>
+      <input type="number" id="newLogistics" class="form-input" placeholder="65" step="0.01" style="width: 100%;">
+    </div>
+    <div style="margin-bottom: 16px;">
+      <label class="form-label">Eslatma</label>
+      <input type="text" id="newNote" class="form-input" placeholder="(ixtiyoriy)" style="width: 100%;">
+    </div>
+
+    <div style="display: flex; gap: 8px;">
+      <button class="btn btn-primary" onclick="saveSelfPurchase()" style="flex: 1; padding: 10px;">💾 Saqlash</button>
+      <button class="btn btn-outline" onclick="closeModal()" style="flex: 1; padding: 10px;">Bekor</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/storage.js"></script>
+<script src="js/app-init.js"></script>
+<script src="js/main.js"></script>
+<script src="js/baza-formulas.js"></script>
+<script src="js/calculator.js"></script>
+
+<script>
+  let editingId = null;
+
+  window.initPage = function() {
+    setupLayout('self_purchase');
+    render();
+  };
+
+  function render() {
+    const content = document.getElementById('content');
+    const samovikupy = Storage.getSelfPurchases();
+    const settings = Storage.getSettings();
+    const cur = settings.currency;
+
+    const totalCost = samovikupy.reduce((s, p) => s + (p.cost || 0) + (p.logistics || 0), 0);
+    const totalCount = samovikupy.length;
+
+    content.innerHTML = `
+      <div class="page-header">
+        <h1 class="page-title">🛒 Самовыкупы</h1>
+        <p class="page-subtitle">O'zingiz sotib olgan tovarlar — Bazadagi qatorlarga ta'sir qiladi</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px;">
+        <div class="kpi-card">
+          <div class="kpi-label">🛒 Jami</div>
+          <div class="kpi-value">${totalCount}</div>
+          <div class="kpi-change">ta самовыкуп</div>
+        </div>
+        <div class="kpi-card warning">
+          <div class="kpi-label">💸 Jami xarajat</div>
+          <div class="kpi-value">${fmtMoneyShort(totalCost, cur)}</div>
+          <div class="kpi-change">tannarx + logistika</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">📊 O'rtacha</div>
+          <div class="kpi-value">${totalCount > 0 ? fmtMoneyShort(totalCost / totalCount, cur) : '—'}</div>
+          <div class="kpi-change">har birida</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Jadval</div>
+            <div class="card-subtitle">${totalCount === 0 ? "Hech narsa qo'shilmagan" : `${totalCount} ta yozuv`}</div>
+          </div>
+          <button class="btn btn-primary" onclick="openModal()" style="font-size: 11px;">+ Yangi</button>
+        </div>
+
+        ${totalCount === 0 ? `
+          <div style="padding: 40px 20px; text-align: center; color: var(--text-tertiary);">
+            <div style="font-size: 48px; margin-bottom: 12px;">🛒</div>
+            <h3 style="font-size: 15px; color: var(--text); margin: 0 0 6px 0;">Hozircha bo'sh</h3>
+            <p style="font-size: 12px; margin: 0 0 16px 0;">O'zingiz sotib olgan tovarlarni qo'shing</p>
+            <button class="btn btn-primary" onclick="openModal()" style="font-size: 12px;">+ Birinchisini qo'shish</button>
+          </div>
+        ` : `
+          <div class="table-wrapper" style="border: none;">
+            <table class="table" style="font-size: 12px;">
+              <thead>
+                <tr>
+                  <th>Sana</th>
+                  <th>SRID</th>
+                  <th>Artikul</th>
+                  <th class="num">Tannarx</th>
+                  <th class="num">Logistika</th>
+                  <th class="num">Jami</th>
+                  <th>Eslatma</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${samovikupy.map((p, i) => `
+                  <tr>
+                    <td>${fmtDate(p.date) || '—'}</td>
+                    <td style="font-family: monospace; font-size: 11px;" title="${p.srid || ''}">${(p.srid || '').substring(0, 12)}...</td>
+                    <td><strong>${p.article || '—'}</strong></td>
+                    <td class="num num-negative">${fmtMoney(p.cost || 0, cur)}</td>
+                    <td class="num num-negative">${fmtMoney(p.logistics || 0, cur)}</td>
+                    <td class="num" style="font-weight: 700;">${fmtMoney((p.cost || 0) + (p.logistics || 0), cur)}</td>
+                    <td style="font-size: 11px; color: var(--text-secondary);">${p.note || ''}</td>
+                    <td>
+                      <button onclick="editItem(${i})" style="background: none; border: 1px solid var(--blue); color: var(--blue); padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 10px;">✎</button>
+                      <button onclick="deleteItem(${i})" style="background: none; border: 1px solid var(--red); color: var(--red); padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 10px;">×</button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+              <tfoot>
+                <tr style="background: var(--gray-100); font-weight: 700;">
+                  <td colspan="3">JAMI (${totalCount} ta)</td>
+                  <td class="num num-negative">${fmtMoney(samovikupy.reduce((s,p) => s + (p.cost || 0), 0), cur)}</td>
+                  <td class="num num-negative">${fmtMoney(samovikupy.reduce((s,p) => s + (p.logistics || 0), 0), cur)}</td>
+                  <td class="num">${fmtMoney(totalCost, cur)}</td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        `}
+      </div>
+
+      <div class="tip-box info" style="margin-top: 16px;">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round"/></svg>
+        <div class="tip-content">
+          <strong>Самовыкуп nima?</strong><br>
+          Bu sizning o'zingiz xaridor sifatida sotib olgan tovarlaringiz (reyting yoki marketing uchun).<br>
+          <strong>SRID</strong> — Базadagi har sotuv uchun yagona kod. Buni nusxalang va shu yerda saqlash hisobiga qo'shing.<br>
+          Sayt bu xarajatlarni <strong>Toza foyda</strong> hisobida ayiradi.
+        </div>
+      </div>
+    `;
+  }
+
+  window.openModal = function() {
+    editingId = null;
+    document.getElementById('newSrid').value = '';
+    document.getElementById('newArticle').value = '';
+    document.getElementById('newDate').value = new Date().toISOString().substring(0, 10);
+    document.getElementById('newCost').value = '';
+    document.getElementById('newLogistics').value = '';
+    document.getElementById('newNote').value = '';
+    document.getElementById('addModal').classList.add('show');
+    setTimeout(() => document.getElementById('newSrid').focus(), 50);
+  };
+
+  window.closeModal = function() {
+    document.getElementById('addModal').classList.remove('show');
+  };
+
+  window.editItem = function(idx) {
+    const items = Storage.getSelfPurchases();
+    const item = items[idx];
+    if (!item) return;
+    editingId = idx;
+    document.getElementById('newSrid').value = item.srid || '';
+    document.getElementById('newArticle').value = item.article || '';
+    document.getElementById('newDate').value = item.date || '';
+    document.getElementById('newCost').value = item.cost || '';
+    document.getElementById('newLogistics').value = item.logistics || '';
+    document.getElementById('newNote').value = item.note || '';
+    document.getElementById('addModal').classList.add('show');
+  };
+
+  window.saveSelfPurchase = function() {
+    const srid = document.getElementById('newSrid').value.trim();
+    if (!srid) { alert('SRID majburiy'); return; }
+
+    const item = {
+      srid,
+      article: document.getElementById('newArticle').value.trim(),
+      date: document.getElementById('newDate').value,
+      cost: parseFloat(document.getElementById('newCost').value) || 0,
+      logistics: parseFloat(document.getElementById('newLogistics').value) || 0,
+      note: document.getElementById('newNote').value.trim(),
+      total: 0
+    };
+    item.total = item.cost + item.logistics;
+
+    const items = Storage.getSelfPurchases();
+    if (editingId !== null) {
+      items[editingId] = item;
+    } else {
+      items.push(item);
+    }
+    Storage.setSelfPurchases(items);
+
+    if (typeof Calculator !== 'undefined') Calculator.invalidate();
+
+    notify(editingId !== null ? 'Yangilandi' : 'Qo\'shildi', 'success');
+    closeModal();
+    render();
+  };
+
+  window.deleteItem = function(idx) {
+    if (!confirm('O\'chirasizmi?')) return;
+    const items = Storage.getSelfPurchases();
+    items.splice(idx, 1);
+    Storage.setSelfPurchases(items);
+    if (typeof Calculator !== 'undefined') Calculator.invalidate();
+    notify('O\'chirildi', 'warning');
+    render();
+  };
+
+  // Tashqi bossangiz yopadi
+  document.getElementById('addModal').addEventListener('click', e => {
+    if (e.target.id === 'addModal') closeModal();
+  });
+</script>
+
+</body>
+</html>

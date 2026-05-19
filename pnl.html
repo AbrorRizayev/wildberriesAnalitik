@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIRA — P&L</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <main class="page">
+
+      <div class="page-header">
+        <h1 class="page-title">P&L — Profit & Loss</h1>
+        <p class="page-subtitle">Haftalik foyda-zarar hisoboti — sizning Excel kabi</p>
+      </div>
+
+      <div id="content"></div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/storage.js"></script>
+<script src="js/app-init.js"></script>
+<script src="js/baza-formulas.js"></script>
+<script src="js/calculator.js"></script>
+<script src="js/main.js"></script>
+
+<script>
+  window.initPage = function() {
+setupLayout('pnl');
+
+  const base = Storage.getBase();
+  const settings = Storage.getSettings();
+  const cur = settings.currency;
+  const content = document.getElementById('content');
+
+  if (base.length === 0) {
+    renderEmpty(content, {
+      icon: '📑',
+      title: 'P&L bo\'sh',
+      message: 'Avval Список отчётов va Подробный отчёt yuklang',
+      link: 'upload.html',
+      linkText: '📤 Yuklash sahifasi'
+    });
+  } else {
+    const ctx = {
+      costs: Storage.getCosts(),
+      settings,
+      samovikupy: Storage.getSelfPurchases(),
+      extExpenses: Storage.getExtExpenses(),
+      listReports: Storage.getListReports()
+    };
+
+    // Asinx hisoblash (cache bilan)
+    (async function() {
+      const baseLen = base.length;
+      const showProgress = baseLen > 10000;
+
+      let calculated;
+      if (showProgress) {
+        Calculator.showProgress();
+        try {
+          calculated = await Calculator.getCalculated((current, total, pct) => {
+            Calculator.updateProgress(current, total, pct);
+          });
+        } finally {
+          Calculator.hideProgress();
+        }
+      } else {
+        calculated = await Calculator.getCalculated();
+      }
+      window._calculated = calculated;
+      renderMain();
+    })();
+
+    function renderMain() {
+      const calculated = window._calculated;
+    const weeks = BazaFormulas.byWeek(calculated);
+
+    // Jami
+    const totals = {
+      revenue: 0, qty: 0, returns_qty: 0,
+      commission: 0, acquiring: 0, logistics: 0,
+      storage: 0, fines: 0, promotion: 0,
+      cost: 0, tax: 0, profit: 0
+    };
+    weeks.forEach(w => {
+      totals.revenue += w.revenue;
+      totals.qty += w.qty;
+      totals.returns_qty += w.returns_qty;
+      totals.commission += w.commission;
+      totals.acquiring += w.acquiring;
+      totals.logistics += w.logistics;
+      totals.storage += w.storage;
+      totals.fines += w.fines;
+      totals.promotion += w.promotion;
+      totals.cost += w.cost;
+      totals.tax += w.tax;
+      totals.profit += w.profit;
+    });
+
+    content.innerHTML = `
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Haftalar</div>
+          <div class="kpi-value">${weeks.length}</div>
+        </div>
+        <div class="kpi-card success">
+          <div class="kpi-label">Jami daromad</div>
+          <div class="kpi-value">${fmtMoneyShort(totals.revenue, cur)}</div>
+        </div>
+        <div class="kpi-card ${totals.profit >= 0 ? 'success' : 'danger'}">
+          <div class="kpi-label">Jami foyda</div>
+          <div class="kpi-value">${fmtMoneyShort(totals.profit, cur)}</div>
+          <div class="kpi-change">Marja ${totals.revenue > 0 ? fmtPercent(totals.profit / totals.revenue * 100) : '—'}</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Haftalik P&L jadval</div>
+            <div class="card-subtitle">Har bir hafta uchun batafsil hisobot</div>
+          </div>
+          <button class="btn btn-outline" onclick="exportCsv()" style="font-size: 11px;">📥 CSV</button>
+        </div>
+
+        <div class="table-wrapper" style="border: none;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Hafta (Дата)</th>
+                <th class="num">Sotuvlar</th>
+                <th class="num">Qaytarish</th>
+                <th class="num">Daromad</th>
+                <th class="num">Komissiya</th>
+                <th class="num">Logistika</th>
+                <th class="num">Saqlash</th>
+                <th class="num">Shtraflar</th>
+                <th class="num">Reklama</th>
+                <th class="num">Tannarx</th>
+                <th class="num">Soliq</th>
+                <th class="num">Foyda</th>
+                <th class="num">Marja</th>
+                <th class="num">ROI</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${weeks.map(w => `
+                <tr style="cursor: pointer;" onclick="window.location.href='week-detail.html?week=${encodeURIComponent(w.week)}'">
+                  <td><strong style="color: var(--blue);">${fmtDate(w.week)} →</strong></td>
+                  <td class="num">${fmt(w.qty)}</td>
+                  <td class="num">${fmt(w.returns_qty)}</td>
+                  <td class="num num-positive">${fmtMoney(w.revenue, cur)}</td>
+                  <td class="num num-negative">${fmtMoney(w.commission, cur)}</td>
+                  <td class="num num-negative">${fmtMoney(w.logistics, cur)}</td>
+                  <td class="num num-negative">${fmtMoney(w.storage, cur)}</td>
+                  <td class="num num-negative">${fmtMoney(w.fines, cur)}</td>
+                  <td class="num num-negative">${fmtMoney(w.promotion, cur)}</td>
+                  <td class="num num-negative">${fmtMoney(w.cost, cur)}</td>
+                  <td class="num num-negative">${fmtMoney(w.tax, cur)}</td>
+                  <td class="num ${w.profit >= 0 ? 'num-positive' : 'num-negative'}" style="font-weight: 700;">${fmtMoney(w.profit, cur)}</td>
+                  <td class="num">${fmtPercent(w.margin_pct)}</td>
+                  <td class="num">${fmtPercent(w.roi_pct)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+            <tfoot>
+              <tr style="background: var(--gray-50); font-weight: 700;">
+                <td>JAMI</td>
+                <td class="num">${fmt(totals.qty)}</td>
+                <td class="num">${fmt(totals.returns_qty)}</td>
+                <td class="num">${fmtMoney(totals.revenue, cur)}</td>
+                <td class="num num-negative">${fmtMoney(totals.commission, cur)}</td>
+                <td class="num num-negative">${fmtMoney(totals.logistics, cur)}</td>
+                <td class="num num-negative">${fmtMoney(totals.storage, cur)}</td>
+                <td class="num num-negative">${fmtMoney(totals.fines, cur)}</td>
+                <td class="num num-negative">${fmtMoney(totals.promotion, cur)}</td>
+                <td class="num num-negative">${fmtMoney(totals.cost, cur)}</td>
+                <td class="num num-negative">${fmtMoney(totals.tax, cur)}</td>
+                <td class="num ${totals.profit >= 0 ? 'num-positive' : 'num-negative'}">${fmtMoney(totals.profit, cur)}</td>
+                <td class="num">${totals.revenue > 0 ? fmtPercent(totals.profit / totals.revenue * 100) : '—'}</td>
+                <td class="num">${totals.cost > 0 ? fmtPercent(totals.profit / totals.cost * 100) : '—'}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    `;
+
+    window.exportCsv = function() {
+      const headers = ['Hafta', 'Sotuvlar', 'Qaytarish', 'Daromad', 'Komissiya', 'Logistika',
+                       'Saqlash', 'Shtraflar', 'Reklama', 'Tannarx', 'Soliq', 'Foyda', 'Marja %', 'ROI %'];
+      const rows = weeks.map(w => [w.week, w.qty, w.returns_qty, w.revenue,
+                                    w.commission, w.logistics, w.storage, w.fines, w.promotion,
+                                    w.cost, w.tax, w.profit, w.margin_pct.toFixed(2), w.roi_pct.toFixed(2)]);
+      const csv = [headers, ...rows].map(r => r.join(';')).join('\n');
+      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `aira-pnl-${new Date().toISOString().substring(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      notify('CSV eksport tayyor', 'success');
+    };
+  }
+  };
+
+  }
+</script>
+
+</body>
+</html>

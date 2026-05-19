@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIRA</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* ============================================
+     AIRA — Welcome (Light Premium)
+     Sidebar logo style · Clean · Minimal
+     ============================================ */
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #1A202C;
+    background: #f7f9fc;
+  }
+
+  .stage {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 25%, rgba(74, 133, 200, 0.10) 0%, transparent 65%),
+      radial-gradient(ellipse 60% 40% at 85% 90%, rgba(186, 117, 23, 0.05) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 35% at 15% 85%, rgba(127, 119, 221, 0.04) 0%, transparent 60%),
+      linear-gradient(180deg, #f7f9fc 0%, #ffffff 50%, #f5f8fc 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 24px;
+    position: relative;
+  }
+
+  /* Subtle decorative corner ornaments */
+  .stage::before, .stage::after {
+    content: '';
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    background-image:
+      linear-gradient(rgba(24, 95, 165, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(24, 95, 165, 0.06) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+  .stage::before {
+    top: 40px; left: 40px;
+    mask-image: linear-gradient(135deg, black, transparent 60%);
+    -webkit-mask-image: linear-gradient(135deg, black, transparent 60%);
+  }
+  .stage::after {
+    bottom: 40px; right: 40px;
+    mask-image: linear-gradient(-45deg, black, transparent 60%);
+    -webkit-mask-image: linear-gradient(-45deg, black, transparent 60%);
+  }
+
+  /* ============ TOP — language switch only ============ */
+  .top-lang {
+    position: absolute;
+    top: 28px;
+    right: 32px;
+    z-index: 10;
+    display: flex;
+    gap: 2px;
+    background: white;
+    border: 1px solid rgba(24, 95, 165, 0.12);
+    border-radius: 100px;
+    padding: 4px;
+    box-shadow: 0 2px 8px rgba(4, 44, 83, 0.05);
+    animation: fadeInDown 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .top-lang button {
+    background: transparent;
+    border: none;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 100px;
+    cursor: pointer;
+    color: rgba(74, 85, 104, 0.6);
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .top-lang button:hover { color: #185FA5; }
+  .top-lang button.active {
+    background: linear-gradient(135deg, #185FA5, #042C53);
+    color: white;
+  }
+
+  /* ============ CENTER STAGE ============ */
+  .scene {
+    position: relative;
+    z-index: 3;
+    text-align: center;
+    width: 100%;
+    max-width: 480px;
+    padding: 32px 20px;
+  }
+
+  /* ============ AIRA LOGO BADGE — hero ============ */
+  .logo-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 28px;
+    animation: scaleIn 1s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+  @keyframes scaleIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .logo-badge {
+    width: 96px;
+    height: 96px;
+    background: linear-gradient(135deg, #185FA5 0%, #042C53 100%);
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: 1.2px;
+    position: relative;
+    box-shadow:
+      0 22px 50px -12px rgba(24, 95, 165, 0.45),
+      0 8px 20px -8px rgba(4, 44, 83, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+      0 1px 0 rgba(255, 255, 255, 0.25) inset;
+    overflow: hidden;
+  }
+  .logo-badge::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%);
+    pointer-events: none;
+  }
+  .logo-badge::after {
+    content: '';
+    position: absolute;
+    top: -2px; left: -2px; right: -2px;
+    height: 60%;
+    background: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.25) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .logo-wordmark {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    color: #042C53;
+    line-height: 1;
+    margin: 0;
+  }
+  .logo-tagline {
+    font-size: 10px;
+    letter-spacing: 3.5px;
+    text-transform: uppercase;
+    color: #718096;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .logo-tagline .dot { color: #d4a058; }
+
+  /* ============ WELCOME LINE ============ */
+  .welcome-line {
+    font-size: 14px;
+    color: #4A5568;
+    margin-bottom: 32px;
+    line-height: 1.5;
+    animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s backwards;
+  }
+  .welcome-line .wave { display: inline-block; animation: wave 2.4s ease-in-out 1.3s infinite; transform-origin: 70% 70%; }
+  @keyframes wave {
+    0%, 60%, 100% { transform: rotate(0deg); }
+    10%           { transform: rotate(14deg); }
+    20%           { transform: rotate(-8deg); }
+    30%           { transform: rotate(14deg); }
+    40%           { transform: rotate(-4deg); }
+    50%           { transform: rotate(10deg); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ============ STATUS PILL (when data exists) ============ */
+  .status-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    background: rgba(15, 110, 86, 0.08);
+    border: 1px solid rgba(15, 110, 86, 0.18);
+    border-radius: 100px;
+    font-size: 12px;
+    color: #0F6E56;
+    font-weight: 600;
+    margin-bottom: 28px;
+    animation: fadeIn 0.7s ease 0.5s backwards;
+  }
+  .status-row .dot {
+    width: 6px;
+    height: 6px;
+    background: #0F6E56;
+    border-radius: 50%;
+    position: relative;
+  }
+  .status-row .dot::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: rgba(15, 110, 86, 0.3);
+    animation: ripple 2.4s ease-out infinite;
+  }
+  @keyframes ripple {
+    0%   { transform: scale(0.5); opacity: 1; }
+    100% { transform: scale(2.5); opacity: 0; }
+  }
+  .status-row strong {
+    color: #0A4A3A;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .status-row .sep { opacity: 0.4; }
+
+  .start-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(24, 95, 165, 0.06);
+    border: 1px solid rgba(24, 95, 165, 0.16);
+    border-radius: 100px;
+    font-size: 12px;
+    color: #185FA5;
+    font-weight: 600;
+    margin-bottom: 28px;
+    animation: fadeIn 0.7s ease 0.5s backwards;
+  }
+  .start-row .star { color: #d4a058; }
+
+  /* ============ CTA ============ */
+  .cta-area {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+    animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.6s backwards;
+  }
+  .cta-primary {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 32px;
+    background: linear-gradient(135deg, #185FA5 0%, #042C53 100%);
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    border-radius: 14px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow:
+      0 14px 30px -10px rgba(24, 95, 165, 0.5),
+      0 4px 10px -4px rgba(4, 44, 83, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    font-family: inherit;
+  }
+  .cta-primary::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+    transition: left 0.7s;
+  }
+  .cta-primary:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 20px 40px -10px rgba(24, 95, 165, 0.6),
+      0 6px 14px -4px rgba(4, 44, 83, 0.4);
+  }
+  .cta-primary:hover::before { left: 100%; }
+  .cta-primary:active { transform: translateY(0); }
+  .cta-primary .arrow {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: inline-block;
+  }
+  .cta-primary:hover .arrow { transform: translateX(4px); }
+
+  .cta-secondary {
+    padding: 13px 28px;
+    background: white;
+    color: #4A5568;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 14px;
+    border: 1px solid rgba(74, 85, 104, 0.15);
+    text-decoration: none;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .cta-secondary:hover {
+    border-color: #185FA5;
+    color: #185FA5;
+    background: rgba(24, 95, 165, 0.03);
+  }
+
+  /* ============ BOTTOM ============ */
+  .bottom-meta {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(74, 85, 104, 0.4);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    z-index: 5;
+    animation: fadeIn 1s ease 0.9s backwards;
+    white-space: nowrap;
+  }
+  .bottom-meta .dot {
+    width: 3px;
+    height: 3px;
+    background: #d4a058;
+    opacity: 0.6;
+    border-radius: 50%;
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 540px) {
+    .top-lang { top: 18px; right: 18px; }
+    .logo-badge { width: 80px; height: 80px; font-size: 18px; border-radius: 18px; }
+    .logo-wordmark { font-size: 30px; letter-spacing: 3.5px; }
+    .welcome-line { font-size: 13px; padding: 0 12px; }
+    .bottom-meta { font-size: 9px; letter-spacing: 1.5px; gap: 10px; flex-wrap: wrap; justify-content: center; padding: 0 16px; }
+    .stage::before, .stage::after { width: 140px; height: 140px; }
+  }
+  @media (max-height: 660px) {
+    .logo-stack { margin-bottom: 18px; gap: 14px; }
+    .logo-badge { width: 80px; height: 80px; font-size: 18px; border-radius: 18px; }
+    .logo-wordmark { font-size: 28px; }
+    .welcome-line { margin-bottom: 20px; }
+    .status-row, .start-row { margin-bottom: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="top-lang">
+    <button class="active" data-lang="uz">UZ</button>
+    <button data-lang="ru">RU</button>
+  </div>
+
+  <div class="scene">
+
+    <div class="logo-stack">
+      <div class="logo-badge">AIRA</div>
+      <div class="logo-text">
+        <div class="logo-wordmark">AIRA</div>
+        <div class="logo-tagline">WB <span class="dot">·</span> Analytics</div>
+      </div>
+    </div>
+
+    <p class="welcome-line">
+      <span data-uz="Xush kelibsiz" data-ru="Добро пожаловать">Xush kelibsiz</span> <span class="wave">👋</span>
+    </p>
+
+    <div id="welcomeContent"></div>
+
+  </div>
+
+  <div class="bottom-meta">
+    <span data-uz="Faqat brauzeringizda" data-ru="Только в браузере">Faqat brauzeringizda</span>
+    <span class="dot"></span>
+    <span data-uz="Login yo'q" data-ru="Без логина">Login yo'q</span>
+    <span class="dot"></span>
+    <span>Offline-first</span>
+  </div>
+
+</div>
+
+<script src="js/storage.js"></script>
+<script src="js/app-init.js"></script>
+<script src="js/main.js"></script>
+<script>
+  window.initPage = function() {
+    const base = Storage.getBase();
+    const listReports = Storage.getListReports();
+    const welcome = document.getElementById('welcomeContent');
+
+    if (base.length === 0 && listReports.length === 0) {
+      welcome.innerHTML = `
+        <div class="start-row">
+          <span class="star">✦</span>
+          <span data-uz="Boshlash uchun achot yuklang" data-ru="Загрузите отчёт чтобы начать">Boshlash uchun achot yuklang</span>
+        </div>
+        <div class="cta-area">
+          <a href="upload.html" class="cta-primary">
+            <span data-uz="Birinchi achotni yuklash" data-ru="Загрузить отчёт">Birinchi achotni yuklash</span>
+            <span class="arrow">→</span>
+          </a>
+          <a href="dashboard.html" class="cta-secondary" data-uz="Dashboard'ga o'tish" data-ru="Перейти на Dashboard">Dashboard'ga o'tish</a>
+        </div>
+      `;
+    } else {
+      welcome.innerHTML = `
+        <div class="status-row">
+          <span class="dot"></span>
+          <span data-uz="Ma'lumot tayyor" data-ru="Данные готовы">Ma'lumot tayyor</span>
+          <span class="sep">·</span>
+          <strong>${fmt(base.length)}</strong>
+          <span data-uz="qator" data-ru="строк">qator</span>
+          <span class="sep">·</span>
+          <strong>${listReports.length}</strong>
+          <span data-uz="achot" data-ru="отчёт">achot</span>
+        </div>
+        <div class="cta-area">
+          <a href="dashboard.html" class="cta-primary">
+            <span data-uz="Dashboard'ga kirish" data-ru="Войти на Dashboard">Dashboard'ga kirish</span>
+            <span class="arrow">→</span>
+          </a>
+          <a href="upload.html" class="cta-secondary" data-uz="Yangi achot yuklash" data-ru="Загрузить новый отчёт">Yangi achot yuklash</a>
+        </div>
+      `;
+    }
+
+    function applyLang(lang) {
+      document.querySelectorAll('[data-uz]').forEach(el => {
+        const txt = el.getAttribute(lang === 'ru' ? 'data-ru' : 'data-uz');
+        if (txt) el.textContent = txt;
+      });
+      document.querySelectorAll('.top-lang button').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-lang') === lang);
+      });
+      try { Storage.setLang(lang); } catch (e) {}
+      document.documentElement.lang = lang;
+    }
+
+    document.querySelectorAll('.top-lang button').forEach(btn => {
+      btn.addEventListener('click', () => applyLang(btn.getAttribute('data-lang')));
+    });
+
+    const savedLang = (typeof Storage.getLang === 'function') ? Storage.getLang() : 'uz';
+    applyLang(savedLang || 'uz');
+  };
+</script>
+
+</body>
+</html>

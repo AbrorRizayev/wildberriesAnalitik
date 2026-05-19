@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIRA — Графики</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* ============================================
+     CHARTS PAGE — PREMIUM DESIGN
+     ============================================ */
+
+  /* HERO HEADER */
+  .charts-hero {
+    background:
+      radial-gradient(ellipse 800px 400px at 80% -20%, rgba(74, 133, 200, 0.35) 0%, transparent 50%),
+      radial-gradient(ellipse 600px 300px at 10% 110%, rgba(83, 74, 183, 0.25) 0%, transparent 50%),
+      linear-gradient(135deg, #021A33 0%, #042C53 45%, #0a3a6e 100%);
+    color: white;
+    border-radius: 20px;
+    padding: 32px 36px 28px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px -20px rgba(4, 44, 83, 0.4);
+  }
+  .charts-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Ccircle cx='2' cy='2' r='0.4' fill='%23ffffff' opacity='0.06'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  .charts-hero::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .charts-hero-content {
+    position: relative;
+    z-index: 1;
+  }
+  .charts-hero-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .charts-hero-eyebrow::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.4);
+  }
+  .charts-hero-title {
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+    background: linear-gradient(180deg, #ffffff 0%, #cbd5e0 130%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .charts-hero-subtitle {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    max-width: 520px;
+    line-height: 1.55;
+  }
+
+  /* INSIGHTS BAR */
+  .insights-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin-top: 24px;
+    position: relative;
+    z-index: 1;
+  }
+  .insight {
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 14px 16px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .insight:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  .insight-label {
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .insight-value {
+    font-size: 19px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: -0.3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .insight-extra {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 3px;
+  }
+  .insight-extra.up { color: #5fd1a3; }
+  .insight-extra.down { color: #ff8b8b; }
+
+  /* FILTERS BAR */
+  .filters-bar {
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.04);
+  }
+  .filter-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 4px 4px 4px 12px;
+    border: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .filter-pill:focus-within { border-color: var(--blue); }
+  .filter-pill-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+  }
+  .filter-pill select {
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 500;
+    padding: 4px 6px;
+    cursor: pointer;
+    outline: none;
+    min-width: 90px;
+  }
+
+  /* CHART CARD */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    margin-bottom: 18px;
+  }
+  .chart-card {
+    background: white;
+    border-radius: 16px;
+    padding: 22px 24px 20px;
+    border: 1px solid var(--border-light);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: cardFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+  .chart-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 40px -18px rgba(4, 44, 83, 0.18);
+    border-color: rgba(24, 95, 165, 0.18);
+  }
+  .chart-card:nth-child(1) { animation-delay: 0.05s; }
+  .chart-card:nth-child(2) { animation-delay: 0.1s; }
+  .chart-card:nth-child(3) { animation-delay: 0.15s; }
+  .chart-card:nth-child(4) { animation-delay: 0.2s; }
+  .chart-card.full { grid-column: 1 / -1; }
+
+  @keyframes cardFadeIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .chart-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent, var(--blue)), transparent);
+    opacity: 0.6;
+  }
+
+  .chart-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+    gap: 12px;
+  }
+  .chart-card-headline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .chart-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    background: linear-gradient(135deg, var(--accent, var(--blue)), var(--accent2, var(--blue-light)));
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 6px 16px -6px var(--accent, var(--blue));
+  }
+  .chart-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: -0.2px;
+    margin-bottom: 2px;
+  }
+  .chart-subtitle {
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+  .chart-card-meta {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .chart-card-meta-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .chart-card-meta-label {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .chart-canvas-wrap {
+    position: relative;
+    height: 280px;
+  }
+  .chart-canvas-wrap.tall { height: 380px; }
+  .chart-canvas-wrap.medium { height: 320px; }
+
+  /* CENTER DONUT TEXT */
+  .donut-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+  }
+  .donut-center-label {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 600;
+  }
+  .donut-center-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: -0.3px;
+    margin-top: 2px;
+  }
+
+  /* LEGEND BELOW CHART */
+  .chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border-light);
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .legend-value {
+    color: var(--text);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* EMPTY STATE */
+  .empty-charts {
+    background: white;
+    border-radius: 16px;
+    padding: 60px 40px;
+    text-align: center;
+    border: 1px solid var(--border-light);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 980px) {
+    .charts-grid { grid-template-columns: 1fr; }
+    .charts-hero { padding: 24px 22px; border-radius: 16px; }
+    .charts-hero-title { font-size: 28px; }
+    .chart-canvas-wrap { height: 240px; }
+    .chart-canvas-wrap.tall { height: 320px; }
+  }
+
+  /* TOOLTIP CUSTOMIZATION (Chart.js will style via JS, but body classes here) */
+  body { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <main class="page">
+      <div id="content"></div>
+    </main>
+  </div>
+</div>
+
+<script src="js/lib/chart.umd.min.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/app-init.js"></script>
+<script src="js/baza-formulas.js"></script>
+<script src="js/calculator.js"></script>
+<script src="js/main.js"></script>
+
+<script>
+window.initPage = function() {
+  setupLayout('charts');
+
+  const base = Storage.getBase();
+  const settings = Storage.getSettings();
+  const cur = settings.currency || '₽';
+  const content = document.getElementById('content');
+
+  if (base.length === 0) {
+    content.innerHTML = `
+      <div class="empty-charts">
+        <div style="font-size: 56px; margin-bottom: 16px;">📊</div>
+        <h2 style="color: var(--navy); margin-bottom: 8px; font-size: 22px;">Графика uchun ma'lumot yo'q</h2>
+        <p style="color: var(--text-tertiary); margin-bottom: 20px;">Avval Подробный отчёt yuklang — vizual tahlil tayyor bo'ladi</p>
+        <a href="upload.html" class="btn btn-primary">📤 Yuklash sahifasi</a>
+      </div>
+    `;
+    return;
+  }
+
+  // ============ Chart.js global config ============
+  Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+  Chart.defaults.font.size = 11;
+  Chart.defaults.color = '#4A5568';
+  Chart.defaults.borderColor = 'rgba(226, 232, 240, 0.6)';
+  Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(2, 26, 51, 0.95)';
+  Chart.defaults.plugins.tooltip.titleColor = '#ffffff';
+  Chart.defaults.plugins.tooltip.bodyColor = '#cbd5e0';
+  Chart.defaults.plugins.tooltip.padding = 12;
+  Chart.defaults.plugins.tooltip.cornerRadius = 10;
+  Chart.defaults.plugins.tooltip.titleFont = { weight: '600', size: 12 };
+  Chart.defaults.plugins.tooltip.bodyFont = { size: 12 };
+  Chart.defaults.plugins.tooltip.boxPadding = 6;
+  Chart.defaults.plugins.tooltip.displayColors = true;
+  Chart.defaults.plugins.legend.display = false;
+  Chart.defaults.animation.duration = 800;
+  Chart.defaults.animation.easing = 'easeOutQuart';
+
+  // Formatlar (qisqa)
+  function fmtK(n) {
+    if (typeof n !== 'number' || isNaN(n)) return '0';
+    const abs = Math.abs(n);
+    if (abs >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+    if (abs >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+    return Math.round(n).toString();
+  }
+  function fmtKMoney(n) { return fmtK(n) + ' ' + cur; }
+
+  // ============ Filterlar ============
+  const uniqueReports = [...new Set(base.map(r => r.report_num))].filter(Boolean).sort();
+  const uniqueMonths = [...new Set(base.map(r => r.sale_date ? r.sale_date.substring(0, 7) : null))].filter(Boolean).sort();
+
+  let filterReport = '';
+  let filterMonth = '';
+
+  let baseCalculated = [];
+  let ctx = null;
+  const chartInstances = {};
+
+  async function ensureCalculated() {
+    if (baseCalculated.length > 0) return;
+    ctx = {
+      costs: Storage.getCosts(),
+      settings,
+      samovikupy: Storage.getSelfPurchases(),
+      extExpenses: Storage.getExtExpenses(),
+      listReports: Storage.getListReports()
+    };
+    const baseLen = Storage.getBase().length;
+    if (baseLen > 10000) {
+      Calculator.showProgress();
+      try {
+        baseCalculated = await Calculator.getCalculated((c, t, p) => Calculator.updateProgress(c, t, p));
+      } finally { Calculator.hideProgress(); }
+    } else {
+      baseCalculated = await Calculator.getCalculated();
+    }
+  }
+
+  function getFiltered() {
+    let filtered = baseCalculated;
+    if (filterReport) filtered = filtered.filter(r => String(r.report_num) === String(filterReport));
+    if (filterMonth) filtered = filtered.filter(r => r.sale_date && r.sale_date.startsWith(filterMonth));
+    return filtered;
+  }
+
+  // ============ Render asosiy ============
+  async function render() {
+    await ensureCalculated();
+    const calculated = getFiltered();
+    const kpi = BazaFormulas.calculateKPI(calculated, ctx);
+    const products = BazaFormulas.byProduct(calculated);
+    const weeks = BazaFormulas.byWeek(calculated);
+    const warehouses = BazaFormulas.byWarehouse(calculated);
+
+    // === Kunlik (sana bo'yicha) ===
+    const dayMap = {};
+    for (const r of calculated) {
+      const d = r.sale_date;
+      if (!d || !((r.D || 0) > 0 || (r.E || 0) > 0)) continue;
+      if (!dayMap[d]) dayMap[d] = { date: d, revenue: 0, qty: 0 };
+      dayMap[d].revenue += r.I || 0;
+      dayMap[d].qty += (r.D || 0) - (r.E || 0);
+    }
+    const days = Object.values(dayMap).sort((a, b) => a.date.localeCompare(b.date));
+
+    // === Oylik trend ===
+    const monthMap = {};
+    for (const r of calculated) {
+      const d = r.sale_date;
+      if (!d) continue;
+      const m = d.substring(0, 7); // YYYY-MM
+      if (!monthMap[m]) monthMap[m] = { month: m, revenue: 0, cost: 0, tax: 0, to_pay_rs: 0 };
+      monthMap[m].revenue += r.I || 0;
+      monthMap[m].cost += r.AC || 0;
+      monthMap[m].tax += r.AB || 0;
+      monthMap[m].to_pay_rs += r.Y || 0;
+    }
+    const months = Object.values(monthMap)
+      .map(m => ({ ...m, profit: m.to_pay_rs - m.cost - m.tax }))
+      .sort((a, b) => a.month.localeCompare(b.month));
+
+    // === Insights (auto-computed) ===
+    let bestDay = days[0], worstWeek = weeks[0], topProduct = products[0], topWarehouse = warehouses[0];
+    for (const d of days) if (!bestDay || d.revenue > bestDay.revenue) bestDay = d;
+    for (const w of weeks) if (!worstWeek || (w.profit || 0) < (worstWeek.profit || 0)) worstWeek = w;
+
+    // ============ HTML ============
+    content.innerHTML = `
+      <!-- HERO -->
+      <section class="charts-hero">
+        <div class="charts-hero-content">
+          <div class="charts-hero-eyebrow">Vizual tahlil</div>
+          <h1 class="charts-hero-title">Графики</h1>
+          <p class="charts-hero-subtitle">Bir nazarda hammasi ko'rinadi — daromad, foyda, ushlanmalar va sklad bo'yicha taqsimot. Sizning Excel diagrammalaringizdan kuchliroq.</p>
+
+          <div class="insights-row">
+            <div class="insight">
+              <div class="insight-label">💰 Jami daromad</div>
+              <div class="insight-value">${fmtKMoney(kpi.revenue)}</div>
+              <div class="insight-extra">${fmt(kpi.sales_qty || 0)} dona</div>
+            </div>
+            <div class="insight">
+              <div class="insight-label">📈 Toza foyda</div>
+              <div class="insight-value">${fmtKMoney(kpi.net_profit)}</div>
+              <div class="insight-extra ${kpi.margin_pct >= 0 ? 'up' : 'down'}">${kpi.margin_pct >= 0 ? '▲' : '▼'} ${fmtPercent(kpi.margin_pct)} marja</div>
+            </div>
+            <div class="insight">
+              <div class="insight-label">🥇 Eng yaxshi kun</div>
+              <div class="insight-value">${bestDay ? fmtKMoney(bestDay.revenue) : '—'}</div>
+              <div class="insight-extra">${bestDay ? fmtDate(bestDay.date) : '—'}</div>
+            </div>
+            <div class="insight">
+              <div class="insight-label">🏬 Top sklad</div>
+              <div class="insight-value">${topWarehouse ? fmtKMoney(topWarehouse.revenue) : '—'}</div>
+              <div class="insight-extra">${topWarehouse ? (topWarehouse.warehouse.length > 18 ? topWarehouse.warehouse.substring(0, 18) + '…' : topWarehouse.warehouse) : '—'}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FILTERLAR -->
+      <div class="filters-bar">
+        <div style="font-size: 11px; color: var(--text-tertiary); font-weight: 700; letter-spacing: 0.8px;">FILTRLAR</div>
+        <div class="filter-pill">
+          <span class="filter-pill-label">Achot</span>
+          <select id="filterReport">
+            <option value="">Hammasi</option>
+            ${uniqueReports.map(rn => `<option value="${rn}" ${rn === filterReport ? 'selected' : ''}>№ ${rn}</option>`).join('')}
+          </select>
+        </div>
+        <div class="filter-pill">
+          <span class="filter-pill-label">Oy</span>
+          <select id="filterMonth">
+            <option value="">Hammasi</option>
+            ${uniqueMonths.map(m => `<option value="${m}" ${m === filterMonth ? 'selected' : ''}>${m}</option>`).join('')}
+          </select>
+        </div>
+        ${(filterReport || filterMonth) ? `<button id="clearFilters" class="btn btn-outline" style="font-size: 11px; padding: 6px 12px;">✕ Tozalash</button>` : ''}
+        <div style="margin-left: auto; font-size: 11px; color: var(--text-tertiary);">${fmt(calculated.length)} ta qator</div>
+      </div>
+
+      <!-- CHARTS GRID -->
+      <div class="charts-grid">
+
+        <!-- 1: Kunlik daromad -->
+        <div class="chart-card" style="--accent: #185FA5; --accent2: #4A85C8;">
+          <div class="chart-card-head">
+            <div class="chart-card-headline">
+              <div class="chart-icon">📈</div>
+              <div>
+                <div class="chart-title">Kunlik daromad</div>
+                <div class="chart-subtitle">Sana bo'yicha sotuv trendi</div>
+              </div>
+            </div>
+            <div class="chart-card-meta">
+              <div class="chart-card-meta-value">${fmtKMoney(kpi.revenue)}</div>
+              <div class="chart-card-meta-label">Jami</div>
+            </div>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="chartDaily"></canvas>
+          </div>
+        </div>
+
+        <!-- 2: Haftalik foyda/zarar -->
+        <div class="chart-card" style="--accent: #0F6E56; --accent2: #4ab28d;">
+          <div class="chart-card-head">
+            <div class="chart-card-headline">
+              <div class="chart-icon">📊</div>
+              <div>
+                <div class="chart-title">Haftalik foyda</div>
+                <div class="chart-subtitle">P&L har hafta bo'yicha</div>
+              </div>
+            </div>
+            <div class="chart-card-meta">
+              <div class="chart-card-meta-value" style="color: ${kpi.net_profit >= 0 ? 'var(--green-dark)' : 'var(--red-dark)'};">${fmtKMoney(kpi.net_profit)}</div>
+              <div class="chart-card-meta-label">Toza foyda</div>
+            </div>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="chartWeekly"></canvas>
+          </div>
+        </div>
+
+        <!-- 3: Top 10 tovar -->
+        <div class="chart-card" style="--accent: #BA7517; --accent2: #e8a847;">
+          <div class="chart-card-head">
+            <div class="chart-card-headline">
+              <div class="chart-icon">🥧</div>
+              <div>
+                <div class="chart-title">Top 10 tovar</div>
+                <div class="chart-subtitle">Daromad bo'yicha</div>
+              </div>
+            </div>
+            <div class="chart-card-meta">
+              <div class="chart-card-meta-value">${products.length}</div>
+              <div class="chart-card-meta-label">tovar</div>
+            </div>
+          </div>
+          <div class="chart-canvas-wrap" style="position: relative;">
+            <canvas id="chartTopProducts"></canvas>
+            <div class="donut-center">
+              <div class="donut-center-label">Top 10</div>
+              <div class="donut-center-value">${products.length > 0 && kpi.revenue > 0 ? Math.round((products.slice(0, 10).reduce((s, p) => s + p.revenue, 0) / kpi.revenue) * 100) : 0}%</div>
+            </div>
+          </div>
+          <div id="legendTopProducts" class="chart-legend"></div>
+        </div>
+
+        <!-- 4: WB ushlanmalar -->
+        <div class="chart-card" style="--accent: #A32D2D; --accent2: #d35858;">
+          <div class="chart-card-head">
+            <div class="chart-card-headline">
+              <div class="chart-icon">🍩</div>
+              <div>
+                <div class="chart-title">WB ushlanmalari</div>
+                <div class="chart-subtitle">Kategoriya bo'yicha taqsimot</div>
+              </div>
+            </div>
+            <div class="chart-card-meta">
+              <div class="chart-card-meta-value">${fmtKMoney(kpi.all_wb_deductions)}</div>
+              <div class="chart-card-meta-label">Jami</div>
+            </div>
+          </div>
+          <div class="chart-canvas-wrap" style="position: relative;">
+            <canvas id="chartDeductions"></canvas>
+            <div class="donut-center">
+              <div class="donut-center-label">% daromaddan</div>
+              <div class="donut-center-value">${fmtPercent(kpi.all_ded_pct || 0)}</div>
+            </div>
+          </div>
+          <div id="legendDeductions" class="chart-legend"></div>
+        </div>
+
+        <!-- 5: Sklad bo'yicha (full width) -->
+        <div class="chart-card full" style="--accent: #534AB7; --accent2: #8479d9;">
+          <div class="chart-card-head">
+            <div class="chart-card-headline">
+              <div class="chart-icon">🏬</div>
+              <div>
+                <div class="chart-title">Sklad bo'yicha daromad</div>
+                <div class="chart-subtitle">${warehouses.length} ta sklad — daromad bo'yicha tartiblangan</div>
+              </div>
+            </div>
+            <div class="chart-card-meta">
+              <div class="chart-card-meta-value">${warehouses.length}</div>
+              <div class="chart-card-meta-label">sklad</div>
+            </div>
+          </div>
+          <div class="chart-canvas-wrap tall">
+            <canvas id="chartWarehouses"></canvas>
+          </div>
+        </div>
+
+        <!-- 6: Oylik trend (full width) -->
+        <div class="chart-card full" style="--accent: #042C53; --accent2: #185FA5;">
+          <div class="chart-card-head">
+            <div class="chart-card-headline">
+              <div class="chart-icon">📈</div>
+              <div>
+                <div class="chart-title">Oylik trend</div>
+                <div class="chart-subtitle">Daromad va toza foyda — oydan oyga</div>
+              </div>
+            </div>
+            <div class="chart-card-meta">
+              <div class="chart-card-meta-value">${months.length}</div>
+              <div class="chart-card-meta-label">oy</div>
+            </div>
+          </div>
+          <div class="chart-canvas-wrap medium">
+            <canvas id="chartMonthly"></canvas>
+          </div>
+        </div>
+
+      </div>
+    `;
+
+    // ============ Filter listeners ============
+    const fr = document.getElementById('filterReport');
+    const fm = document.getElementById('filterMonth');
+    const cf = document.getElementById('clearFilters');
+    if (fr) fr.addEventListener('change', e => { filterReport = e.target.value; redraw(); });
+    if (fm) fm.addEventListener('change', e => { filterMonth = e.target.value; redraw(); });
+    if (cf) cf.addEventListener('click', () => { filterReport = ''; filterMonth = ''; redraw(); });
+
+    // Destroy old charts
+    Object.values(chartInstances).forEach(c => { try { c.destroy(); } catch(e) {} });
+
+    // ============ Chart 1: Kunlik daromad (line + area) ============
+    if (days.length > 0) {
+      const ctxD = document.getElementById('chartDaily').getContext('2d');
+      const gradD = ctxD.createLinearGradient(0, 0, 0, 280);
+      gradD.addColorStop(0, 'rgba(24, 95, 165, 0.35)');
+      gradD.addColorStop(1, 'rgba(24, 95, 165, 0)');
+
+      chartInstances.daily = new Chart(ctxD, {
+        type: 'line',
+        data: {
+          labels: days.map(d => d.date),
+          datasets: [{
+            label: 'Daromad',
+            data: days.map(d => d.revenue),
+            borderColor: '#185FA5',
+            backgroundColor: gradD,
+            borderWidth: 2.5,
+            tension: 0.35,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#185FA5',
+            pointHoverBorderWidth: 2.5,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { intersect: false, mode: 'index' },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                title: (items) => fmtDate(items[0].label),
+                label: (item) => '  Daromad: ' + fmtMoney(item.parsed.y, cur),
+                afterLabel: (item) => '  Sotilgan: ' + fmt(days[item.dataIndex].qty) + ' dona'
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: {
+                font: { size: 10 },
+                color: '#718096',
+                maxRotation: 0,
+                callback: function(val) {
+                  const lbl = this.getLabelForValue(val);
+                  if (!lbl) return '';
+                  const parts = lbl.split('-');
+                  return parts.length === 3 ? `${parts[2]}.${parts[1]}` : lbl;
+                }
+              }
+            },
+            y: {
+              grid: { color: 'rgba(226, 232, 240, 0.45)', drawBorder: false },
+              ticks: { font: { size: 10 }, color: '#718096', callback: (v) => fmtK(v) }
+            }
+          }
+        }
+      });
+    }
+
+    // ============ Chart 2: Haftalik foyda/zarar ============
+    if (weeks.length > 0) {
+      const ctxW = document.getElementById('chartWeekly').getContext('2d');
+      chartInstances.weekly = new Chart(ctxW, {
+        type: 'bar',
+        data: {
+          labels: weeks.map(w => w.week),
+          datasets: [{
+            label: 'Toza foyda',
+            data: weeks.map(w => w.profit || 0),
+            backgroundColor: weeks.map(w => (w.profit || 0) >= 0 ? 'rgba(15, 110, 86, 0.85)' : 'rgba(163, 45, 45, 0.85)'),
+            borderColor: weeks.map(w => (w.profit || 0) >= 0 ? '#0F6E56' : '#A32D2D'),
+            borderWidth: 1.5,
+            borderRadius: 6,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                title: (items) => 'Hafta: ' + items[0].label,
+                label: (item) => '  Foyda: ' + fmtMoney(item.parsed.y, cur),
+                afterLabel: (item) => {
+                  const w = weeks[item.dataIndex];
+                  return [
+                    '  Daromad: ' + fmtMoney(w.revenue, cur),
+                    '  Marja: ' + fmtPercent(w.margin_pct || 0)
+                  ];
+                }
+              }
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#718096', maxRotation: 0 } },
+            y: { grid: { color: 'rgba(226, 232, 240, 0.45)' }, ticks: { font: { size: 10 }, color: '#718096', callback: (v) => fmtK(v) } }
+          }
+        }
+      });
+    }
+
+    // ============ Chart 3: Top 10 tovar (donut) ============
+    if (products.length > 0) {
+      const top10 = products.slice(0, 10);
+      const others = products.slice(10);
+      const othersSum = others.reduce((s, p) => s + p.revenue, 0);
+      const palette = ['#BA7517', '#e8a847', '#f4c170', '#185FA5', '#4A85C8', '#0F6E56', '#4ab28d', '#A32D2D', '#534AB7', '#8479d9'];
+
+      const ctxP = document.getElementById('chartTopProducts').getContext('2d');
+      chartInstances.products = new Chart(ctxP, {
+        type: 'doughnut',
+        data: {
+          labels: [...top10.map(p => p.article), ...(othersSum > 0 ? ['Boshqalar'] : [])],
+          datasets: [{
+            data: [...top10.map(p => p.revenue), ...(othersSum > 0 ? [othersSum] : [])],
+            backgroundColor: [...palette, '#cbd5e0'],
+            borderWidth: 0,
+            hoverOffset: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '68%',
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: (item) => {
+                  const p = item.dataIndex < top10.length ? top10[item.dataIndex] : null;
+                  const total = kpi.revenue || 1;
+                  const pct = ((item.parsed / total) * 100).toFixed(1);
+                  return `  ${item.label}: ${fmtMoney(item.parsed, cur)} (${pct}%)`;
+                },
+                afterLabel: (item) => {
+                  const p = item.dataIndex < top10.length ? top10[item.dataIndex] : null;
+                  return p && p.product ? '  ' + (p.product.length > 30 ? p.product.substring(0, 30) + '…' : p.product) : '';
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // Render legend
+      const legendP = document.getElementById('legendTopProducts');
+      legendP.innerHTML = top10.slice(0, 6).map((p, i) => `
+        <div class="legend-item">
+          <span class="legend-dot" style="background: ${palette[i]};"></span>
+          <span><strong>${p.article}</strong></span>
+          <span class="legend-value">${fmtKMoney(p.revenue)}</span>
+        </div>
+      `).join('') + (top10.length > 6 ? `<div class="legend-item" style="color: var(--text-tertiary);">+${top10.length - 6} ta yana</div>` : '');
+    }
+
+    // ============ Chart 4: WB ushlanmalar (donut) ============
+    const deductions = [
+      { label: 'Комиссия', val: kpi.commission || 0, color: '#185FA5' },
+      { label: 'Логистика', val: kpi.logistics_total || 0, color: '#4A85C8' },
+      { label: 'Эквайринг', val: kpi.acquiring || 0, color: '#534AB7' },
+      { label: 'Хранение', val: kpi.storage || 0, color: '#BA7517' },
+      { label: 'Штрафы', val: kpi.fines || 0, color: '#A32D2D' },
+      { label: 'Реклама', val: kpi.promotion || 0, color: '#0F6E56' },
+      { label: 'Платная приёмка', val: kpi.paid_reception || 0, color: '#718096' }
+    ].filter(d => d.val > 0).sort((a, b) => b.val - a.val);
+
+    if (deductions.length > 0) {
+      const ctxX = document.getElementById('chartDeductions').getContext('2d');
+      chartInstances.deductions = new Chart(ctxX, {
+        type: 'doughnut',
+        data: {
+          labels: deductions.map(d => d.label),
+          datasets: [{
+            data: deductions.map(d => d.val),
+            backgroundColor: deductions.map(d => d.color),
+            borderWidth: 0,
+            hoverOffset: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '68%',
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: (item) => {
+                  const total = deductions.reduce((s, d) => s + d.val, 0) || 1;
+                  const pct = ((item.parsed / total) * 100).toFixed(1);
+                  return `  ${item.label}: ${fmtMoney(item.parsed, cur)} (${pct}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+
+      const totalDed = deductions.reduce((s, d) => s + d.val, 0);
+      const legendD = document.getElementById('legendDeductions');
+      legendD.innerHTML = deductions.map(d => `
+        <div class="legend-item">
+          <span class="legend-dot" style="background: ${d.color};"></span>
+          <span>${d.label}</span>
+          <span class="legend-value">${fmtKMoney(d.val)}</span>
+          <span style="color: var(--text-tertiary); font-size: 10px;">${((d.val / totalDed) * 100).toFixed(0)}%</span>
+        </div>
+      `).join('');
+    }
+
+    // ============ Chart 5: Sklad (horizontal bar) ============
+    if (warehouses.length > 0) {
+      const ctxWh = document.getElementById('chartWarehouses').getContext('2d');
+      const gradWh = ctxWh.createLinearGradient(0, 0, ctxWh.canvas.width, 0);
+      gradWh.addColorStop(0, '#534AB7');
+      gradWh.addColorStop(1, '#8479d9');
+
+      chartInstances.warehouses = new Chart(ctxWh, {
+        type: 'bar',
+        data: {
+          labels: warehouses.map(w => w.warehouse),
+          datasets: [{
+            label: 'Daromad',
+            data: warehouses.map(w => w.revenue),
+            backgroundColor: gradWh,
+            borderColor: '#4039a8',
+            borderWidth: 1,
+            borderRadius: 5,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                title: (items) => '🏬 ' + items[0].label,
+                label: (item) => '  Daromad: ' + fmtMoney(item.parsed.x, cur),
+                afterLabel: (item) => {
+                  const w = warehouses[item.dataIndex];
+                  return [
+                    '  Sotuvlar: ' + fmt(w.sold_qty) + ' dona',
+                    '  Qaytarish: ' + fmt(w.returns_qty) + ' (' + fmtPercent(w.return_pct) + ')',
+                    '  Ulush: ' + fmtPercent(w.share_pct)
+                  ];
+                }
+              }
+            }
+          },
+          scales: {
+            x: { grid: { color: 'rgba(226, 232, 240, 0.5)' }, ticks: { font: { size: 10 }, color: '#718096', callback: (v) => fmtK(v) } },
+            y: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#4A5568', autoSkip: false } }
+          }
+        }
+      });
+    }
+
+    // ============ Chart 6: Oylik trend (dual line) ============
+    if (months.length > 0) {
+      const ctxM = document.getElementById('chartMonthly').getContext('2d');
+      const gradM1 = ctxM.createLinearGradient(0, 0, 0, 320);
+      gradM1.addColorStop(0, 'rgba(24, 95, 165, 0.25)');
+      gradM1.addColorStop(1, 'rgba(24, 95, 165, 0)');
+
+      chartInstances.monthly = new Chart(ctxM, {
+        type: 'line',
+        data: {
+          labels: months.map(m => m.month),
+          datasets: [
+            {
+              label: 'Daromad',
+              data: months.map(m => m.revenue),
+              borderColor: '#185FA5',
+              backgroundColor: gradM1,
+              borderWidth: 3,
+              tension: 0.4,
+              pointRadius: 5,
+              pointBackgroundColor: '#185FA5',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointHoverRadius: 8,
+              fill: true,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Toza foyda',
+              data: months.map(m => m.profit),
+              borderColor: '#0F6E56',
+              backgroundColor: 'transparent',
+              borderWidth: 3,
+              tension: 0.4,
+              pointRadius: 5,
+              pointBackgroundColor: '#0F6E56',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointHoverRadius: 8,
+              borderDash: [],
+              yAxisID: 'y'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { intersect: false, mode: 'index' },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'bottom',
+              labels: { boxWidth: 8, boxHeight: 8, usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 11, weight: '600' }, color: '#4A5568' }
+            },
+            tooltip: {
+              callbacks: {
+                title: (items) => '📅 ' + items[0].label,
+                label: (item) => '  ' + item.dataset.label + ': ' + fmtMoney(item.parsed.y, cur)
+              }
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#718096' } },
+            y: { grid: { color: 'rgba(226, 232, 240, 0.45)' }, ticks: { font: { size: 10 }, color: '#718096', callback: (v) => fmtK(v) } }
+          }
+        }
+      });
+    }
+  }
+
+  async function redraw() { await render(); }
+
+  render();
+};
+</script>
+
+</body>
+</html>

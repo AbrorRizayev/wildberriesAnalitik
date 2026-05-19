@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIRA — ABC Tahlil</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .cat-badge { font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: 700; }
+  .cat-A { background: var(--green-light); color: var(--green-dark); }
+  .cat-B { background: var(--amber-light); color: var(--amber-dark); }
+  .cat-C { background: var(--blue-bg); color: var(--blue); }
+  .cat-D { background: var(--red-light); color: var(--red-dark); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <main class="page">
+
+      <div class="page-header">
+        <h1 class="page-title">ABC Tahlil</h1>
+        <p class="page-subtitle">Tovarlar A/B/C kategoriyalarga ajratilgan (Pareto qoidasi 80/20)</p>
+      </div>
+
+      <div id="content"></div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/storage.js"></script>
+<script src="js/app-init.js"></script>
+<script src="js/baza-formulas.js"></script>
+<script src="js/calculator.js"></script>
+<script src="js/main.js"></script>
+
+<script>
+  window.initPage = function() {
+setupLayout('abc');
+
+  const base = Storage.getBase();
+  const settings = Storage.getSettings();
+  const cur = settings.currency;
+  const content = document.getElementById('content');
+
+  if (base.length === 0) {
+    renderEmpty(content, {
+      icon: '🏆',
+      title: 'ABC tahlil yo\'q',
+      message: 'Avval Подробный отчёt yuklang',
+      link: 'upload.html',
+      linkText: '📤 Yuklash'
+    });
+  } else {
+    const ctx = {
+      costs: Storage.getCosts(),
+      settings,
+      samovikupy: Storage.getSelfPurchases(),
+      extExpenses: Storage.getExtExpenses(),
+      listReports: Storage.getListReports()
+    };
+    // Asinx hisoblash (cache bilan)
+    (async function() {
+      const baseLen = base.length;
+      const showProgress = baseLen > 10000;
+
+      let calculated;
+      if (showProgress) {
+        Calculator.showProgress();
+        try {
+          calculated = await Calculator.getCalculated((current, total, pct) => {
+            Calculator.updateProgress(current, total, pct);
+          });
+        } finally {
+          Calculator.hideProgress();
+        }
+      } else {
+        calculated = await Calculator.getCalculated();
+      }
+      window._calculated = calculated;
+      renderMain();
+    })();
+
+    function renderMain() {
+      const calculated = window._calculated;
+    const products = BazaFormulas.byProduct(calculated);
+    const abcByRevenue = BazaFormulas.abcAnalysis(products, 'revenue');
+    const abcByProfit = BazaFormulas.abcAnalysis(products, 'profit');
+
+    // Kategoriyalar bo'yicha jamlash
+    const countByCat = { A: 0, B: 0, C: 0 };
+    abcByRevenue.forEach(p => { if (countByCat[p.revenue_cat] !== undefined) countByCat[p.revenue_cat]++; });
+
+    let activeTab = 'revenue';
+
+    function render() {
+      const list = activeTab === 'revenue' ? abcByRevenue : abcByProfit;
+
+      content.innerHTML = `
+        <div class="kpi-grid">
+          <div class="kpi-card success">
+            <div class="kpi-label">A kategoriya</div>
+            <div class="kpi-value">${countByCat.A}</div>
+            <div class="kpi-change">Top 80% daromad</div>
+          </div>
+          <div class="kpi-card warning">
+            <div class="kpi-label">B kategoriya</div>
+            <div class="kpi-value">${countByCat.B}</div>
+            <div class="kpi-change">80-95% daromad</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">C kategoriya</div>
+            <div class="kpi-value">${countByCat.C}</div>
+            <div class="kpi-change">Oxirgi 5%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Jami tovarlar</div>
+            <div class="kpi-value">${products.length}</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Tovarlar reytingi</div>
+              <div class="card-subtitle">Pareto qoidasi: 80% daromad — eng yaxshi tovarlardan</div>
+            </div>
+            <div class="lang-switch">
+              <button class="lang-btn ${activeTab === 'revenue' ? 'active' : ''}" data-tab="revenue">Daromad bo'yicha</button>
+              <button class="lang-btn ${activeTab === 'profit' ? 'active' : ''}" data-tab="profit">Foyda bo'yicha</button>
+            </div>
+          </div>
+
+          <div class="table-wrapper" style="border: none;">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Kat.</th>
+                  <th>Artikul</th>
+                  <th>Tovar</th>
+                  <th class="num">Sotuvlar</th>
+                  <th class="num">Daromad</th>
+                  <th class="num">Foyda</th>
+                  <th class="num">Marja</th>
+                  <th class="num">${activeTab === 'revenue' ? 'Daromad %' : 'Foyda %'}</th>
+                  <th class="num">Kümülativ %</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${list.map((p, i) => {
+                  const cat = activeTab === 'revenue' ? p.revenue_cat : p.profit_cat;
+                  const pct = activeTab === 'revenue' ? p.revenue_pct : p.profit_pct;
+                  const cum = activeTab === 'revenue' ? p.revenue_cum : p.profit_cum;
+                  const catClass = cat === 'Убыток' ? 'cat-D' : `cat-${cat}`;
+                  return `
+                    <tr>
+                      <td>${i + 1}</td>
+                      <td><span class="cat-badge ${catClass}">${cat}</span></td>
+                      <td><strong>${p.article}</strong></td>
+                      <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis;" title="${p.product}">${(p.product || '').substring(0, 35)}${p.product && p.product.length > 35 ? '…' : ''}</td>
+                      <td class="num">${fmt(p.qty)}</td>
+                      <td class="num num-positive">${fmtMoney(p.revenue, cur)}</td>
+                      <td class="num ${p.profit >= 0 ? 'num-positive' : 'num-negative'}">${fmtMoney(p.profit, cur)}</td>
+                      <td class="num">${fmtPercent(p.margin_pct)}</td>
+                      <td class="num"><strong>${fmtPercent(pct)}</strong></td>
+                      <td class="num">${fmtPercent(cum)}</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      document.querySelectorAll('[data-tab]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeTab = btn.getAttribute('data-tab');
+          render();
+        });
+      });
+    }
+
+    render();
+  }
+  };
+
+  }
+</script>
+
+</body>
+</html>

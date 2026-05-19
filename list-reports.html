@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIRA — Список отчётов</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .check-cell { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+  .check-ok { background: var(--green-light); color: var(--green-dark); }
+  .check-warn { background: var(--amber-light); color: var(--amber-dark); }
+  .check-err { background: var(--red-light); color: var(--red-dark); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <main class="page">
+
+      <div class="page-header">
+        <h1 class="page-title">Список отчётов</h1>
+        <p class="page-subtitle">WB Финансовые отчёты — har bir haftalik achot</p>
+      </div>
+
+      <div id="content"></div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/storage.js"></script>
+<script src="js/app-init.js"></script>
+<script src="js/main.js"></script>
+
+<script>
+  window.initPage = function() {
+setupLayout('list-reports');
+
+  const listReports = Storage.getListReports();
+  const base = Storage.getBase();
+  const settings = Storage.getSettings();
+  const content = document.getElementById('content');
+
+  if (listReports.length === 0) {
+    renderEmpty(content, {
+      icon: '📋',
+      title: 'Список отчётов bo\'sh',
+      message: 'WB Финансовые отчёты sahifasidan "Скачать Excel" tugmasi bilan ro\'yxatni yuklab oling',
+      link: 'upload.html',
+      linkText: '📤 Achot yuklash sahifasi'
+    });
+  } else {
+    // Haftalarni hisoblash
+    function weekNum(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      if (isNaN(d)) return '';
+      const onejan = new Date(d.getFullYear(), 0, 1);
+      const dayOffset = (onejan.getDay() + 6) % 7;
+      return Math.ceil((((d - onejan) / 86400000) + dayOffset + 1) / 7);
+    }
+
+    // KPI jamlash
+    const totalSale = listReports.reduce((s, r) => s + (r.sale_total || 0), 0);
+    const totalToPay = listReports.reduce((s, r) => s + (r.total_to_pay || 0), 0);
+    const totalLogistics = listReports.reduce((s, r) => s + (r.logistics_cost || 0), 0);
+    const totalStorage = listReports.reduce((s, r) => s + (r.storage_cost || 0), 0);
+    const totalFines = listReports.reduce((s, r) => s + (r.fines_total || 0), 0);
+
+    // Base'da yuklangan achotlar
+    const loadedReports = new Set(base.map(r => String(r.report_num)));
+
+    const cur = settings.currency;
+
+    content.innerHTML = `
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Jami achotlar</div>
+          <div class="kpi-value">${listReports.length}</div>
+          <div class="kpi-change">${loadedReports.size} ta Подробный yuklangan</div>
+        </div>
+        <div class="kpi-card success">
+          <div class="kpi-label">Jami sotuv (Продажа)</div>
+          <div class="kpi-value">${fmtMoneyShort(totalSale, cur)}</div>
+        </div>
+        <div class="kpi-card success">
+          <div class="kpi-label">Итого к оплате</div>
+          <div class="kpi-value">${fmtMoneyShort(totalToPay, cur)}</div>
+          <div class="kpi-change">RS hisobga</div>
+        </div>
+        <div class="kpi-card warning">
+          <div class="kpi-label">Logistika</div>
+          <div class="kpi-value">${fmtMoneyShort(totalLogistics, cur)}</div>
+        </div>
+        <div class="kpi-card warning">
+          <div class="kpi-label">Saqlash</div>
+          <div class="kpi-value">${fmtMoneyShort(totalStorage, cur)}</div>
+        </div>
+        <div class="kpi-card danger">
+          <div class="kpi-label">Shtraflar</div>
+          <div class="kpi-value">${fmtMoneyShort(totalFines, cur)}</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Achotlar jadvali</div>
+            <div class="card-subtitle">Sizning Excel "Список отчётов" varagi kabi</div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-outline" onclick="exportCsv()" style="font-size: 11px;">📥 CSV</button>
+            <button class="btn btn-outline" onclick="confirmClear()" style="font-size: 11px; color: var(--red);">🗑 Tozalash</button>
+          </div>
+        </div>
+
+        <div class="table-wrapper" style="border: none; max-height: 600px;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>№ Отчёта</th>
+                <th>Юр. лицо</th>
+                <th>Дата начала</th>
+                <th>Дата конца</th>
+                <th>Тип</th>
+                <th class="num">Продажа</th>
+                <th class="num">К перечислению</th>
+                <th class="num">Логистика</th>
+                <th class="num">Хранение</th>
+                <th class="num">Штрафы</th>
+                <th class="num">Прочие</th>
+                <th class="num">Итого к оплате</th>
+                <th class="num">#Неделя</th>
+                <th>Подробный</th>
+                <th style="width: 50px; text-align: center;">⚙</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${listReports.slice().sort((a, b) => (b.date_from || '').localeCompare(a.date_from || '')).map(r => {
+                const isLoaded = loadedReports.has(String(r.report_num));
+                return `
+                  <tr>
+                    <td><strong style="color: var(--blue);">${r.report_num}</strong></td>
+                    <td style="font-size: 11px;">${r.legal_entity || '—'}</td>
+                    <td style="font-size: 11px;">${fmtDate(r.date_from)}</td>
+                    <td style="font-size: 11px;">${fmtDate(r.date_to)}</td>
+                    <td style="font-size: 11px;">${r.report_type || '—'}</td>
+                    <td class="num">${fmtMoney(r.sale_total || 0, cur)}</td>
+                    <td class="num num-positive">${fmtMoney(r.to_pay || 0, cur)}</td>
+                    <td class="num num-negative">${fmtMoney(-(r.logistics_cost || 0), cur)}</td>
+                    <td class="num num-negative">${r.storage_cost ? fmtMoney(-r.storage_cost, cur) : '—'}</td>
+                    <td class="num num-negative">${r.fines_total ? fmtMoney(-r.fines_total, cur) : '—'}</td>
+                    <td class="num num-negative">${r.other_deductions ? fmtMoney(-r.other_deductions, cur) : '—'}</td>
+                    <td class="num" style="font-weight: 700; color: var(--green-dark);">${fmtMoney(r.total_to_pay || 0, cur)}</td>
+                    <td class="num">${weekNum(r.date_from)}</td>
+                    <td>
+                      ${isLoaded
+                        ? '<span class="check-cell check-ok">✓ Yuklangan</span>'
+                        : '<span class="check-cell check-warn">⚠ Yo\'q</span>'}
+                    </td>
+                    <td style="text-align: center;">
+                      <button onclick="deleteReport('${r.report_num}', ${isLoaded})" title="Achotni o'chirish" style="background: none; border: 1px solid var(--red); color: var(--red); width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 14px; padding: 0; display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s;" onmouseover="this.style.background='var(--red)'; this.style.color='white';" onmouseout="this.style.background='none'; this.style.color='var(--red)';">×</button>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+            <tfoot>
+              <tr style="background: var(--gray-50); font-weight: 700;">
+                <td colspan="5">JAMI (${listReports.length} ta)</td>
+                <td class="num">${fmtMoney(totalSale, cur)}</td>
+                <td class="num num-positive">${fmtMoney(listReports.reduce((s,r)=>s+(r.to_pay||0),0), cur)}</td>
+                <td class="num num-negative">${fmtMoney(-totalLogistics, cur)}</td>
+                <td class="num num-negative">${fmtMoney(-totalStorage, cur)}</td>
+                <td class="num num-negative">${fmtMoney(-totalFines, cur)}</td>
+                <td class="num num-negative">${fmtMoney(-listReports.reduce((s,r)=>s+(r.other_deductions||0),0), cur)}</td>
+                <td class="num" style="color: var(--green-dark);">${fmtMoney(totalToPay, cur)}</td>
+                <td></td>
+                <td>${loadedReports.size}/${listReports.length}</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      ${listReports.some(r => !loadedReports.has(String(r.report_num))) ? `
+        <div class="tip-box info" style="margin-top: 16px;">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M11.25 11.25l.041-.02a.75.75 0 011.063.852" stroke-linecap="round"/></svg>
+          <div class="tip-content">
+            <strong>Maslahat:</strong> "⚠ Yo'q" deb belgilangan achotlar uchun <strong>Подробный отчёт</strong> yuklang.
+            <br>WB kabinetdan o'sha achot raqamini bosib, Excel'ni yuklab oling va saytga tashlang.
+            <br><a href="upload.html" style="color: var(--blue); font-weight: 500;">📤 Yuklash sahifasiga →</a>
+          </div>
+        </div>
+      ` : `
+        <div class="tip-box success" style="margin-top: 16px;">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4.5 12.75l6 6 9-13.5" stroke-linecap="round"/></svg>
+          <div class="tip-content">
+            <strong>✅ Mukammal!</strong> Barcha achotlar uchun Подробный отчёт yuklangan.
+            <a href="dashboard.html" style="color: var(--green-dark); font-weight: 500;">Dashboard'ga o'ting →</a>
+          </div>
+        </div>
+      `}
+    `;
+
+    window.exportCsv = function() {
+      const header = ['№ отчёта', 'Юр. лицо', 'Дата начала', 'Дата конца', 'Тип',
+                      'Продажа', 'К перечислению', 'Логистика', 'Хранение',
+                      'Штрафы', 'Прочие', 'Итого к оплате', '#Неделя', 'Подробный'];
+      const rows = listReports.map(r => [
+        r.report_num, r.legal_entity || '', r.date_from || '', r.date_to || '',
+        r.report_type || '',
+        r.sale_total || 0, r.to_pay || 0, r.logistics_cost || 0,
+        r.storage_cost || 0, r.fines_total || 0, r.other_deductions || 0,
+        r.total_to_pay || 0, weekNum(r.date_from),
+        loadedReports.has(String(r.report_num)) ? 'HA' : 'YO\'Q'
+      ]);
+      const csv = [header, ...rows].map(r => r.join(';')).join('\n');
+      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `aira-spisok-otchetov-${new Date().toISOString().substring(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      notify('CSV eksport tayyor', 'success');
+    };
+
+    window.confirmClear = function() {
+      if (confirm('Список отчётов o\'chiriladi (База va Tannarx saqlanib qoladi). Davom etasizmi?')) {
+        Storage.clearListReports();
+        notify('Список o\'chirildi', 'warning');
+        setTimeout(() => window.location.reload(), 500);
+      }
+    };
+
+    window.deleteReport = function(reportNum, isLoaded) {
+      const baseRowsInfo = isLoaded
+        ? '\n\n⚠ Diqqat: Bu achot Bazadan ham o\'chiriladi (Подробный отчёт qatorlari).'
+        : '';
+
+      if (!confirm(`№ ${reportNum} achotni o'chirasizmi?${baseRowsInfo}`)) return;
+      if (isLoaded && !confirm(`ROSTAKAMMI?\n\n№ ${reportNum} ning Bazadagi qatorlari ham o'chadi.\nBu amalni qaytarib bo'lmaydi!`)) return;
+
+      // Список'dan o'chirish
+      Storage.removeListReport(reportNum);
+
+      // Agar Bazada ham bo'lsa - shu achotning qatorlarini o'chirish
+      if (isLoaded) {
+        Storage.removeBaseByReport(reportNum);
+        // Cache invalidate
+        if (typeof Calculator !== 'undefined') Calculator.invalidate();
+      }
+
+      notify(`№ ${reportNum} o'chirildi`, 'warning');
+      setTimeout(() => window.location.reload(), 500);
+    };
+  }
+  };
+</script>
+
+</body>
+</html>
