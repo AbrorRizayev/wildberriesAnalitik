@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+{% load static aira i18n %}
+
+{% block title %}AIRA — {% trans "Загрузка" %}{% endblock %}
+
+{% block head %}
+<style>
+  .upload-tabs { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .upload-tab { padding: 12px 18px; background: none; border: none; cursor: pointer;
+                font-size: 13px; font-weight: 500; color: var(--text-secondary);
+                border-bottom: 2px solid transparent; transition: all 0.2s; }
+  .upload-tab:hover { color: var(--navy); }
+  .upload-tab.active { color: var(--navy); border-bottom-color: var(--navy); }
+  .upload-section { display: none; }
+  .upload-section.active { display: block; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">{% trans "Achot yuklash" %}</h1>
+  <p class="page-subtitle">{% trans "3 ta qadamda hammasini avtomat hisoblang" %}</p>
+</div>
+
+<!-- ⚠️ AKTIV PROFIL OGOHLANTIRISH -->
+<div style="background: linear-gradient(135deg, var(--blue-bg), var(--purple-bg)); border: 2px solid var(--blue); border-radius: 12px; padding: 14px 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 14px;">
+  <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), var(--navy)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">{{ active_profile.name|slice:':2'|upper }}</div>
+  <div style="flex: 1;">
+    <div style="font-size: 12px; color: var(--text-tertiary); margin-bottom: 2px;">📥 {% trans "Yuklayotgan profil:" %}</div>
+    <div style="font-size: 15px; font-weight: 700; color: var(--navy);">{{ active_profile.name }}</div>
+    <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">
+      {% if active_profile.brand %}{% trans "Brend:" %} {{ active_profile.brand }} · {% endif %}{{ active_profile.country }}{% if active_profile.inn %} · {% trans "ИНН" %} {{ active_profile.inn }}{% endif %}{% if active_profile.wb_id %} · ID {{ active_profile.wb_id }}{% endif %}
+    </div>
+  </div>
+  <button onclick="toggleProfileDropdown(event)" class="btn btn-outline" style="font-size: 11px;">🔄 {% trans "Profil almashtirish" %}</button>
+</div>
+
+<!-- 3 ta qadam ko'rsatkichi -->
+<div class="steps">
+  <div class="step {% if list_count %}done{% else %}current{% endif %}">
+    <div class="step-num">1</div>
+    <div class="step-title">{% trans "Список отчётов" %}</div>
+    <div class="step-desc">{% trans "WB Финансовые отчёты Excel" %}</div>
+  </div>
+  <div class="step {% if base_count %}done{% elif list_count %}current{% else %}pending{% endif %}">
+    <div class="step-num">2</div>
+    <div class="step-title">{% trans "База — Подробный отчёт" %}</div>
+    <div class="step-desc">{% trans "Har bir achot uchun alohida" %}</div>
+  </div>
+  <div class="step {% if costs_count %}done{% else %}pending{% endif %}">
+    <div class="step-num">3</div>
+    <div class="step-title">{% trans "Себестоимость" %}</div>
+    <div class="step-desc">{% trans "Tannarx ma'lumotlari" %}</div>
+  </div>
+</div>
+
+<!-- TAB tugmalari -->
+<div class="upload-tabs">
+  <button class="upload-tab active" data-tab="list">📋 {% trans "Список отчётов" %}</button>
+  <button class="upload-tab" data-tab="detail">📊 {% trans "База (Подробный)" %}</button>
+  <button class="upload-tab" data-tab="costs">💰 {% trans "Себестоимость" %}</button>
+</div>
+
+<!-- TAB 1: Список отчётов -->
+<div class="upload-section active" id="section-list">
+  <div class="tip-box info" style="margin-bottom: 16px;">
+    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round"/></svg>
+    <div class="tip-content">
+      <strong>{% trans "1-qadam: Список отчётов" %}</strong>
+      <ol style="margin: 6px 0 0 16px; padding: 0; font-size: 12px; line-height: 1.7;">
+        <li>{% trans "WB savdogar kabinetga kiring" %}</li>
+        <li>{% trans "«Финансовые отчёты» → «Отчёты реализации»" %}</li>
+        <li>{% trans "Yuqori o'ngdagi" %} <strong>{% trans "«Скачать Excel»" %}</strong> {% trans "tugmasini bosing" %}</li>
+        <li>{% trans "Yuklangan Excel'ni shu yerga sudrab tashlang" %}</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="upload-zone" id="zoneList">
+    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 12l2 2 4-4" stroke-linecap="round"/></svg>
+    <h3>{% trans "Список отчётов Excel'ni sudrab tashlang" %}</h3>
+    <p>{% trans "Yoki" %} <strong style="color: var(--blue);">{% trans "tugmani bosing" %}</strong></p>
+    <p style="margin-top: 8px; font-size: 11px;">{% trans "Qabul qilinadi:" %} <strong>.xlsx</strong>, <strong>.xls</strong></p>
+    <input type="file" id="fileInputList" accept=".xlsx,.xls" style="display: none;">
+  </div>
+
+  <div id="progressList" style="display: none;" class="upload-progress">
+    <div class="upload-progress-text" id="progressTextList">{% trans "Tahlil qilinmoqda..." %}</div>
+    <div class="upload-progress-bar"><div class="upload-progress-fill" id="progressFillList"></div></div>
+  </div>
+  <div id="statusList"></div>
+</div>
+
+<!-- TAB 2: База -->
+<div class="upload-section" id="section-detail">
+  <div class="tip-box info" style="margin-bottom: 16px;">
+    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round"/></svg>
+    <div class="tip-content">
+      <strong>{% trans "2-qadam: База ga Подробный отчёт yuklash" %}</strong>
+      <ol style="margin: 6px 0 0 16px; padding: 0; font-size: 12px; line-height: 1.7;">
+        <li>{% trans "Список отчётов'dagi har bir" %} <strong>{% trans "achot raqamini" %}</strong> {% trans "bosing" %}</li>
+        <li>{% trans "«Скачать Excel» orqali" %} <strong>{% trans "Подробный отчёт" %}</strong> {% trans "Excel yuklab oling" %}</li>
+        <li>{% trans "Hammasini" %} <strong>{% trans "birdaniga" %}</strong> {% trans "shu yerga sudrab tashlang" %}</li>
+        <li>{% trans "Sayt avtomat aniqlaydi qaysi achotga tegishliligini" %}</li>
+      </ol>
+    </div>
+  </div>
+
+  <div id="reportSelector" style="margin-bottom: 16px;">
+    {% if list_reports %}
+      <label class="form-label">{% trans "Qaysi achotga tegishli? (avtomat aniqlanadi, lekin majburiy tanlasangiz ham bo'ladi)" %}</label>
+      <select id="selectReport" class="form-input" style="max-width: 460px;">
+        <option value="">{% trans "Avtomat aniqlash" %}</option>
+        {% for r in list_reports %}
+          <option value="{{ r.report_num }}">{% if r.is_loaded %}✓ {% endif %}№ {{ r.report_num }} · {{ r.date_from|date:'d.m.Y' }} – {{ r.date_to|date:'d.m.Y' }}</option>
+        {% endfor %}
+      </select>
+    {% else %}
+      <div class="tip-box warning">
+        <div class="tip-content"><strong>⚠ {% trans "Avval Список отчётов yuklang!" %}</strong><br>{% trans "Birinchi tabga o'ting va WB Финансовые отчёты Excel'ini yuklang." %}</div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="upload-zone" id="zoneDetail">
+    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" stroke-linecap="round"/></svg>
+    <h3>{% trans "Подробный отчёт fayllarini sudrab tashlang" %}</h3>
+    <p>{% trans "Yoki" %} <strong style="color: var(--blue);">{% trans "tugmani bosing" %}</strong></p>
+    <p style="margin-top: 8px; font-size: 11px;">{% trans "Qabul qilinadi:" %} <strong>.xlsx</strong>, <strong>.zip</strong>, <strong>.csv</strong> · {% trans "Bir nechta fayl ham mumkin" %}</p>
+    <input type="file" id="fileInputDetail" multiple accept=".xlsx,.xls,.csv,.zip" style="display: none;">
+  </div>
+
+  <div id="progressDetail" style="display: none;" class="upload-progress">
+    <div class="upload-progress-text" id="progressTextDetail">{% trans "Tahlil qilinmoqda..." %}</div>
+    <div class="upload-progress-bar"><div class="upload-progress-fill" id="progressFillDetail"></div></div>
+  </div>
+  <div id="statusDetail"></div>
+</div>
+
+<!-- TAB 3: Себестоимость -->
+<div class="upload-section" id="section-costs">
+  <div class="tip-box info" style="margin-bottom: 16px;">
+    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round"/></svg>
+    <div class="tip-content">
+      <strong>{% trans "3-qadam: Себестоимость" %}</strong>
+      <ol style="margin: 6px 0 0 16px; padding: 0; font-size: 12px; line-height: 1.7;">
+        <li>{% trans "«Себестоимость» sahifasiga kirib tovarlaringizni qo'shing" %}</li>
+        <li>{% trans "Narx, barkod, kod, guruh kiriting" %}</li>
+        <li>{% trans "Bazadagi har bir sotuv uchun avtomat hisoblanadi" %}</li>
+      </ol>
+    </div>
+  </div>
+  <a href="{% url 'reports:costs' %}" class="btn btn-primary" style="padding: 12px 24px;">💰 {% trans "Себестоимость sahifasiga o'tish" %} →</a>
+</div>
+
+<!-- Joriy holat -->
+<div class="card" style="margin-top: 24px;">
+  <div class="card-header">
+    <div>
+      <div class="card-title">{% trans "Joriy holat" %}</div>
+      <div class="card-subtitle">{% blocktrans with lc=list_count bc=base_count|fmt cc=costs_count %}{{ lc }} ta achot · {{ bc }} qator База · {{ cc }} ta tovar Tannarx{% endblocktrans %}</div>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <a href="{% url 'reports:backup' %}" class="btn btn-outline">📥 Backup</a>
+      <button class="btn btn-outline" id="btnClear" style="color: var(--red);">🗑 {% trans "Tozalash" %}</button>
+    </div>
+  </div>
+  <div id="stateBody">
+    {% if not uploads %}
+      <div class="empty-state"><div class="empty-state-icon">📂</div><p>{% trans "Hozir hech qanday ma'lumot yo'q. Yuqoridagi tablardan birortasi orqali yuklang." %}</p></div>
+    {% else %}
+      {% with list_ups=uploads %}
+        <div style="margin-bottom: 16px;">
+          <div style="font-size: 11px; color: var(--text-tertiary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">📋 {% trans "Список отчётов yuklashlari" %}</div>
+          {% for u in uploads %}{% if u.type == 'list' %}
+            <div style="background: var(--blue-bg); border-left: 3px solid var(--blue); border-radius: 6px; padding: 10px 12px; margin-bottom: 6px;">
+              <span style="color: var(--green); font-weight: 700;">✓</span>
+              <strong style="font-size: 12.5px; color: var(--navy);">📄 {{ u.filename|truncatechars:50 }}</strong>
+              <span style="font-size: 11px; color: var(--text-secondary);"> · {{ u.uploaded_at|date:'d.m.Y H:i' }} · {% blocktrans with rc=u.row_count %}{{ rc }} ta achot{% endblocktrans %}</span>
+            </div>
+          {% endif %}{% endfor %}
+        </div>
+        <div>
+          <div style="font-size: 11px; color: var(--text-tertiary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">📊 {% trans "База yuklashlari" %}</div>
+          {% for u in uploads %}{% if u.type == 'detail' %}
+            <div style="background: var(--green-light); border-left: 3px solid var(--green); border-radius: 6px; padding: 10px 12px; margin-bottom: 6px;">
+              <span style="color: var(--green); font-weight: 700;">✓</span>
+              <strong style="font-size: 12.5px; color: var(--green-dark);">{% if u.report_num %}№ {{ u.report_num }}{% else %}{% trans "Achot" %}{% endif %} — {% blocktrans with rc=u.row_count|fmt %}{{ rc }} ta qator{% endblocktrans %}</strong>
+              <span style="font-size: 11px; color: var(--text-secondary);"> · {{ u.uploaded_at|date:'d.m.Y H:i' }} · {{ u.filename|truncatechars:40 }}</span>
+            </div>
+          {% endif %}{% endfor %}
+        </div>
+      {% endwith %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const CSRF = '{{ csrf_token }}';
+const URLS = {
+  list: '{% url "reports:upload_list" %}',
+  detail: '{% url "reports:upload_detail" %}',
+  clear: '{% url "reports:clear_all" %}',
+  dashboard: '{% url "analytics:dashboard" %}',
+  base: '{% url "reports:base" %}',
+  listReports: '{% url "reports:list_reports" %}',
+};
+
+// Tab almashtirish
+document.querySelectorAll('.upload-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.getAttribute('data-tab');
+    document.querySelectorAll('.upload-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.upload-section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('section-' + tab).classList.add('active');
+  });
+});
+
+function setupZone(zoneId, inputId, handler) {
+  const zone = document.getElementById(zoneId);
+  const input = document.getElementById(inputId);
+  zone.addEventListener('click', () => input.click());
+  ['dragenter', 'dragover'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add('dragover'); }));
+  ['dragleave', 'drop'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove('dragover'); }));
+  zone.addEventListener('drop', e => { const f = Array.from(e.dataTransfer.files); if (f.length) handler(f); });
+  input.addEventListener('change', e => { const f = Array.from(e.target.files); if (f.length) handler(f); input.value = ''; });
+}
+
+async function postFile(url, file, extra) {
+  const fd = new FormData();
+  fd.append('file', file);
+  if (extra) for (const k in extra) fd.append(k, extra[k]);
+  const r = await fetch(url, { method: 'POST', headers: { 'X-CSRFToken': CSRF }, body: fd });
+  return r.json();
+}
+
+// ============ LIST ============
+setupZone('zoneList', 'fileInputList', files => processList(files[0]));
+async function processList(file) {
+  const pb = document.getElementById('progressList'), pt = document.getElementById('progressTextList'),
+        pf = document.getElementById('progressFillList'), sb = document.getElementById('statusList');
+  pb.style.display = 'block'; sb.innerHTML = ''; pt.textContent = `"${file.name}" yuklanmoqda...`; pf.style.width = '60%';
+  try {
+    const data = await postFile(URLS.list, file);
+    pf.style.width = '100%';
+    if (!data.ok) { pb.style.display = 'none'; sb.innerHTML = errBox(data.error); return; }
+    setTimeout(() => {
+      pb.style.display = 'none';
+      sb.innerHTML = `<div class="tip-box success" style="margin-top:16px;"><div class="tip-content">
+        <strong>✅ Список отчётов yuklandi!</strong><br>Yangi: <strong>${data.added}</strong>, yangilandi: ${data.updated}, jami: <strong>${data.total}</strong>
+        <div style="margin-top:10px; display:flex; gap:8px;">
+          <a href="${URLS.listReports}" class="btn btn-primary" style="font-size:12px;">📋 Ko'rish</a>
+          <button class="btn btn-secondary" onclick="document.querySelector('.upload-tab[data-tab=detail]').click()">Keyingisi: Подробный →</button>
+        </div></div></div>`;
+    }, 300);
+  } catch (err) { pb.style.display = 'none'; sb.innerHTML = errBox(err.message); }
+}
+
+// ============ DETAIL (ko'p fayl) ============
+setupZone('zoneDetail', 'fileInputDetail', files => processDetail(files));
+async function processDetail(files) {
+  const pb = document.getElementById('progressDetail'), pt = document.getElementById('progressTextDetail'),
+        pf = document.getElementById('progressFillDetail'), sb = document.getElementById('statusDetail');
+  const sel = document.getElementById('selectReport');
+  const reportNum = sel ? sel.value : '';
+  pb.style.display = 'block'; sb.innerHTML = '';
+  let totalAdded = 0, totalSkipped = 0, ok = 0, bad = 0;
+  const results = [];
+  for (let i = 0; i < files.length; i++) {
+    pt.textContent = `(${i + 1}/${files.length}) "${files[i].name}" yuklanmoqda...`;
+    pf.style.width = `${(i / files.length) * 100}%`;
+    try {
+      const data = await postFile(URLS.detail, files[i], reportNum ? { report_num: reportNum } : null);
+      if (data.ok) { ok++; totalAdded += data.added; totalSkipped += data.skipped;
+        results.push(`✅ <strong>${files[i].name}</strong> — № ${data.report_num} ga ${data.added} qator${data.skipped ? ` (${data.skipped} dublikat)` : ''}`);
+      } else { bad++; results.push(`❌ <strong>${files[i].name}</strong> — ${data.error}`); }
+    } catch (err) { bad++; results.push(`❌ <strong>${files[i].name}</strong> — ${err.message}`); }
+  }
+  pf.style.width = '100%';
+  setTimeout(() => {
+    pb.style.display = 'none';
+    sb.innerHTML = `<div class="tip-box ${bad > 0 && ok === 0 ? 'danger' : 'success'}" style="margin-top:16px;"><div class="tip-content">
+      <strong>Natija:</strong> ${ok} ta fayl muvaffaqiyatli${bad ? `, ${bad} ta xato` : ''}<br>Jami База ga: <strong>+${totalAdded}</strong> qator${totalSkipped ? `, ${totalSkipped} dublikat` : ''}
+      <ul style="margin:8px 0 0 16px; padding:0; font-size:12px;">${results.map(r => `<li style="margin:2px 0;">${r}</li>`).join('')}</ul>
+      ${ok > 0 ? `<div style="margin-top:10px; display:flex; gap:8px;"><a href="${URLS.dashboard}" class="btn btn-primary" style="font-size:12px;">📊 Dashboard</a><a href="${URLS.base}" class="btn btn-outline" style="font-size:12px;">База ga</a></div>` : ''}
+    </div></div>`;
+  }, 300);
+}
+
+function errBox(msg) {
+  return `<div class="tip-box danger" style="margin-top:16px;"><div class="tip-content"><strong>❌ Xato:</strong> ${msg || 'Nomalum xato'}</div></div>`;
+}
+
+// ============ Tozalash ============
+document.getElementById('btnClear').addEventListener('click', async () => {
+  if (!confirm("Bu profilning HAMMA ma'lumotlari (База, Список, tarix) o'chiriladi. Davom etasizmi?")) return;
+  const r = await fetch(URLS.clear, { method: 'POST', headers: { 'X-CSRFToken': CSRF } });
+  const data = await r.json();
+  if (data.ok) window.location.reload();
+});
+</script>
+{% endblock %}

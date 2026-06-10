@@ -1,0 +1,2310 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-10 11:10+0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: uz\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: apps/accounts/tests.py:94 templates/landing.html:345
+#: templates/partials/sidebar.html:28 templates/reports/costs.html:4
+#: templates/reports/costs.html:26 templates/reports/costs.html:119
+#: templates/reports/costs.html:185 templates/reports/upload.html:52
+#: templates/reports/upload.html:61
+msgid "Себестоимость"
+msgstr "Tannarx"
+
+#: apps/accounts/tests.py:96 templates/accounts/settings.html:4
+#: templates/accounts/settings.html:26 templates/partials/sidebar.html:73
+msgid "Sozlamalar"
+msgstr "Sozlamalar"
+
+#: config/settings.py:120
+msgid "Русский"
+msgstr "Ruscha"
+
+#: config/settings.py:121
+msgid "O'zbekcha"
+msgstr "O'zbekcha"
+
+#: templates/accounts/login.html:8 templates/accounts/login.html:129
+msgid "Kirish"
+msgstr "Kirish"
+
+#: templates/accounts/login.html:82
+msgid "Аналитика Wildberries, которая считает прибыль за вас"
+msgstr "Foydani siz uchun hisoblaydigan Wildberries tahlili"
+
+#: templates/accounts/login.html:83
+msgid ""
+"Загрузите отчёт WB — получите P&L, ABC-анализ, себестоимость и реальную "
+"чистую прибыль."
+msgstr "WB hisobotini yuklang — P&L, ABC-tahlil, tannarx va haqiqiy sof foydani oling."
+
+#: templates/accounts/login.html:85
+msgid "Точный расчёт по 51 формуле"
+msgstr "51 formula bo'yicha aniq hisoblash"
+
+#: templates/accounts/login.html:86
+msgid "Данные каждой компании изолированы"
+msgstr "Har bir kompaniya ma'lumotlari himoyalangan"
+
+#: templates/accounts/login.html:87
+msgid "Дашборд, P&L и капитализация в один клик"
+msgstr "Boshqaruv paneli, P&L va kapitalizatsiya bir klikda"
+
+#: templates/accounts/login.html:90
+#| msgid "Smart Аналитика"
+msgid "аналитика Wildberries"
+msgstr "Wildberries tahlili"
+
+#: templates/accounts/login.html:97
+msgid "На главную"
+msgstr "Bosh sahifaga"
+
+#: templates/accounts/login.html:111
+msgid "Tizimga kirish"
+msgstr "Tizimga kirish"
+
+#: templates/accounts/login.html:112
+msgid "Войдите в личный кабинет AIRA"
+msgstr "AIRA shaxsiy kabinetiga kiring"
+
+#: templates/accounts/login.html:115
+msgid "Login yoki parol noto'g'ri."
+msgstr "Login yoki parol noto'g'ri."
+
+#: templates/accounts/login.html:121
+msgid "Login"
+msgstr "Login"
+
+#: templates/accounts/login.html:125
+msgid "Parol"
+msgstr "Parol"
+
+#: templates/accounts/settings.html:27
+msgid "Profil, soliq turi va sayt sozlamalari"
+msgstr "Profil, soliq turi va sayt sozlamalari"
+
+#: templates/accounts/settings.html:35
+msgid "Profil"
+msgstr "Profil"
+
+#: templates/accounts/settings.html:37
+msgid "IP nomi:"
+msgstr "IP nomi:"
+
+#: templates/accounts/settings.html:41 templates/reports/upload.html:32
+#, fuzzy
+#| msgid "Brend"
+msgid "Brend:"
+msgstr "Brend"
+
+#: templates/accounts/settings.html:45
+msgid "Mamlakat:"
+msgstr "Mamlakat:"
+
+#: templates/accounts/settings.html:47
+msgid "Rossiya (RU)"
+msgstr "Rossiya (RU)"
+
+#: templates/accounts/settings.html:48
+msgid "Qirg'iziston (KG)"
+msgstr "Qirg'iziston (KG)"
+
+#: templates/accounts/settings.html:49
+msgid "Qozog'iston (KZ)"
+msgstr "Qozog'iston (KZ)"
+
+#: templates/accounts/settings.html:50
+msgid "O'zbekiston (UZ)"
+msgstr "O'zbekiston (UZ)"
+
+#: templates/accounts/settings.html:51
+msgid "Belarus (BY)"
+msgstr "Belarus (BY)"
+
+#: templates/accounts/settings.html:55
+#, fuzzy
+#| msgid "Valyuta"
+msgid "Valyuta:"
+msgstr "Valyuta"
+
+#: templates/accounts/settings.html:57
+msgid "(rubl)"
+msgstr "(rubl)"
+
+#: templates/accounts/settings.html:58
+msgid "(som)"
+msgstr "(som)"
+
+#: templates/accounts/settings.html:59
+msgid "(sum)"
+msgstr "(sum)"
+
+#: templates/accounts/settings.html:64
+msgid "INN:"
+msgstr "INN:"
+
+#: templates/accounts/settings.html:65
+msgid "INN raqami (ixtiyoriy)"
+msgstr "INN raqami (ixtiyoriy)"
+
+#: templates/accounts/settings.html:71 templates/analytics/dashboard.html:200
+#: templates/analytics/pnl.html:59
+#, fuzzy
+#| msgid "Soliq turi"
+msgid "Soliq"
+msgstr "Soliq turi"
+
+#: templates/accounts/settings.html:76
+#, python-format
+msgid "<strong>Soliq:</strong> \"%(tax_type_name)s\", foiz = %(tax_rate)s%%"
+msgstr "<strong>Soliq:</strong> \"%(tax_type_name)s\", foiz = %(tax_rate)s%%"
+
+#: templates/accounts/settings.html:77
+msgid ""
+"<strong>Eslatma:</strong> Rossiya IP — daromadan to'laydi. Qirg'iziston IP — "
+"hisobraqamga tushgan puldan."
+msgstr ""
+"<strong>Eslatma:</strong> Rossiya IP — daromadan to'laydi. Qirg'iziston IP — "
+"hisobraqamga tushgan puldan."
+
+#: templates/accounts/settings.html:81
+msgid "<strong>Soliq turi tanlang:</strong>"
+msgstr "<strong>Soliq turi tanlang:</strong>"
+
+#: templates/accounts/settings.html:86
+msgid "УСН-доходы (RU)"
+msgstr "УСН-доходы (RU)"
+
+#: templates/accounts/settings.html:87
+msgid "Soliq <strong>Sotuv summasidan</strong> (WB реализовал)<br>RU IP uchun"
+msgstr "Soliq <strong>Sotuv summasidan</strong> (WB реализовал)<br>RU IP uchun"
+
+#: templates/accounts/settings.html:90
+msgid "УСН Д-Р (RU)"
+msgstr "УСН Д-Р (RU)"
+
+#: templates/accounts/settings.html:91
+msgid "Soliq <strong>(Oplata - Tannarx - Xarajat)</strong> dan<br>RU IP uchun"
+msgstr "Soliq <strong>(Oplata - Tannarx - Xarajat)</strong> dan<br>RU IP uchun"
+
+#: templates/accounts/settings.html:94
+msgid "Не считать налог"
+msgstr "Не считать налог"
+
+#: templates/accounts/settings.html:95
+msgid "Soliq <strong>hisoblamaslik</strong>"
+msgstr "Soliq <strong>hisoblamaslik</strong>"
+
+#: templates/accounts/settings.html:98
+msgid "Считать от РС (KG)"
+msgstr "Считать от РС (KG)"
+
+#: templates/accounts/settings.html:99
+msgid "Soliq <strong>Hisobraqamga tushgan puldan</strong><br>KG IP uchun"
+msgstr "Soliq <strong>Hisobraqamga tushgan puldan</strong><br>KG IP uchun"
+
+#: templates/accounts/settings.html:104
+#, fuzzy
+#| msgid "Soliq turi"
+msgid "Soliq foizi:"
+msgstr "Soliq turi"
+
+#: templates/accounts/settings.html:108
+msgid "(masalan: 2, 6, 15)"
+msgstr "(masalan: 2, 6, 15)"
+
+#: templates/accounts/settings.html:114
+#, fuzzy
+#| msgid "Sozlamalar"
+msgid "Sozlamalarni saqlash"
+msgstr "Sozlamalar"
+
+#: templates/accounts/settings.html:115
+msgid "Soliq o'zgarsa, База avtomat qayta hisoblanadi."
+msgstr "Soliq o'zgarsa, База avtomat qayta hisoblanadi."
+
+#: templates/accounts/settings.html:121
+msgid "Ma'lumotlar boshqaruvi"
+msgstr "Ma'lumotlar boshqaruvi"
+
+#: templates/accounts/settings.html:123
+msgid "Backup eksport (JSON)"
+msgstr "Backup eksport (JSON)"
+
+#: templates/accounts/settings.html:124
+msgid "Qayta hisoblash (recompute)"
+msgstr "Qayta hisoblash (recompute)"
+
+#: templates/accounts/settings.html:125
+#, fuzzy
+#| msgid "База bo'sh"
+msgid "База tozalash"
+msgstr "Baza bo'sh"
+
+#: templates/accounts/settings.html:126
+msgid "HAMMASINI tozalash"
+msgstr "HAMMASINI tozalash"
+
+#: templates/accounts/settings.html:129
+msgid "<strong>Hozir saqlangan:</strong>"
+msgstr "<strong>Hozir saqlangan:</strong>"
+
+#: templates/accounts/settings.html:130
+#, python-format
+msgid ""
+"%(list_count)s ta achot · %(base_count)s qator База · %(costs_count)s ta "
+"tovar tannarx"
+msgstr ""
+"%(list_count)s ta achot · %(base_count)s qator База · %(costs_count)s ta "
+"tovar tannarx"
+
+#: templates/analytics/abc.html:18
+#, fuzzy
+#| msgid "ABC tahlil"
+msgid "ABC Tahlil"
+msgstr "ABC tahlil"
+
+#: templates/analytics/abc.html:19
+msgid "Tovarlar A/B/C kategoriyalarga ajratilgan (Pareto qoidasi 80/20)"
+msgstr "Mahsulotlar A/B/C kategoriyalarga ajratilgan (Pareto qoidasi 80/20)"
+
+#: templates/analytics/abc.html:25
+#, fuzzy
+#| msgid "ABC tahlil"
+msgid "ABC tahlil yo'q"
+msgstr "ABC tahlil"
+
+#: templates/analytics/abc.html:26 templates/analytics/monthly.html:52
+#: templates/analytics/products.html:16
+msgid "Avval Подробный отчёт yuklang"
+msgstr "Avval Batafsil hisobotni yuklang"
+
+#: templates/analytics/abc.html:27 templates/analytics/monthly.html:53
+#: templates/analytics/products.html:17 templates/reports/storage.html:32
+#, fuzzy
+#| msgid "Achot yuklash"
+msgid "Yuklash"
+msgstr "Hisobot yuklash"
+
+#: templates/analytics/calculator.html:4
+#, fuzzy
+#| msgid "Калькулятор"
+msgid "Калькулятор прибыли"
+msgstr "Kalkulyator"
+
+#: templates/analytics/capitalization.html:4 templates/partials/sidebar.html:65
+msgid "Капитализация"
+msgstr "Kapitallashuv"
+
+#: templates/analytics/charts.html:4 templates/analytics/charts.html:366
+#: templates/partials/sidebar.html:42
+msgid "Графики"
+msgstr "Grafiklar"
+
+#: templates/analytics/charts.html:356
+msgid "Графика uchun ma'lumot yo'q"
+msgstr "Grafiklar uchun ma'lumot yo'q"
+
+#: templates/analytics/charts.html:357
+msgid "Avval Подробный отчёt yuklang — vizual tahlil tayyor bo'ladi"
+msgstr "Avval Batafsil hisobotni yuklang — vizual tahlil tayyor bo'ladi"
+
+#: templates/analytics/charts.html:358 templates/analytics/dashboard.html:63
+#: templates/analytics/fines.html:594 templates/analytics/pnl.html:17
+msgid "Yuklash sahifasi"
+msgstr "Yuklash sahifasi"
+
+#: templates/analytics/charts.html:365
+#, fuzzy
+#| msgid "ABC tahlil"
+msgid "Vizual tahlil"
+msgstr "ABC tahlil"
+
+#: templates/analytics/charts.html:367
+msgid ""
+"Bir nazarda hammasi ko'rinadi — daromad, foyda, ushlanmalar va sklad "
+"bo'yicha taqsimot."
+msgstr ""
+"Bir nazarda hammasi ko'rinadi — tushum, foyda, ushlanmalar va ombor bo'yicha "
+"taqsimot."
+
+#: templates/analytics/charts.html:370 templates/analytics/pnl.html:27
+msgid "Jami daromad"
+msgstr "Jami tushum"
+
+#: templates/analytics/charts.html:372
+#, python-format
+msgid "%(v)s dona"
+msgstr "%(v)s dona"
+
+#: templates/analytics/charts.html:375 templates/analytics/charts.html:427
+#: templates/analytics/dashboard.html:75 templates/analytics/dashboard.html:115
+#: templates/analytics/dashboard.html:152 templates/reports/base.html:60
+msgid "Toza foyda"
+msgstr "Sof foyda"
+
+#: templates/analytics/charts.html:377
+#, python-format
+msgid "%(v)s marja"
+msgstr "%(v)s marja"
+
+#: templates/analytics/charts.html:380
+msgid "Eng yaxshi kun"
+msgstr "Eng yaxshi kun"
+
+#: templates/analytics/charts.html:385
+msgid "Top sklad"
+msgstr "Top ombor"
+
+#: templates/analytics/charts.html:395
+msgid "FILTRLAR"
+msgstr "FILTRLAR"
+
+#: templates/analytics/charts.html:397 templates/reports/upload.html:188
+msgid "Achot"
+msgstr "Hisobot"
+
+#: templates/analytics/charts.html:399 templates/analytics/charts.html:406
+#: templates/analytics/dashboard.html:163 templates/reports/base.html:85
+#: templates/reports/base.html:92 templates/reports/base.html:99
+msgid "Hammasi"
+msgstr "Hammasi"
+
+#: templates/analytics/charts.html:404
+msgid "Oy"
+msgstr "Oy"
+
+#: templates/analytics/charts.html:410 templates/reports/list_reports.html:68
+#: templates/reports/storage.html:50 templates/reports/upload.html:165
+msgid "Tozalash"
+msgstr "Tozalash"
+
+#: templates/analytics/charts.html:411
+#, python-format
+msgid "%(v)s ta qator"
+msgstr "%(v)s ta qator"
+
+#: templates/analytics/charts.html:418
+msgid "Kunlik daromad"
+msgstr "Kunlik tushum"
+
+#: templates/analytics/charts.html:418
+msgid "Sana bo'yicha sotuv trendi"
+msgstr "Sana bo'yicha sotuv trendi"
+
+#: templates/analytics/charts.html:419 templates/analytics/charts.html:447
+#: templates/reports/self_purchase.html:26
+#: templates/reports/self_purchase.html:64
+msgid "Jami"
+msgstr "Jami"
+
+#: templates/analytics/charts.html:426
+msgid "Haftalik foyda"
+msgstr "Haftalik foyda"
+
+#: templates/analytics/charts.html:426
+msgid "P&L har hafta bo'yicha"
+msgstr "P&L har hafta bo'yicha"
+
+#: templates/analytics/charts.html:434
+msgid "Top 10 tovar"
+msgstr "Top 10 mahsulot"
+
+#: templates/analytics/charts.html:434
+msgid "Daromad bo'yicha"
+msgstr "Tushum bo'yicha"
+
+#: templates/analytics/charts.html:435
+msgid "tovar"
+msgstr "mahsulot"
+
+#: templates/analytics/charts.html:439
+msgid "Top 10"
+msgstr "Top 10"
+
+#: templates/analytics/charts.html:446 templates/analytics/dashboard.html:80
+#: templates/reports/base.html:51
+msgid "WB ushlanmalari"
+msgstr "WB ushlanmalari"
+
+#: templates/analytics/charts.html:446
+msgid "Kategoriya bo'yicha taqsimot"
+msgstr "Kategoriya bo'yicha taqsimot"
+
+#: templates/analytics/charts.html:451
+#, python-format
+msgid "%% daromaddan"
+msgstr "%% tushumdan"
+
+#: templates/analytics/charts.html:458
+msgid "Sklad bo'yicha daromad"
+msgstr "Ombor bo'yicha tushum"
+
+#: templates/analytics/charts.html:458
+#, python-format
+msgid "%(v)s ta sklad"
+msgstr "%(v)s ta ombor"
+
+#: templates/analytics/charts.html:459
+msgid "sklad"
+msgstr "ombor"
+
+#: templates/analytics/charts.html:466
+msgid "Oylik trend"
+msgstr "Oylik trend"
+
+#: templates/analytics/charts.html:466
+msgid "Daromad va toza foyda — oydan oyga"
+msgstr "Tushum va sof foyda — oydan oyga"
+
+#: templates/analytics/charts.html:467
+msgid "oy"
+msgstr "oy"
+
+#: templates/analytics/dashboard.html:40 templates/partials/sidebar.html:14
+msgid "Dashboard"
+msgstr "Boshqaruv paneli"
+
+#: templates/analytics/dashboard.html:41
+msgid "Asosiy ko'rsatkichlar — sizning Excel Dashboard'ingiz kabi"
+msgstr "Asosiy ko'rsatkichlar — sizning Excel Dashboard'ingiz kabi"
+
+#: templates/analytics/dashboard.html:46
+msgid "FILTR:"
+msgstr "FILTR:"
+
+#: templates/analytics/dashboard.html:48
+msgid "Hamma achotlar"
+msgstr "Barcha hisobotlar"
+
+#: templates/analytics/dashboard.html:61
+#, fuzzy
+#| msgid "Dashboard"
+msgid "Dashboard bo'sh"
+msgstr "Boshqaruv paneli"
+
+#: templates/analytics/dashboard.html:62 templates/analytics/pnl.html:16
+msgid "Avval Список отчётов va Подробный отчёт yuklang"
+msgstr "Avval Hisobotlar ro'yxati va Batafsil hisobotni yuklang"
+
+#: templates/analytics/dashboard.html:70
+msgid "Daromad (Выручка)"
+msgstr "Tushum (Выручка)"
+
+#: templates/analytics/dashboard.html:72 templates/reports/base.html:48
+#, python-format
+msgid "%(q)s dona sotilgan"
+msgstr "%(q)s dona sotilgan"
+
+#: templates/analytics/dashboard.html:77
+#, python-format
+msgid "Marja %(m)s · ROI %(r)s"
+msgstr "Marja %(m)s · ROI %(r)s"
+
+#: templates/analytics/dashboard.html:82 templates/analytics/dashboard.html:113
+#: templates/reports/base.html:53
+#, python-format
+msgid "%(p)s daromaddan"
+msgstr "%(p)s tushumdan"
+
+#: templates/analytics/dashboard.html:91
+msgid "Sotuvlar (Продажи)"
+msgstr "Sotuvlar (Продажи)"
+
+#: templates/analytics/dashboard.html:92
+#, fuzzy, python-format
+#| msgid "qator"
+msgid "%(c)s qator"
+msgstr "qator"
+
+#: templates/analytics/dashboard.html:95
+msgid "Sotilgan"
+msgstr "Sotilgan"
+
+#: templates/analytics/dashboard.html:95
+msgid "dona"
+msgstr "dona"
+
+#: templates/analytics/dashboard.html:96
+msgid "Sotuv summasi"
+msgstr "Sotuv summasi"
+
+#: templates/analytics/dashboard.html:97
+msgid "Qaytarishlar"
+msgstr "Qaytarishlar"
+
+#: templates/analytics/dashboard.html:98
+#, python-format
+msgid "Buyout %%"
+msgstr "Buyout %%"
+
+#: templates/analytics/dashboard.html:99
+msgid "O'rtacha chek"
+msgstr "O'rtacha chek"
+
+#: templates/analytics/dashboard.html:100
+msgid "СПП"
+msgstr "СПП"
+
+#: templates/analytics/dashboard.html:107
+msgid "Moliya (Финансы)"
+msgstr "Moliya (Финансы)"
+
+#: templates/analytics/dashboard.html:108
+msgid "Excel J, K, L, Y formulalari"
+msgstr "Excel J, K, L, Y formulalari"
+
+#: templates/analytics/dashboard.html:111 templates/reports/base.html:56
+msgid "Оплата на РС"
+msgstr "Hisob raqamiga to'lov"
+
+#: templates/analytics/dashboard.html:112
+msgid "WB реализовал"
+msgstr "WB sotdi"
+
+#: templates/analytics/dashboard.html:112
+msgid "с учётом СПП"
+msgstr "СПП hisobga olingan holda"
+
+#: templates/analytics/dashboard.html:113
+msgid "Tannarx (СС)"
+msgstr "Tannarx (СС)"
+
+#: templates/analytics/dashboard.html:114
+#, python-format
+msgid "Soliq (%(r)s%%)"
+msgstr "Soliq (%(r)s%%)"
+
+#: templates/analytics/dashboard.html:115
+#, python-format
+msgid "%(m)s marja"
+msgstr "%(m)s marja"
+
+#: templates/analytics/dashboard.html:116 templates/analytics/pnl.html:62
+msgid "ROI"
+msgstr "ROI"
+
+#: templates/analytics/dashboard.html:123
+msgid "WB ushlanmalar batafsil"
+msgstr "WB ushlanmalar batafsil"
+
+#: templates/analytics/dashboard.html:124
+msgid "Excel K, L, S+T, AD"
+msgstr "Excel K, L, S+T, AD"
+
+#: templates/analytics/dashboard.html:126 templates/analytics/pnl.html:53
+msgid "Komissiya"
+msgstr "Komissiya"
+
+#: templates/analytics/dashboard.html:127
+msgid "Logistika (jami)"
+msgstr "Logistika (jami)"
+
+#: templates/analytics/dashboard.html:128
+msgid "Ekvayring"
+msgstr "Ekvayring"
+
+#: templates/analytics/dashboard.html:129 templates/analytics/pnl.html:55
+#: templates/reports/list_reports.html:51 templates/reports/storage.html:186
+msgid "Saqlash"
+msgstr "Saqlash"
+
+#: templates/analytics/dashboard.html:130 templates/analytics/pnl.html:56
+#: templates/reports/list_reports.html:55
+msgid "Shtraflar"
+msgstr "Jarimalar"
+
+#: templates/analytics/dashboard.html:131
+#, fuzzy
+#| msgid "Хранение"
+msgid "ВБ.Продвижение"
+msgstr "Saqlash"
+
+#: templates/analytics/dashboard.html:132
+msgid "Plat. priyomka"
+msgstr "Pullik qabul"
+
+#: templates/analytics/dashboard.html:134 templates/analytics/pnl.html:87
+msgid "JAMI"
+msgstr "JAMI"
+
+#: templates/analytics/dashboard.html:143
+msgid "Soliq va xarajatlar"
+msgstr "Soliq va xarajatlar"
+
+#: templates/analytics/dashboard.html:144
+msgid "Excel AA, AB, AC, AN"
+msgstr "Excel AA, AB, AC, AN"
+
+#: templates/analytics/dashboard.html:146
+#: templates/analytics/dashboard.html:168
+#: templates/analytics/dashboard.html:200 templates/analytics/pnl.html:58
+#: templates/reports/self_purchase.html:63
+#: templates/reports/self_purchase.html:116
+msgid "Tannarx"
+msgstr "Tannarx"
+
+#: templates/analytics/dashboard.html:147
+#, fuzzy
+#| msgid "Soliq stavkasi (%%)"
+msgid "Soliq bazasi"
+msgstr "Soliq stavkasi (%%)"
+
+#: templates/analytics/dashboard.html:148
+#, fuzzy, python-format
+#| msgid "Soliq stavkasi (%%)"
+msgid "Soliq summa (%(r)s%%)"
+msgstr "Soliq stavkasi (%%)"
+
+#: templates/analytics/dashboard.html:149
+msgid "Tashqi xarajatlar"
+msgstr "Tashqi xarajatlar"
+
+#: templates/analytics/dashboard.html:150
+msgid "Samovikup xarajati"
+msgstr "O'z-o'zini sotib olish xarajati"
+
+#: templates/analytics/dashboard.html:162
+msgid "Top tovarlar (daromad bo'yicha)"
+msgstr "Top mahsulotlar (tushum bo'yicha)"
+
+#: templates/analytics/dashboard.html:168 templates/reports/base.html:116
+#: templates/reports/self_purchase.html:63
+#: templates/reports/self_purchase.html:114 templates/reports/storage.html:186
+msgid "Artikul"
+msgstr "Artikul"
+
+#: templates/analytics/dashboard.html:168 templates/reports/base.html:116
+#: templates/reports/storage.html:186
+msgid "Tovar"
+msgstr "Mahsulot"
+
+#: templates/analytics/dashboard.html:168
+#: templates/analytics/dashboard.html:200 templates/analytics/pnl.html:50
+msgid "Sotuvlar"
+msgstr "Sotuvlar"
+
+#: templates/analytics/dashboard.html:168
+#: templates/analytics/dashboard.html:200 templates/analytics/pnl.html:52
+msgid "Daromad"
+msgstr "Tushum"
+
+#: templates/analytics/dashboard.html:168
+#: templates/analytics/dashboard.html:200 templates/analytics/pnl.html:60
+msgid "Foyda"
+msgstr "Foyda"
+
+#: templates/analytics/dashboard.html:168
+#: templates/analytics/dashboard.html:200 templates/analytics/pnl.html:61
+msgid "Marja"
+msgstr "Marja"
+
+#: templates/analytics/dashboard.html:183 templates/analytics/products.html:15
+msgid "Tovarlar yo'q"
+msgstr "Mahsulotlar yo'q"
+
+#: templates/analytics/dashboard.html:194
+msgid "Haftalik P&L"
+msgstr "Haftalik P&L"
+
+#: templates/analytics/dashboard.html:195
+msgid "To'liq P&L"
+msgstr "To'liq P&L"
+
+#: templates/analytics/dashboard.html:200
+msgid "Hafta"
+msgstr "Hafta"
+
+#: templates/analytics/fines.html:4
+#, fuzzy
+#| msgid "Капитализация"
+msgid "Детализация штрафов"
+msgstr "Kapitallashuv"
+
+#: templates/analytics/fines.html:592
+msgid "Shtraflar tahlili uchun ma'lumot yo'q"
+msgstr "Jarimalar tahlili uchun ma'lumot yo'q"
+
+#: templates/analytics/fines.html:593
+msgid ""
+"Avval Подробный отчёт yuklang — shtraflar va ushlanmalar avtomat ko'rinadi"
+msgstr ""
+"Avval Batafsil hisobotni yuklang — jarimalar va ushlanmalar avtomatik "
+"ko'rinadi"
+
+#: templates/analytics/monthly.html:4 templates/partials/sidebar.html:51
+msgid "Отчёт по месяцам"
+msgstr "Oylik hisobot"
+
+#: templates/analytics/monthly.html:51
+msgid "Otchot bo'sh"
+msgstr "Hisobot bo'sh"
+
+#: templates/analytics/pnl.html:8
+msgid "P&L — Profit & Loss"
+msgstr "P&L — Profit & Loss"
+
+#: templates/analytics/pnl.html:9
+msgid "Haftalik foyda-zarar hisoboti — sizning Excel kabi"
+msgstr "Haftalik foyda-zarar hisoboti — sizning Excel kabi"
+
+#: templates/analytics/pnl.html:15
+msgid "P&L bo'sh"
+msgstr "P&L bo'sh"
+
+#: templates/analytics/pnl.html:23 templates/reports/storage.html:67
+msgid "Haftalar"
+msgstr "Haftalar"
+
+#: templates/analytics/pnl.html:31
+msgid "Jami foyda"
+msgstr "Jami foyda"
+
+#: templates/analytics/pnl.html:33 templates/reports/base.html:62
+#, python-format
+msgid "Marja %(m)s"
+msgstr "Marja %(m)s"
+
+#: templates/analytics/pnl.html:40
+msgid "Haftalik P&L jadval"
+msgstr "Haftalik P&L jadvali"
+
+#: templates/analytics/pnl.html:41
+msgid "Har bir hafta uchun batafsil hisobot"
+msgstr "Har bir hafta uchun batafsil hisobot"
+
+#: templates/analytics/pnl.html:49
+msgid "Hafta (Дата)"
+msgstr "Hafta (Sana)"
+
+#: templates/analytics/pnl.html:51 templates/reports/base.html:101
+msgid "Qaytarish"
+msgstr "Qaytarish"
+
+#: templates/analytics/pnl.html:54 templates/reports/base.html:102
+#: templates/reports/list_reports.html:47
+#: templates/reports/self_purchase.html:64
+#: templates/reports/self_purchase.html:117
+msgid "Logistika"
+msgstr "Logistika"
+
+#: templates/analytics/pnl.html:57
+msgid "Reklama"
+msgstr "Reklama"
+
+#: templates/analytics/products.html:4 templates/reports/storage.html:72
+msgid "Tovarlar"
+msgstr "Mahsulotlar"
+
+#: templates/analytics/products.html:8
+msgid "Tovarlar bo'yicha hisobot"
+msgstr "Mahsulotlar hisoboti"
+
+#: templates/analytics/products.html:9
+msgid ""
+"Har bir tovar uchun batafsil tahlil — sizning Excel \"Отчёт по товарам\" "
+"varagi kabi"
+msgstr ""
+"Har bir tovar uchun batafsil tahlil — sizning Excel \"Отчёт по товарам\" "
+"varagi kabi"
+
+#: templates/analytics/smart.html:4 templates/partials/sidebar.html:68
+msgid "Smart Аналитика"
+msgstr "Smart Analitika"
+
+#: templates/landing.html:8 templates/landing.html:18
+msgid "AIRA — аналитика и финансы для продавцов Wildberries"
+msgstr "AIRA — Wildberries sotuvchilari uchun tahlil va moliya"
+
+#: templates/landing.html:9
+msgid ""
+"AIRA — сервис аналитики Wildberries: загрузите отчёт WB и получите точный "
+"P&L, ABC-анализ, себестоимость, юнит-экономику и капитализацию склада. "
+"Считаем вашу чистую прибыль автоматически."
+msgstr "AIRA — Wildberries tahlil xizmati: WB hisobotini yuklang va aniq P&L, ABC-tahlil, tannarx, yunit-iqtisodiyot va ombor kapitalizatsiyasini oling. Sof foydangizni avtomatik hisoblaymiz."
+
+#: templates/landing.html:19
+msgid ""
+"Загрузите отчёт WB — получите готовый P&L, ABC-анализ, себестоимость и "
+"реальную чистую прибыль."
+msgstr "WB hisobotini yuklang — tayyor P&L, ABC-tahlil, tannarx va haqiqiy sof foydani oling."
+
+#: templates/landing.html:22
+msgid "AIRA — аналитика Wildberries"
+msgstr "AIRA — Wildberries tahlili"
+
+#: templates/landing.html:23
+msgid ""
+"Реальная прибыль с Wildberries без таблиц. Загрузите отчёт — получите "
+"аналитику."
+msgstr "Wildberries'dan haqiqiy foyda — jadvalsiz. Hisobotni yuklang — tahlilni oling."
+
+#: templates/landing.html:209 templates/landing.html:285
+#: templates/landing.html:375
+msgid "Возможности"
+msgstr "Imkoniyatlar"
+
+#: templates/landing.html:210 templates/landing.html:310
+#: templates/landing.html:376
+msgid "Как это работает"
+msgstr "Qanday ishlaydi"
+
+#: templates/landing.html:211
+msgid "Преимущества"
+msgstr "Afzalliklar"
+
+#: templates/landing.html:226
+msgid "Личный кабинет →"
+msgstr "Shaxsiy kabinet →"
+
+#: templates/landing.html:228 templates/landing.html:377
+msgid "Войти"
+msgstr "Kirish"
+
+#: templates/landing.html:241
+msgid "Аналитика Wildberries нового поколения"
+msgstr "Yangi avlod Wildberries tahlili"
+
+#: templates/landing.html:242
+msgid "Реальная <span class=\"grad\">прибыль</span> с Wildberries — без таблиц"
+msgstr "Wildberries'dan haqiqiy <span class=\"grad\">foyda</span> — jadvalsiz"
+
+#: templates/landing.html:243
+msgid ""
+"Загрузите отчёт WB — и AIRA сама посчитает себестоимость, комиссии, "
+"логистику, штрафы и налоги. Вы видите чистую прибыль, P&L, ABC-анализ и юнит-"
+"экономику в один клик."
+msgstr "WB hisobotini yuklang — AIRA tannarx, komissiya, logistika, jarima va soliqlarni o'zi hisoblaydi. Sof foyda, P&L, ABC-tahlil va yunit-iqtisodiyotni bir klikda ko'rasiz."
+
+#: templates/landing.html:246 templates/landing.html:361
+msgid "Перейти в кабинет →"
+msgstr "Kabinetga o'tish →"
+
+#: templates/landing.html:248 templates/landing.html:363
+msgid "Войти в кабинет →"
+msgstr "Kabinetga kirish →"
+
+#: templates/landing.html:250
+msgid "Смотреть возможности"
+msgstr "Imkoniyatlarni ko'rish"
+
+#: templates/landing.html:253
+msgid "формула расчёта"
+msgstr "hisoblash formulasi"
+
+#: templates/landing.html:254
+msgid "данные изолированы"
+msgstr "ma'lumotlar himoyalangan"
+
+#: templates/landing.html:255
+msgid "1 клик"
+msgstr "1 klik"
+
+#: templates/landing.html:255
+#| msgid "Калькулятор"
+msgid "от отчёта до прибыли"
+msgstr "hisobotdan foydagacha"
+
+#: templates/landing.html:263 templates/landing.html:343
+#: templates/reports/base.html:46 templates/reports/base.html:118
+msgid "Выручка"
+msgstr "Tushum"
+
+#: templates/landing.html:264
+#| msgid "Итого к оплате"
+msgid "К выплате"
+msgstr "To'lovga"
+
+#: templates/landing.html:265
+msgid "Прибыль"
+msgstr "Foyda"
+
+#: templates/landing.html:268
+msgid "Прибыль по неделям"
+msgstr "Haftalik foyda"
+
+#: templates/landing.html:286
+msgid "Вся аналитика магазина в одном месте"
+msgstr "Do'kon tahlili bir joyda"
+
+#: templates/landing.html:287
+msgid ""
+"От загрузки отчёта Wildberries до готовых финансовых выводов — каждая "
+"метрика рассчитана автоматически."
+msgstr "Wildberries hisobotini yuklashdan tayyor moliyaviy xulosalargacha — har bir ko'rsatkich avtomatik hisoblanadi."
+
+#: templates/landing.html:290
+msgid "Дашборд"
+msgstr "Boshqaruv paneli"
+
+#: templates/landing.html:291
+msgid ""
+"Выручка, к выплате, чистая прибыль и ключевые KPI в реальном времени по "
+"каждому отчёту."
+msgstr "Har bir hisobot bo'yicha tushum, to'lovga, sof foyda va asosiy KPI'lar real vaqtda."
+
+#: templates/landing.html:292
+#| msgid "№ Отчёта"
+msgid "P&L отчёт"
+msgstr "P&L hisoboti"
+
+#: templates/landing.html:293
+msgid ""
+"Полный отчёт о прибылях и убытках: продажи, комиссии WB, логистика, штрафы, "
+"налоги."
+msgstr "To'liq foyda va zarar hisoboti: savdo, WB komissiyalari, logistika, jarimalar, soliqlar."
+
+#: templates/landing.html:294
+msgid "ABC-анализ"
+msgstr "ABC-tahlil"
+
+#: templates/landing.html:295
+msgid ""
+"Определяйте, какие товары приносят основную прибыль, а какие тянут магазин "
+"вниз."
+msgstr "Qaysi tovarlar asosiy foyda keltirayotganini, qaysilari do'konni pastga tortayotganini aniqlang."
+
+#: templates/landing.html:296
+#| msgid "Калькулятор"
+msgid "Юнит-калькулятор"
+msgstr "Yunit-kalkulyator"
+
+#: templates/landing.html:297
+msgid ""
+"Считайте экономику товара до закупки: цена, маржа, точка безубыточности."
+msgstr "Tovar iqtisodiyotini xariddan oldin hisoblang: narx, marja, zararsizlik nuqtasi."
+
+#: templates/landing.html:298
+#| msgid "Капитализация"
+msgid "Капитализация склада"
+msgstr "Ombor kapitalizatsiyasi"
+
+#: templates/landing.html:299
+msgid ""
+"Оценка остатков, неликвидов и замороженных денег на складах Wildberries."
+msgstr "Wildberries omborlaridagi qoldiqlar, likvidsiz tovarlar va muzlatilgan pullarni baholash."
+
+#: templates/landing.html:300
+#| msgid "Smart Аналитика"
+msgid "Smart-аналитика"
+msgstr "Smart-tahlil"
+
+#: templates/landing.html:301
+msgid "Тренды, возвраты, география продаж и диагностика проблем магазина."
+msgstr "Tendentsiyalar, qaytarishlar, savdo geografiyasi va do'kon muammolari diagnostikasi."
+
+#: templates/landing.html:311
+#| msgid "Калькулятор"
+msgid "Три шага до точной прибыли"
+msgstr "Aniq foydagacha uch qadam"
+
+#: templates/landing.html:312
+msgid "Без сложных таблиц и ручных расчётов. AIRA делает всю работу за вас."
+msgstr "Murakkab jadvallar va qo'lda hisob-kitobsiz. AIRA barcha ishni siz uchun bajaradi."
+
+#: templates/landing.html:315
+#| msgid "Список отчётов"
+msgid "Загрузите отчёт WB"
+msgstr "WB hisobotini yuklang"
+
+#: templates/landing.html:316
+msgid ""
+"Выгрузите детальный отчёт из личного кабинета Wildberries и загрузите его в "
+"AIRA. Файл не хранится на сервере."
+msgstr "Wildberries shaxsiy kabinetidan batafsil hisobotni yuklab oling va AIRA'ga yuklang. Fayl serverda saqlanmaydi."
+
+#: templates/landing.html:317
+msgid "Автоматический расчёт"
+msgstr "Avtomatik hisoblash"
+
+#: templates/landing.html:318
+msgid ""
+"51 формула пересчитывает себестоимость, комиссии, логистику, штрафы и налоги "
+"по каждой строке."
+msgstr "51 formula har bir satr bo'yicha tannarx, komissiya, logistika, jarima va soliqlarni qayta hisoblaydi."
+
+#: templates/landing.html:319
+#| msgid "Smart Аналитика"
+msgid "Готовая аналитика"
+msgstr "Tayyor tahlil"
+
+#: templates/landing.html:320
+msgid ""
+"Дашборд, P&L, ABC-анализ и капитализация — всё доступно сразу после загрузки."
+msgstr "Boshqaruv paneli, P&L, ABC-tahlil va kapitalizatsiya — barchasi yuklashdan keyin darhol tayyor."
+
+#: templates/landing.html:330
+msgid "Почему AIRA"
+msgstr "Nega AIRA"
+
+#: templates/landing.html:332
+msgid "Считаем как бухгалтер, показываем как аналитик"
+msgstr "Buxgalterdek hisoblaymiz, tahlilchidek ko'rsatamiz"
+
+#: templates/landing.html:334
+msgid "Точные формулы"
+msgstr "Aniq formulalar"
+
+#: templates/landing.html:334
+msgid ""
+"Расчёты выверены до копейки и совпадают с реальными отчётами Wildberries."
+msgstr "Hisob-kitoblar tiyinigacha tekshirilgan va Wildberries'ning haqiqiy hisobotlariga mos keladi."
+
+#: templates/landing.html:335
+msgid "Ваши данные защищены"
+msgstr "Ma'lumotlaringiz himoyalangan"
+
+#: templates/landing.html:335
+msgid ""
+"Каждая компания видит только свои данные. Excel-файлы не сохраняются на "
+"сервере."
+msgstr "Har bir kompaniya faqat o'z ma'lumotlarini ko'radi. Excel fayllar serverda saqlanmaydi."
+
+#: templates/landing.html:336
+msgid "Несколько магазинов"
+msgstr "Bir nechta do'kon"
+
+#: templates/landing.html:336
+msgid "Ведите учёт нескольких компаний и брендов в одном аккаунте раздельно."
+msgstr "Bir nechta kompaniya va brendni bitta akkauntda alohida yuriting."
+
+#: templates/landing.html:337
+msgid "Русский и узбекский"
+msgstr "Rus va o'zbek tili"
+
+#: templates/landing.html:337
+msgid "Полностью двуязычный интерфейс — переключайте язык в один клик."
+msgstr "To'liq ikki tilli interfeys — tilni bir klikda almashtiring."
+
+#: templates/landing.html:341
+msgid "P&L за период"
+msgstr "Davr uchun P&L"
+
+#: templates/landing.html:342
+msgid "Пример того, что вы увидите после загрузки"
+msgstr "Yuklashdan keyin nima ko'rishingizga misol"
+
+#: templates/landing.html:344
+msgid "Комиссия WB и логистика"
+msgstr "WB komissiyasi va logistika"
+
+#: templates/landing.html:346
+#| msgid "Хранение"
+msgid "Штрафы и хранение"
+msgstr "Jarimalar va saqlash"
+
+#: templates/landing.html:347
+#| msgid "Калькулятор"
+msgid "Чистая прибыль"
+msgstr "Sof foyda"
+
+#: templates/landing.html:357
+msgid "Начните считать прибыль уже сегодня"
+msgstr "Foydani bugundan hisoblashni boshlang"
+
+#: templates/landing.html:358
+msgid ""
+"Войдите в личный кабинет и загрузите первый отчёт Wildberries — аналитика "
+"будет готова за секунды."
+msgstr "Shaxsiy kabinetga kiring va birinchi Wildberries hisobotini yuklang — tahlil bir necha soniyada tayyor bo'ladi."
+
+#: templates/landing.html:379
+msgid "© AIRA — аналитика Wildberries"
+msgstr "© AIRA — Wildberries tahlili"
+
+#: templates/partials/sidebar.html:17 templates/reports/upload.html:21
+msgid "Achot yuklash"
+msgstr "Hisobot yuklash"
+
+#: templates/partials/sidebar.html:20
+msgid "MA'LUMOTLAR"
+msgstr "MA'LUMOTLAR"
+
+#: templates/partials/sidebar.html:22 templates/reports/list_reports.html:4
+#: templates/reports/list_reports.html:17 templates/reports/upload.html:42
+#: templates/reports/upload.html:59
+msgid "Список отчётов"
+msgstr "Hisobotlar ro'yxati"
+
+#: templates/partials/sidebar.html:25 templates/reports/base.html:4
+#: templates/reports/base.html:25
+msgid "База"
+msgstr "Baza"
+
+#: templates/partials/sidebar.html:31 templates/reports/base.html:121
+#: templates/reports/list_reports.html:78 templates/reports/storage.html:4
+msgid "Хранение"
+msgstr "Saqlash"
+
+#: templates/partials/sidebar.html:34 templates/reports/self_purchase.html:4
+#: templates/reports/self_purchase.html:20
+msgid "Самовыкупы"
+msgstr "O'z-o'zini sotib olish"
+
+#: templates/partials/sidebar.html:37 templates/reports/ext_expenses.html:4
+#: templates/reports/ext_expenses.html:27
+msgid "Внешние расходы"
+msgstr "Tashqi xarajatlar"
+
+#: templates/partials/sidebar.html:40
+msgid "HISOBOTLAR"
+msgstr "HISOBOTLAR"
+
+#: templates/partials/sidebar.html:45 templates/reports/list_reports.html:78
+msgid "Штрафы"
+msgstr "Jarimalar"
+
+#: templates/partials/sidebar.html:48
+msgid "P&amp;L"
+msgstr "P&amp;L"
+
+#: templates/partials/sidebar.html:54
+msgid "ABC tahlil"
+msgstr "ABC tahlil"
+
+#: templates/partials/sidebar.html:57
+msgid "Отчёт по товарам"
+msgstr "Mahsulotlar hisoboti"
+
+#: templates/partials/sidebar.html:60
+msgid "VOSITALAR"
+msgstr "VOSITALAR"
+
+#: templates/partials/sidebar.html:62
+msgid "Калькулятор"
+msgstr "Kalkulyator"
+
+#: templates/partials/sidebar.html:71
+msgid "BOSHQA"
+msgstr "BOSHQA"
+
+#: templates/partials/topbar.html:16
+msgid "Профиль"
+msgstr "Profil"
+
+#: templates/partials/topbar.html:25
+msgid "АКТИВНЫЙ"
+msgstr "FAOL"
+
+#: templates/partials/topbar.html:31
+msgid "Открыть →"
+msgstr "Ochish →"
+
+#: templates/partials/topbar.html:37
+msgid "Добавить компанию"
+msgstr "Kompaniya qo'shish"
+
+#: templates/partials/topbar.html:47
+msgid "Yangi kompaniya qo'shish"
+msgstr "Yangi kompaniya qo'shish"
+
+#: templates/partials/topbar.html:53
+msgid "Nomi (IP / kompaniya)"
+msgstr "Nomi (IP / kompaniya)"
+
+#: templates/partials/topbar.html:54
+msgid "Masalan: ИП Иванов"
+msgstr "Masalan: ИП Иванов"
+
+#: templates/partials/topbar.html:57
+msgid "Brend"
+msgstr "Brend"
+
+#: templates/partials/topbar.html:58
+msgid "Brend nomi"
+msgstr "Brend nomi"
+
+#: templates/partials/topbar.html:62
+msgid "Davlat"
+msgstr "Davlat"
+
+#: templates/partials/topbar.html:71
+msgid "Valyuta"
+msgstr "Valyuta"
+
+#: templates/partials/topbar.html:81 templates/reports/upload.html:32
+msgid "ИНН"
+msgstr "ИНН"
+
+#: templates/partials/topbar.html:86
+msgid "Soliq turi"
+msgstr "Soliq turi"
+
+#: templates/partials/topbar.html:92
+#, python-format
+msgid "Soliq stavkasi (%%)"
+msgstr "Soliq stavkasi (%%)"
+
+#: templates/partials/topbar.html:97
+msgid "Bekor qilish"
+msgstr "Bekor qilish"
+
+#: templates/partials/topbar.html:98 templates/reports/costs.html:169
+msgid "Qo'shish"
+msgstr "Qo'shish"
+
+#: templates/partials/topbar.html:106
+msgid "qator"
+msgstr "qator"
+
+#: templates/partials/topbar.html:108 templates/reports/base.html:32
+msgid "База bo'sh"
+msgstr "Baza bo'sh"
+
+#: templates/partials/topbar.html:127
+msgid "Chiqish"
+msgstr "Chiqish"
+
+#: templates/reports/base.html:26
+msgid "Hamma sotuv qatorlari — formulalar bilan avtomat hisoblangan"
+msgstr "Hamma sotuv qatorlari — formulalar bilan avtomat hisoblangan"
+
+#: templates/reports/base.html:33
+msgid ""
+"Подробный отчёт fayllarini yuklang — bu yerda hamma sotuv qatorlari ko'rinadi"
+msgstr ""
+"Подробный отчёт fayllarini yuklang — bu yerda hamma sotuv qatorlari ko'rinadi"
+
+#: templates/reports/base.html:34 templates/reports/list_reports.html:141
+msgid "Yuklash sahifasiga"
+msgstr "Yuklash sahifasiga"
+
+#: templates/reports/base.html:41
+msgid "Jami qatorlar"
+msgstr "Jami qatorlar"
+
+#: templates/reports/base.html:43
+#, python-format
+msgid "jami %(t)s dan"
+msgstr "jami %(t)s dan"
+
+#: templates/reports/base.html:69
+msgid "База — sotuv qatorlari"
+msgstr "Baza — sotuv qatorlari"
+
+#: templates/reports/base.html:70
+msgid "Asosiy ustunlar ko'rsatiladi"
+msgstr "Asosiy ustunlar ko'rsatiladi"
+
+#: templates/reports/base.html:73
+msgid "CSV eksport"
+msgstr "CSV eksport"
+
+#: templates/reports/base.html:75
+#, python-format
+msgid "Faqat № %(n)s o'chirish"
+msgstr "Faqat № %(n)s o'chirish"
+
+#: templates/reports/base.html:77
+msgid "Hamma Bazani o'chirish"
+msgstr "Hamma Bazani o'chirish"
+
+#: templates/reports/base.html:83
+msgid "Achot:"
+msgstr "Hisobot:"
+
+#: templates/reports/base.html:90
+msgid "Tovar:"
+msgstr "Mahsulot:"
+
+#: templates/reports/base.html:97
+msgid "Tur:"
+msgstr "Tur:"
+
+#: templates/reports/base.html:100
+msgid "Sotuv"
+msgstr "Sotuv"
+
+#: templates/reports/base.html:103
+msgid "Shtraf"
+msgstr "Jarima"
+
+#: templates/reports/base.html:108
+msgid "Artikul, tovar nomi..."
+msgstr "Artikul, tovar nomi..."
+
+#: templates/reports/base.html:116 templates/reports/list_reports.html:76
+msgid "№ Отчёта"
+msgstr "Hisobot №"
+
+#: templates/reports/base.html:116
+msgid "Tur"
+msgstr "Tur"
+
+#: templates/reports/base.html:117
+msgid "Прод. шт."
+msgstr "Sotuv dona"
+
+#: templates/reports/base.html:117
+msgid "Возвр. шт."
+msgstr "Qaytar. dona"
+
+#: templates/reports/base.html:118
+msgid "К перечисл."
+msgstr "O'tkazishga"
+
+#: templates/reports/base.html:119
+msgid "Комиссия"
+msgstr "Komissiya"
+
+#: templates/reports/base.html:119
+msgid "Эквайринг"
+msgstr "Ekvayring"
+
+#: templates/reports/base.html:120
+msgid "Лог. прям."
+msgstr "Log. to'g'ri"
+
+#: templates/reports/base.html:120
+msgid "Лог. обр."
+msgstr "Log. teskari"
+
+#: templates/reports/base.html:121
+#, fuzzy
+#| msgid "Штрафы"
+msgid "Штраф"
+msgstr "Jarimalar"
+
+#: templates/reports/base.html:122
+#, fuzzy
+#| msgid "Себестоимость"
+msgid "Себест."
+msgstr "Tannarx"
+
+#: templates/reports/base.html:122
+msgid "Налог"
+msgstr "Soliq"
+
+#: templates/reports/base.html:123
+msgid "Опл. РС"
+msgstr "RS to'lov"
+
+#: templates/reports/base.html:123
+msgid "Дата"
+msgstr "Sana"
+
+#: templates/reports/base.html:149
+msgid "Filtrga mos qatorlar topilmadi"
+msgstr "Filtrga mos qatorlar topilmadi"
+
+#: templates/reports/base.html:157 templates/reports/base.html:159
+msgid "Oldingi"
+msgstr "Oldingi"
+
+#: templates/reports/base.html:162
+#, python-format
+msgid "Sahifa <strong>%(n)s</strong> / %(total)s · %(cnt)s qator"
+msgstr "Sahifa <strong>%(n)s</strong> / %(total)s · %(cnt)s qator"
+
+#: templates/reports/base.html:165 templates/reports/base.html:167
+msgid "Keyingi"
+msgstr "Keyingi"
+
+#: templates/reports/costs.html:27
+msgid "Tannarx ma'lumotlari — sotuvni hisoblash uchun zarur"
+msgstr "Tannarx ma'lumotlari — sotuvni hisoblash uchun zarur"
+
+#: templates/reports/costs.html:33
+msgid "База sahifasidagi formula:"
+msgstr "База sahifasidagi formula:"
+
+#: templates/reports/costs.html:34
+msgid "Ya'ni:"
+msgstr "Ya'ni:"
+
+#: templates/reports/costs.html:34 templates/reports/costs.html:118
+#: templates/reports/costs.html:184
+msgid "Код номенклатуры"
+msgstr "Nomenklatura kodi"
+
+#: templates/reports/costs.html:34
+msgid "orqali tannarx topiladi va sotilgan dona soniga ko'paytiriladi"
+msgstr "orqali tannarx topiladi va sotilgan dona soniga ko'paytiriladi"
+
+#: templates/reports/costs.html:40
+msgid "Jami tovarlar"
+msgstr "Jami tovarlar"
+
+#: templates/reports/costs.html:42
+msgid "Tannarx jadvalida"
+msgstr "Tannarx jadvalida"
+
+#: templates/reports/costs.html:45
+msgid "Ishlatilgan"
+msgstr "Ishlatilgan"
+
+#: templates/reports/costs.html:47
+#, fuzzy
+#| msgid "База bo'sh"
+msgid "База da bor"
+msgstr "Baza bo'sh"
+
+#: templates/reports/costs.html:50
+msgid "Tannarxsiz qolgan"
+msgstr "Tannarxsiz qolgan"
+
+#: templates/reports/costs.html:52
+msgid "qo'shing!"
+msgstr "qo'shing!"
+
+#: templates/reports/costs.html:52
+msgid "hammasi joyida"
+msgstr "hammasi joyida"
+
+#: templates/reports/costs.html:55
+msgid "O'rtacha tannarx"
+msgstr "O'rtacha tannarx"
+
+#: templates/reports/costs.html:64
+#, python-format
+msgid "База da %(missing_count)s ta tovar tannarxsiz!"
+msgstr "База da %(missing_count)s ta tovar tannarxsiz!"
+
+#: templates/reports/costs.html:65
+msgid ""
+"Bu tovarlar uchun tannarx kiritish kerak, aks holda foyda noto'g'ri "
+"hisoblanadi."
+msgstr ""
+"Bu tovarlar uchun tannarx kiritish kerak, aks holda foyda noto'g'ri "
+"hisoblanadi."
+
+#: templates/reports/costs.html:66
+msgid "Tannarxsiz kodlar:"
+msgstr "Tannarxsiz kodlar:"
+
+#: templates/reports/costs.html:74
+msgid "Tovarlar jadvali"
+msgstr "Tovarlar jadvali"
+
+#: templates/reports/costs.html:75
+#, fuzzy
+#| msgid "Себестоимость"
+msgid "Sizning Excel \"Себестоимость\" varagi kabi"
+msgstr "Tannarx"
+
+#: templates/reports/costs.html:78
+msgid "Yangi tovar"
+msgstr "Yangi tovar"
+
+#: templates/reports/costs.html:87
+msgid "Выгрузить в Excel"
+msgstr "Excel'ga yuklash"
+
+#: templates/reports/costs.html:91
+msgid "Загрузить из Excel"
+msgstr "Excel'dan yuklash"
+
+#: templates/reports/costs.html:95
+msgid "Bo'sh shablon yuklab olish"
+msgstr "Bo'sh shablon yuklab olish"
+
+#: templates/reports/costs.html:99
+msgid "Hammasini tozalash"
+msgstr "Hammasini tozalash"
+
+#: templates/reports/costs.html:100
+msgid "profil"
+msgstr "profil"
+
+#: templates/reports/costs.html:115
+msgid "Брeнд"
+msgstr "Brend"
+
+#: templates/reports/costs.html:116
+msgid "Артикул поставщика"
+msgstr "Yetkazib beruvchi artikuli"
+
+#: templates/reports/costs.html:117 templates/reports/costs.html:183
+msgid "Товар"
+msgstr "Mahsulot"
+
+#: templates/reports/costs.html:120 templates/reports/costs.html:186
+msgid "Группа"
+msgstr "Guruh"
+
+#: templates/reports/costs.html:121
+msgid "Проверка"
+msgstr "Tekshiruv"
+
+#: templates/reports/costs.html:141
+msgid "Tovar yo'q. \"+ Yangi tovar\" yoki Excel orqali qo'shing."
+msgstr "Tovar yo'q. \"+ Yangi tovar\" yoki Excel orqali qo'shing."
+
+#: templates/reports/costs.html:152
+#, python-format
+msgid "Yangi artikullar topildi — Tannarx kerak (%(missing_count)s ta)"
+msgstr "Yangi artikullar topildi — Tannarx kerak (%(missing_count)s ta)"
+
+#: templates/reports/costs.html:153
+msgid "База'da bor, lekin tannarx kiritilmagan"
+msgstr "База'da bor, lekin tannarx kiritilmagan"
+
+#: templates/reports/costs.html:156
+msgid "Excel'ga olib chiqish va tannarx kiritish"
+msgstr "Excel'ga olib chiqish va tannarx kiritish"
+
+#: templates/reports/costs.html:172
+#, python-format
+msgid ""
+"va yana %(missing_extra)s ta. Excel orqali hammasini qo'shing yuqoridagi "
+"tugma bilan"
+msgstr ""
+"va yana %(missing_extra)s ta. Excel orqali hammasini qo'shing yuqoridagi "
+"tugma bilan"
+
+#: templates/reports/costs.html:180
+#, fuzzy
+#| msgid "Yangi kompaniya qo'shish"
+msgid "Yangi tovar qo'shish"
+msgstr "Yangi kompaniya qo'shish"
+
+#: templates/reports/costs.html:181
+msgid "Бренд"
+msgstr "Brend"
+
+#: templates/reports/costs.html:182
+msgid "Артикул"
+msgstr "Artikul"
+
+#: templates/reports/costs.html:188 templates/reports/ext_expenses.html:153
+#: templates/reports/self_purchase.html:120
+msgid "Bekor"
+msgstr "Bekor"
+
+#: templates/reports/costs.html:189 templates/reports/ext_expenses.html:154
+#: templates/reports/self_purchase.html:121
+msgctxt "action"
+msgid "Saqlash"
+msgstr "Saqlash"
+
+#: templates/reports/ext_expenses.html:28
+msgid "WB'dan tashqaridagi xarajatlar — informatsion hisob"
+msgstr "WB'dan tashqaridagi xarajatlar — informatsion hisob"
+
+#: templates/reports/ext_expenses.html:33
+#: templates/reports/self_purchase.html:31
+msgid "Jami xarajat"
+msgstr "Jami xarajat"
+
+#: templates/reports/ext_expenses.html:35
+#, python-format
+msgid "%(all_count)s ta yozuv"
+msgstr "%(all_count)s ta yozuv"
+
+#: templates/reports/ext_expenses.html:38
+msgid "Kategoriyalar"
+msgstr "Kategoriyalar"
+
+#: templates/reports/ext_expenses.html:40 templates/reports/storage.html:64
+msgid "turli xil"
+msgstr "turli xil"
+
+#: templates/reports/ext_expenses.html:43
+msgid "Oylar"
+msgstr "Oylar"
+
+#: templates/reports/ext_expenses.html:47
+#: templates/reports/self_purchase.html:36
+msgid "O'rtacha"
+msgstr "O'rtacha"
+
+#: templates/reports/ext_expenses.html:49
+msgid "har xarajatda"
+msgstr "har xarajatda"
+
+#: templates/reports/ext_expenses.html:57
+msgid "Kategoriyalar bo'yicha"
+msgstr "Kategoriyalar bo'yicha"
+
+#: templates/reports/ext_expenses.html:58
+msgid "Qaysi kategoriyaga ko'p sarflagansiz"
+msgstr "Qaysi kategoriyaga ko'p sarflagansiz"
+
+#: templates/reports/ext_expenses.html:66
+#, python-format
+msgid "%(c)s ta"
+msgstr "%(c)s ta"
+
+#: templates/reports/ext_expenses.html:82
+msgid "Hamma xarajatlar"
+msgstr "Hamma xarajatlar"
+
+#: templates/reports/ext_expenses.html:83
+#, python-format
+msgid "%(n)s ta yozuv"
+msgstr "%(n)s ta yozuv"
+
+#: templates/reports/ext_expenses.html:87
+msgid "Hamma kategoriya"
+msgstr "Hamma kategoriya"
+
+#: templates/reports/ext_expenses.html:91 templates/reports/storage.html:47
+msgid "Hamma oy"
+msgstr "Hamma oy"
+
+#: templates/reports/ext_expenses.html:94
+#: templates/reports/self_purchase.html:48
+msgid "Yangi"
+msgstr "Yangi"
+
+#: templates/reports/ext_expenses.html:101
+#: templates/reports/self_purchase.html:54
+msgid "Hozircha bo'sh"
+msgstr "Hozircha bo'sh"
+
+#: templates/reports/ext_expenses.html:102
+msgid "Filtr bo'yicha hech narsa topilmadi"
+msgstr "Filtr bo'yicha hech narsa topilmadi"
+
+#: templates/reports/ext_expenses.html:102
+msgid "Tashqi xarajatlarni qo'shing"
+msgstr "Tashqi xarajatlarni qo'shing"
+
+#: templates/reports/ext_expenses.html:103
+#: templates/reports/self_purchase.html:56
+msgid "Birinchisini qo'shish"
+msgstr "Birinchisini qo'shish"
+
+#: templates/reports/ext_expenses.html:109
+#: templates/reports/ext_expenses.html:143
+#: templates/reports/self_purchase.html:63
+#: templates/reports/self_purchase.html:115 templates/reports/storage.html:186
+msgid "Sana"
+msgstr "Sana"
+
+#: templates/reports/ext_expenses.html:109
+#: templates/reports/ext_expenses.html:144
+msgid "Kategoriya"
+msgstr "Kategoriya"
+
+#: templates/reports/ext_expenses.html:109
+#: templates/reports/ext_expenses.html:149
+msgid "Tavsif"
+msgstr "Tavsif"
+
+#: templates/reports/ext_expenses.html:109
+#: templates/reports/ext_expenses.html:150
+msgid "Summa"
+msgstr "Summa"
+
+#: templates/reports/ext_expenses.html:109
+#: templates/reports/ext_expenses.html:151
+#: templates/reports/self_purchase.html:64
+#: templates/reports/self_purchase.html:118
+msgid "Eslatma"
+msgstr "Eslatma"
+
+#: templates/reports/ext_expenses.html:109
+#: templates/reports/self_purchase.html:64
+msgid "Action"
+msgstr "Amal"
+
+#: templates/reports/ext_expenses.html:128
+#: templates/reports/list_reports.html:111
+#, python-format
+msgid "JAMI (%(n)s ta)"
+msgstr "JAMI (%(n)s ta)"
+
+#: templates/reports/ext_expenses.html:141
+msgid "Yangi xarajat"
+msgstr "Yangi xarajat"
+
+#: templates/reports/list_reports.html:18
+msgid "WB Финансовые отчёты — har bir haftalik achot"
+msgstr "WB Финансовые отчёты — har bir haftalik hisobot"
+
+#: templates/reports/list_reports.html:24
+#, fuzzy
+#| msgid "Список отчётов"
+msgid "Список отчётов bo'sh"
+msgstr "Hisobotlar ro'yxati"
+
+#: templates/reports/list_reports.html:25
+msgid ""
+"WB Финансовые отчёты sahifasidan \"Скачать Excel\" tugmasi bilan ro'yxatni "
+"yuklab oling"
+msgstr ""
+"WB Финансовые отчёты sahifasidan \"Скачать Excel\" tugmasi bilan ro'yxatni "
+"yuklab oling"
+
+#: templates/reports/list_reports.html:26
+#, fuzzy
+#| msgid "Achot yuklash"
+msgid "Achot yuklash sahifasi"
+msgstr "Hisobot yuklash"
+
+#: templates/reports/list_reports.html:33
+msgid "Jami achotlar"
+msgstr "Jami hisobotlar"
+
+#: templates/reports/list_reports.html:35
+#, python-format
+msgid "%(c)s ta Подробный yuklangan"
+msgstr "%(c)s ta Подробный yuklangan"
+
+#: templates/reports/list_reports.html:38
+msgid "Jami sotuv (Продажа)"
+msgstr "Jami sotuv (Продажа)"
+
+#: templates/reports/list_reports.html:42
+#: templates/reports/list_reports.html:79
+msgid "Итого к оплате"
+msgstr "Jami to'lovga"
+
+#: templates/reports/list_reports.html:44
+msgid "RS hisobga"
+msgstr "RS hisobga"
+
+#: templates/reports/list_reports.html:63
+msgid "Achotlar jadvali"
+msgstr "Hisobotlar jadvali"
+
+#: templates/reports/list_reports.html:64
+#, fuzzy
+#| msgid "Список отчётов"
+msgid "Sizning Excel \"Список отчётов\" varagi kabi"
+msgstr "Hisobotlar ro'yxati"
+
+#: templates/reports/list_reports.html:76
+msgid "Юр. лицо"
+msgstr "Yur. shaxs"
+
+#: templates/reports/list_reports.html:76
+msgid "Дата начала"
+msgstr "Boshlanish sanasi"
+
+#: templates/reports/list_reports.html:76
+msgid "Дата конца"
+msgstr "Tugash sanasi"
+
+#: templates/reports/list_reports.html:76
+msgid "Тип"
+msgstr "Tur"
+
+#: templates/reports/list_reports.html:77
+msgid "Продажа"
+msgstr "Sotuv"
+
+#: templates/reports/list_reports.html:77
+msgid "К перечислению"
+msgstr "O'tkazishga"
+
+#: templates/reports/list_reports.html:77
+#, fuzzy
+#| msgid "Smart Аналитика"
+msgid "Логистика"
+msgstr "Smart Analitika"
+
+#: templates/reports/list_reports.html:78
+msgid "Прочие"
+msgstr "Boshqalar"
+
+#: templates/reports/list_reports.html:79
+msgid "#Неделя"
+msgstr "#Hafta"
+
+#: templates/reports/list_reports.html:79
+msgid "Подробный"
+msgstr "Подробный"
+
+#: templates/reports/list_reports.html:100
+msgid "Yuklangan"
+msgstr "Yuklangan"
+
+#: templates/reports/list_reports.html:101
+msgid "Yo'q"
+msgstr "Yo'q"
+
+#: templates/reports/list_reports.html:104
+msgid "Achotni o'chirish"
+msgstr "Hisobotni o'chirish"
+
+#: templates/reports/list_reports.html:132
+msgid "Mukammal!"
+msgstr "Mukammal!"
+
+#: templates/reports/list_reports.html:132
+msgid "Barcha achotlar uchun Подробный отчёт yuklangan."
+msgstr "Barcha hisobotlar uchun Подробный отчёт yuklangan."
+
+#: templates/reports/list_reports.html:133
+#, fuzzy
+#| msgid "Dashboard"
+msgid "Dashboard'ga o'ting"
+msgstr "Boshqaruv paneli"
+
+#: templates/reports/list_reports.html:140
+msgid "Maslahat:"
+msgstr "Maslahat:"
+
+#: templates/reports/list_reports.html:140
+msgid "\"⚠ Yo'q\" deb belgilangan achotlar uchun"
+msgstr "\"⚠ Yo'q\" deb belgilangan hisobotlar uchun"
+
+#: templates/reports/list_reports.html:140 templates/reports/upload.html:102
+#, fuzzy
+#| msgid "Список отчётов"
+msgid "Подробный отчёт"
+msgstr "Hisobotlar ro'yxati"
+
+#: templates/reports/list_reports.html:140
+msgid "yuklang."
+msgstr "yuklang."
+
+#: templates/reports/self_purchase.html:21
+msgid "O'zingiz sotib olgan tovarlar — Bazadagi qatorlarga ta'sir qiladi"
+msgstr "O'zingiz sotib olgan tovarlar — Bazadagi qatorlarga ta'sir qiladi"
+
+#: templates/reports/self_purchase.html:28
+#, fuzzy
+#| msgid "Самовыкупы"
+msgid "ta самовыкуп"
+msgstr "O'z-o'zini sotib olish"
+
+#: templates/reports/self_purchase.html:33
+msgid "tannarx + logistika"
+msgstr "tannarx + logistika"
+
+#: templates/reports/self_purchase.html:38
+msgid "har birida"
+msgstr "har birida"
+
+#: templates/reports/self_purchase.html:45
+msgid "Jadval"
+msgstr "Jadval"
+
+#: templates/reports/self_purchase.html:46
+#, python-format
+msgid "%(count)s ta yozuv"
+msgstr "%(count)s ta yozuv"
+
+#: templates/reports/self_purchase.html:46
+msgid "Hech narsa qo'shilmagan"
+msgstr "Hech narsa qo'shilmagan"
+
+#: templates/reports/self_purchase.html:55
+msgid "O'zingiz sotib olgan tovarlarni qo'shing"
+msgstr "O'zingiz sotib olgan tovarlarni qo'shing"
+
+#: templates/reports/self_purchase.html:86
+#, python-format
+msgid "JAMI (%(count)s ta)"
+msgstr "JAMI (%(count)s ta)"
+
+#: templates/reports/self_purchase.html:101
+#, fuzzy
+#| msgid "Самовыкупы"
+msgid "Самовыкуп nima?"
+msgstr "O'z-o'zini sotib olish"
+
+#: templates/reports/self_purchase.html:102
+msgid ""
+"Bu sizning o'zingiz xaridor sifatida sotib olgan tovarlaringiz (reyting yoki "
+"marketing uchun)."
+msgstr ""
+"Bu sizning o'zingiz xaridor sifatida sotib olgan tovarlaringiz (reyting yoki "
+"marketing uchun)."
+
+#: templates/reports/self_purchase.html:103
+msgid ""
+"Базadagi har sotuv uchun yagona kod. Buni nusxalang va shu yerda saqlash "
+"hisobiga qo'shing."
+msgstr ""
+"Базadagi har sotuv uchun yagona kod. Buni nusxalang va shu yerda saqlash "
+"hisobiga qo'shing."
+
+#: templates/reports/self_purchase.html:104
+msgid "Sayt bu xarajatlarni <strong>Toza foyda</strong> hisobida ayiradi."
+msgstr "Sayt bu xarajatlarni <strong>Toza foyda</strong> hisobida ayiradi."
+
+#: templates/reports/self_purchase.html:111
+#, fuzzy
+#| msgid "Самовыкупы"
+msgid "Yangi самовыкуп"
+msgstr "O'z-o'zini sotib olish"
+
+#: templates/reports/storage.html:30
+msgid "Saqlash ma'lumoti yo'q"
+msgstr "Saqlash ma'lumoti yo'q"
+
+#: templates/reports/storage.html:31
+msgid "Avval Подробный отчёt yuklang — saqlash xarajatlari avtomat hisoblanadi"
+msgstr ""
+"Avval Подробный отчёt yuklang — saqlash xarajatlari avtomat hisoblanadiAvval "
+"Подробный отчёt yuklang — saqlash xarajatlari avtomat hisoblanadi"
+
+#: templates/reports/storage.html:36
+#, fuzzy
+#| msgid "Хранение"
+msgid "Хранение (Saqlash)"
+msgstr "Saqlash"
+
+#: templates/reports/storage.html:37
+msgid "WB omborida saqlash xarajatlari batafsil"
+msgstr "WB omborida saqlash xarajatlari batafsil"
+
+#: templates/reports/storage.html:43
+msgid "Hamma achot"
+msgstr "Hamma hisobot"
+
+#: templates/reports/storage.html:57
+msgid "Jami saqlash"
+msgstr "Jami saqlash"
+
+#: templates/reports/storage.html:59
+#, python-format
+msgid "%(n)s ta qatorda"
+msgstr "%(n)s ta qatorda"
+
+#: templates/reports/storage.html:62
+msgid "Skladlar"
+msgstr "Omborlar"
+
+#: templates/reports/storage.html:69
+#, python-format
+msgid "o'rt. %(v)s/hafta"
+msgstr "o'rt. %(v)s/hafta"
+
+#: templates/reports/storage.html:74
+msgid "saqlash bilan"
+msgstr "saqlash bilan"
+
+#: templates/reports/storage.html:81
+msgid "Hafta bo'yicha saqlash"
+msgstr "Hafta bo'yicha saqlash"
+
+#: templates/reports/storage.html:81
+msgid "Qaysi haftada qancha to'lagansiz"
+msgstr "Qaysi haftada qancha to'lagansiz"
+
+#: templates/reports/storage.html:90
+msgid "Saqlash qatorlari topilmadi"
+msgstr "Saqlash qatorlari topilmadi"
+
+#: templates/reports/storage.html:94
+msgid "JAMI:"
+msgstr "JAMI:"
+
+#: templates/reports/storage.html:95
+msgid "O'RTACHA:"
+msgstr "O'RTACHA:"
+
+#: templates/reports/storage.html:95
+#, python-format
+msgid "%(v)s/hafta"
+msgstr "%(v)s/hafta"
+
+#: templates/reports/storage.html:104
+msgid "Sklad bo'yicha taqsimot"
+msgstr "Sklad bo'yicha taqsimot"
+
+#: templates/reports/storage.html:104
+msgid "Qaysi sklad'da qaysi tovarlar ko'p saqlanmoqda"
+msgstr "Qaysi sklad'da qaysi tovarlar ko'p saqlanmoqda"
+
+#: templates/reports/storage.html:113
+#, python-format
+msgid "%(c)s qator · %(p)s tovar"
+msgstr "%(c)s qator · %(p)s tovar"
+
+#: templates/reports/storage.html:117
+#, python-format
+msgid "%(v)s%% jamidan"
+msgstr "%(v)s%% jamidan"
+
+#: templates/reports/storage.html:122
+msgid "Top 5 tovar shu sklad'da:"
+msgstr "Top 5 tovar shu sklad'da:"
+
+#: templates/reports/storage.html:133 templates/reports/storage.html:158
+#, python-format
+msgid "va yana %(n)s ta tovar"
+msgstr "va yana %(n)s ta tovar"
+
+#: templates/reports/storage.html:145
+msgid "Tovarlar bo'yicha"
+msgstr "Tovarlar bo'yicha"
+
+#: templates/reports/storage.html:145
+msgid "Qaysi tovar ko'p saqlanmoqda (Top 20)"
+msgstr "Qaysi tovar ko'p saqlanmoqda (Top 20)"
+
+#: templates/reports/storage.html:163
+msgid "Achot bo'yicha"
+msgstr "Hisobot bo'yicha"
+
+#: templates/reports/storage.html:163
+msgid "Har achot uchun saqlash summasi"
+msgstr "Har achot uchun saqlash summasi"
+
+#: templates/reports/storage.html:180
+msgid "Saqlash qatorlari (batafsil)"
+msgstr "Saqlash qatorlari (batafsil)"
+
+#: templates/reports/storage.html:180
+#, python-format
+msgid "%(n)s ta qator"
+msgstr "%(n)s ta qator"
+
+#: templates/reports/storage.html:186
+msgid "№ Achot"
+msgstr "№ Hisobot"
+
+#: templates/reports/storage.html:186
+msgid "Sklad"
+msgstr "Ombor"
+
+#: templates/reports/storage.html:186
+msgid "Brand"
+msgstr "Brend"
+
+#: templates/reports/storage.html:199
+msgid "Удержания WB"
+msgstr "WB ushlab qolishlari"
+
+#: templates/reports/storage.html:201
+msgid "Umumiy saqlash xarajati"
+msgstr "Umumiy saqlash xarajati"
+
+#: templates/reports/storage.html:208
+#, python-format
+msgid "va yana %(n)s ta qator. Hammasini CSV orqali yuklab oling"
+msgstr "va yana %(n)s ta qator. Hammasini CSV orqali yuklab oling"
+
+#: templates/reports/upload.html:4
+msgid "Загрузка"
+msgstr "Yuklash"
+
+#: templates/reports/upload.html:22
+msgid "3 ta qadamda hammasini avtomat hisoblang"
+msgstr "3 ta qadamda hammasini avtomat hisoblang"
+
+#: templates/reports/upload.html:29
+msgid "Yuklayotgan profil:"
+msgstr "Yuklayotgan profil:"
+
+#: templates/reports/upload.html:35
+msgid "Profil almashtirish"
+msgstr "Profil almashtirish"
+
+#: templates/reports/upload.html:43
+msgid "WB Финансовые отчёты Excel"
+msgstr "WB Финансовые отчёты Excel"
+
+#: templates/reports/upload.html:47
+msgid "База — Подробный отчёт"
+msgstr "Baza — Подробный отчёт"
+
+#: templates/reports/upload.html:48
+msgid "Har bir achot uchun alohida"
+msgstr "Har bir hisobot uchun alohida"
+
+#: templates/reports/upload.html:53
+msgid "Tannarx ma'lumotlari"
+msgstr "Tannarx ma'lumotlari"
+
+#: templates/reports/upload.html:60
+msgid "База (Подробный)"
+msgstr "Baza (Подробный)"
+
+#: templates/reports/upload.html:69
+#, fuzzy
+#| msgid "Список отчётов"
+msgid "1-qadam: Список отчётов"
+msgstr "Hisobotlar ro'yxati"
+
+#: templates/reports/upload.html:71
+msgid "WB savdogar kabinetga kiring"
+msgstr "WB savdogar kabinetiga kiring"
+
+#: templates/reports/upload.html:72
+msgid "«Финансовые отчёты» → «Отчёты реализации»"
+msgstr "«Финансовые отчёты» → «Отчёты реализации»"
+
+#: templates/reports/upload.html:73
+msgid "Yuqori o'ngdagi"
+msgstr "Yuqori o'ngdagi"
+
+#: templates/reports/upload.html:73
+msgid "«Скачать Excel»"
+msgstr "«Скачать Excel»"
+
+#: templates/reports/upload.html:73
+msgid "tugmasini bosing"
+msgstr "tugmasini bosing"
+
+#: templates/reports/upload.html:74
+msgid "Yuklangan Excel'ni shu yerga sudrab tashlang"
+msgstr "Yuklangan Excel'ni shu yerga sudrab tashlang"
+
+#: templates/reports/upload.html:81
+#, fuzzy
+#| msgid "Список отчётов"
+msgid "Список отчётов Excel'ni sudrab tashlang"
+msgstr "Hisobotlar ro'yxati"
+
+#: templates/reports/upload.html:82 templates/reports/upload.html:128
+msgid "Yoki"
+msgstr "Yoki"
+
+#: templates/reports/upload.html:82 templates/reports/upload.html:128
+msgid "tugmani bosing"
+msgstr "tugmani bosing"
+
+#: templates/reports/upload.html:83 templates/reports/upload.html:129
+msgid "Qabul qilinadi:"
+msgstr "Qabul qilinadi:"
+
+#: templates/reports/upload.html:88 templates/reports/upload.html:134
+msgid "Tahlil qilinmoqda..."
+msgstr "Tahlil qilinmoqda..."
+
+#: templates/reports/upload.html:99
+msgid "2-qadam: База ga Подробный отчёт yuklash"
+msgstr "2-qadam: Bazaga Подробный отчёт yuklash"
+
+#: templates/reports/upload.html:101
+#, fuzzy
+#| msgid "Список отчётов"
+msgid "Список отчётов'dagi har bir"
+msgstr "Hisobotlar ro'yxati"
+
+#: templates/reports/upload.html:101
+msgid "achot raqamini"
+msgstr "hisobot raqamini"
+
+#: templates/reports/upload.html:101
+msgid "bosing"
+msgstr "bosing"
+
+#: templates/reports/upload.html:102
+msgid "«Скачать Excel» orqali"
+msgstr "«Скачать Excel» orqali"
+
+#: templates/reports/upload.html:102
+msgid "Excel yuklab oling"
+msgstr "Excel yuklab oling"
+
+#: templates/reports/upload.html:103
+msgid "Hammasini"
+msgstr "Hammasini"
+
+#: templates/reports/upload.html:103
+msgid "birdaniga"
+msgstr "birdaniga"
+
+#: templates/reports/upload.html:103
+msgid "shu yerga sudrab tashlang"
+msgstr "shu yerga sudrab tashlang"
+
+#: templates/reports/upload.html:104
+msgid "Sayt avtomat aniqlaydi qaysi achotga tegishliligini"
+msgstr "Sayt avtomat aniqlaydi qaysi hisobotga tegishliligini"
+
+#: templates/reports/upload.html:111
+msgid ""
+"Qaysi achotga tegishli? (avtomat aniqlanadi, lekin majburiy tanlasangiz ham "
+"bo'ladi)"
+msgstr ""
+"Qaysi hisobotga tegishli? (avtomat aniqlanadi, lekin majburiy tanlasangiz "
+"ham bo'ladi)"
+
+#: templates/reports/upload.html:113
+msgid "Avtomat aniqlash"
+msgstr "Avtomat aniqlash"
+
+#: templates/reports/upload.html:120
+#, fuzzy
+#| msgid "Список отчётов"
+msgid "Avval Список отчётов yuklang!"
+msgstr "Hisobotlar ro'yxati"
+
+#: templates/reports/upload.html:120
+msgid "Birinchi tabga o'ting va WB Финансовые отчёты Excel'ini yuklang."
+msgstr "Birinchi tabga o'ting va WB Финансовые отчёты Excel'ini yuklang."
+
+#: templates/reports/upload.html:127
+msgid "Подробный отчёт fayllarini sudrab tashlang"
+msgstr "Подробный отчёт fayllarini sudrab tashlang"
+
+#: templates/reports/upload.html:129
+msgid "Bir nechta fayl ham mumkin"
+msgstr "Bir nechta fayl ham mumkin"
+
+#: templates/reports/upload.html:145
+#, fuzzy
+#| msgid "Себестоимость"
+msgid "3-qadam: Себестоимость"
+msgstr "Tannarx"
+
+#: templates/reports/upload.html:147
+msgid "«Себестоимость» sahifasiga kirib tovarlaringizni qo'shing"
+msgstr "«Себестоимость» sahifasiga kirib mahsulotlaringizni qo'shing"
+
+#: templates/reports/upload.html:148
+msgid "Narx, barkod, kod, guruh kiriting"
+msgstr "Narx, barkod, kod, guruh kiriting"
+
+#: templates/reports/upload.html:149
+msgid "Bazadagi har bir sotuv uchun avtomat hisoblanadi"
+msgstr "Bazadagi har bir sotuv uchun avtomat hisoblanadi"
+
+#: templates/reports/upload.html:153
+#, fuzzy
+#| msgid "Себестоимость"
+msgid "Себестоимость sahifasiga o'tish"
+msgstr "Tannarx"
+
+#: templates/reports/upload.html:160
+msgid "Joriy holat"
+msgstr "Joriy holat"
+
+#: templates/reports/upload.html:161
+#, python-format
+msgid "%(lc)s ta achot · %(bc)s qator База · %(cc)s ta tovar Tannarx"
+msgstr "%(lc)s ta hisobot · %(bc)s qator Baza · %(cc)s ta mahsulot Tannarx"
+
+#: templates/reports/upload.html:170
+msgid ""
+"Hozir hech qanday ma'lumot yo'q. Yuqoridagi tablardan birortasi orqali "
+"yuklang."
+msgstr ""
+"Hozir hech qanday ma'lumot yo'q. Yuqoridagi tablardan birortasi orqali "
+"yuklang."
+
+#: templates/reports/upload.html:174
+#, fuzzy
+#| msgid "Список отчётов"
+msgid "Список отчётов yuklashlari"
+msgstr "Hisobotlar ro'yxati"
+
+#: templates/reports/upload.html:179
+#, python-format
+msgid "%(rc)s ta achot"
+msgstr "%(rc)s ta hisobot"
+
+#: templates/reports/upload.html:184
+#, fuzzy
+#| msgid "База bo'sh"
+msgid "База yuklashlari"
+msgstr "Baza bo'sh"
+
+#: templates/reports/upload.html:188
+#, python-format
+msgid "%(rc)s ta qator"
+msgstr "%(rc)s ta qator"

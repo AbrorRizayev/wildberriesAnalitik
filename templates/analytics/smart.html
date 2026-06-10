@@ -1,0 +1,1492 @@
+{% extends 'base.html' %}
+{% load static aira i18n %}
+
+{% block title %}AIRA — {% trans "Smart Аналитика" %}{% endblock %}
+
+{% block head %}
+<style>
+/* ============================================
+   SMART ANALYTICS — Premium design
+   ============================================ */
+
+/* HERO — premium gradient (blue→teal→purple) */
+.an-hero {
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(110, 79, 216, 0.6) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 70%, rgba(31, 138, 112, 0.5) 0%, transparent 50%),
+    linear-gradient(135deg, #042C53 0%, #185FA5 35%, #4C7DC4 70%, #6F4FD8 100%);
+  border-radius: 20px;
+  padding: 28px 32px;
+  margin-bottom: 22px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 24px 48px -16px rgba(24, 95, 165, 0.4);
+}
+.an-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%; right: -10%;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 60%);
+  pointer-events: none;
+  animation: float-bg 14s ease-in-out infinite;
+}
+.an-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -40%; left: 20%;
+  width: 420px; height: 420px;
+  background: radial-gradient(circle, rgba(154, 110, 247, 0.18) 0%, transparent 60%);
+  pointer-events: none;
+  animation: float-bg 18s ease-in-out infinite reverse;
+}
+@keyframes float-bg {
+  0%, 100% { transform: translate(0, 0); }
+  50%      { transform: translate(-20px, 20px); }
+}
+
+.an-hero-top {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+.an-hero-icon {
+  width: 60px;
+  height: 60px;
+  background: rgba(255,255,255,0.16);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15) inset, 0 1px 0 rgba(255,255,255,0.2) inset;
+}
+.an-hero h1 {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  margin-bottom: 4px;
+}
+.an-hero .subtitle {
+  font-size: 12px;
+  opacity: 0.85;
+  letter-spacing: 0.3px;
+}
+.an-hero-ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(255, 217, 102, 0.25), rgba(255, 180, 80, 0.18));
+  border: 1px solid rgba(255, 217, 102, 0.4);
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #FFE0A0;
+  letter-spacing: 0.5px;
+  margin-left: auto;
+  position: relative;
+  z-index: 1;
+}
+.an-hero-ai-badge .dot {
+  width: 6px;
+  height: 6px;
+  background: #FFD966;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #FFD966;
+  animation: ai-pulse 1.6s ease-in-out infinite;
+}
+@keyframes ai-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.6; transform: scale(0.8); }
+}
+
+/* KPI tiles in hero */
+.an-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
+.an-kpi {
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.16);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 14px;
+  padding: 18px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.an-kpi:hover {
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.26);
+  transform: translateY(-2px);
+}
+.an-kpi .label {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  opacity: 0.8;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+.an-kpi .value {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
+}
+.an-kpi .hint {
+  font-size: 10px;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+.an-kpi .delta {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 100px;
+  margin-top: 6px;
+}
+.an-kpi .delta.up { background: rgba(95, 209, 163, 0.25); color: #ABEBC8; }
+.an-kpi .delta.down { background: rgba(255, 130, 130, 0.25); color: #FFBABA; }
+
+/* TAB PILLS */
+.an-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 22px;
+  background: white;
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  overflow-x: auto;
+}
+.an-tab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 18px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+  white-space: nowrap;
+  position: relative;
+}
+.an-tab:hover {
+  background: var(--gray-50);
+  color: var(--navy);
+}
+.an-tab.active {
+  background: linear-gradient(135deg, #185FA5 0%, #042C53 100%);
+  color: white;
+  box-shadow: 0 4px 14px -4px rgba(24, 95, 165, 0.5);
+  transform: translateY(-1px);
+}
+.an-tab .badge {
+  background: rgba(255,255,255,0.2);
+  color: white;
+  padding: 1px 7px;
+  border-radius: 100px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.an-tab:not(.active) .badge {
+  background: var(--gray-100);
+  color: var(--text-tertiary);
+}
+
+/* TAB CONTENT */
+.an-tab-content {
+  animation: tabFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes tabFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* AI INSIGHT card */
+.ai-insight {
+  background: linear-gradient(135deg, rgba(110, 79, 216, 0.06), rgba(154, 110, 247, 0.08));
+  border: 1px solid rgba(110, 79, 216, 0.18);
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  position: relative;
+  overflow: hidden;
+}
+.ai-insight::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #9A6EF7, #6F4FD8);
+}
+.ai-insight-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #9A6EF7, #6F4FD8);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 16px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px -3px rgba(110, 79, 216, 0.4);
+}
+.ai-insight-body { flex: 1; }
+.ai-insight-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6F4FD8;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ai-insight-text {
+  font-size: 13px;
+  color: var(--navy);
+  line-height: 1.5;
+}
+.ai-insight-text strong { color: #6F4FD8; }
+
+/* Empty state */
+.an-empty {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 70px 24px;
+  text-align: center;
+  color: var(--text-tertiary);
+}
+.an-empty .icon { font-size: 56px; margin-bottom: 18px; opacity: 0.4; }
+.an-empty h3 { font-size: 17px; color: var(--navy); margin-bottom: 10px; font-weight: 700; }
+.an-empty p { font-size: 13px; max-width: 520px; margin: 0 auto; line-height: 1.6; }
+
+/* Generic card */
+.an-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+.an-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.an-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.an-card-subtitle {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+/* Article search */
+.article-search-wrap {
+  position: relative;
+  margin-bottom: 16px;
+}
+.article-search {
+  width: 100%;
+  padding: 14px 18px 14px 44px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 14px;
+  color: var(--navy);
+  font-weight: 500;
+  background: white;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.article-search:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 4px rgba(24, 95, 165, 0.1);
+}
+.article-search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  font-size: 16px;
+}
+.article-results {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px -8px rgba(0,0,0,0.18);
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: 100;
+  display: none;
+}
+.article-results.show { display: block; }
+.article-result {
+  padding: 10px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.1s;
+}
+.article-result:hover { background: var(--gray-50); }
+.article-result:last-child { border-bottom: none; }
+.article-result .name { font-weight: 600; color: var(--navy); font-size: 13px; }
+.article-result .meta { font-size: 11px; color: var(--text-tertiary); }
+
+/* Chart container */
+.chart-wrap {
+  position: relative;
+  height: 280px;
+  margin-top: 8px;
+}
+
+/* Range selector */
+.range-pills {
+  display: inline-flex;
+  background: var(--gray-50);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 3px;
+  gap: 2px;
+}
+.range-pills button {
+  background: transparent;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 100px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.range-pills button:hover { color: var(--navy); }
+.range-pills button.active {
+  background: white;
+  color: var(--blue);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+/* Tables */
+.an-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.an-tbl thead th {
+  padding: 10px 12px;
+  background: var(--gray-50);
+  border-bottom: 2px solid var(--border);
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  text-align: left;
+  position: sticky;
+  top: 0;
+}
+.an-tbl thead th.num { text-align: right; }
+.an-tbl tbody td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text);
+}
+.an-tbl tbody td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.an-tbl tbody tr:hover { background: var(--gray-50); }
+.an-tbl tbody tr.row-top {
+  background: linear-gradient(90deg, rgba(15, 110, 86, 0.04), transparent);
+}
+
+/* Rank medal */
+.rank-medal {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 11px;
+  background: var(--gray-100);
+  color: var(--text-tertiary);
+}
+.rank-medal.gold {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #6B4500;
+  box-shadow: 0 2px 6px rgba(255, 175, 0, 0.3);
+}
+.rank-medal.silver {
+  background: linear-gradient(135deg, #C0C0C0, #909090);
+  color: #2D2D2D;
+}
+.rank-medal.bronze {
+  background: linear-gradient(135deg, #CD7F32, #8B5A2B);
+  color: white;
+}
+
+/* Heatmap */
+.heatmap-table {
+  border-collapse: separate;
+  border-spacing: 3px;
+  width: 100%;
+}
+.heatmap-cell {
+  padding: 8px 10px;
+  text-align: center;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 50px;
+  position: relative;
+}
+.heatmap-cell.h0 { background: var(--gray-50); color: var(--text-tertiary); }
+.heatmap-cell.h1 { background: rgba(95, 209, 163, 0.15); color: var(--green-dark); }
+.heatmap-cell.h2 { background: rgba(95, 209, 163, 0.35); color: var(--green-dark); }
+.heatmap-cell.h3 { background: rgba(15, 110, 86, 0.55); color: white; }
+.heatmap-cell.h4 { background: linear-gradient(135deg, #0F6E56, #0A4A3A); color: white; box-shadow: 0 2px 6px rgba(15, 110, 86, 0.3); }
+.heatmap-row-label, .heatmap-col-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 6px 10px;
+}
+
+/* Anomaly card */
+.anomaly-card {
+  background: linear-gradient(135deg, rgba(186, 117, 23, 0.05), rgba(252, 204, 78, 0.08));
+  border: 1px solid rgba(186, 117, 23, 0.18);
+  border-left: 3px solid var(--amber);
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.anomaly-card.up {
+  background: linear-gradient(135deg, rgba(15, 110, 86, 0.04), rgba(95, 209, 163, 0.08));
+  border-color: rgba(15, 110, 86, 0.2);
+  border-left-color: var(--green-dark);
+}
+.anomaly-card .info { flex: 1; }
+.anomaly-card .name { font-weight: 700; color: var(--navy); font-size: 13px; }
+.anomaly-card .desc { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+.anomaly-card .change {
+  font-size: 18px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.anomaly-card.up .change { color: var(--green-dark); }
+.anomaly-card:not(.up) .change { color: var(--amber-dark); }
+
+/* Returns row colored */
+.return-pct-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.return-pct-cell.r-low { background: var(--green-light); color: var(--green-dark); }
+.return-pct-cell.r-mid { background: var(--amber-light); color: var(--amber-dark); }
+.return-pct-cell.r-high { background: var(--red-light); color: var(--red-dark); }
+
+/* Grid 2col */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 980px) {
+  .an-kpis { grid-template-columns: repeat(2, 1fr); }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .an-tabs { padding: 4px; }
+  .an-tab { padding: 10px 12px; font-size: 12px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="content"></div>
+{{ products_json|json_script:"smartProducts" }}
+{{ warehouses_json|json_script:"smartWarehouses" }}
+{{ calc_json|json_script:"smartCalc" }}
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/lib/chart.umd.min.js' %}"></script>
+{% verbatim %}
+<script>
+
+window.initPage = function() {
+  const content = document.getElementById('content');
+  // Server-computed data (replaces Storage/Calculator/BazaFormulas).
+  const calculated = JSON.parse(document.getElementById('smartCalc').textContent);
+  const base = calculated;
+  const products = JSON.parse(document.getElementById('smartProducts').textContent);
+  const allWarehouses = JSON.parse(document.getElementById('smartWarehouses').textContent);
+  let activeTab = 'diag';
+  let chartInstances = []; // Track Chart.js instances for cleanup
+
+  // ---- Local formatters (were globals from main.js) ----
+  function fmt(n) { if (typeof n !== 'number' || isNaN(n)) return '0'; return Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' '); }
+  function fmtMoney(n, cur) { return fmt(n) + ' ' + (cur || '₽'); }
+
+  // ============ Bo'sh holat ============
+  if (base.length === 0) {
+    content.innerHTML = `
+      <div class="an-empty">
+        <div class="icon">🧠</div>
+        <h3>Smart Аналитика kutyapti</h3>
+        <p>Avval <strong>Achot yuklash</strong> sahifasidan WB Podrobny otchot fayllarini yuklang — keyin hammasi avtomat tahlil bo'ladi.</p>
+      </div>
+    `;
+    return;
+  }
+
+  // KPI'lar (jami)
+  const totalRevenue = products.reduce((s, p) => s + p.revenue, 0);
+  const totalProfit = products.reduce((s, p) => s + p.profit, 0);
+  const totalCost = products.reduce((s, p) => s + p.cost, 0);
+  const avgMargin = totalRevenue > 0 ? totalProfit / totalRevenue * 100 : 0;
+  const avgRoi = totalCost > 0 ? totalProfit / totalCost * 100 : 0;
+
+  // ============ RENDER ============
+  function renderPage() {
+    destroyCharts();
+    content.innerHTML = `
+      ${renderHero()}
+      ${renderTabs()}
+      <div id="tabContent" class="an-tab-content"></div>
+    `;
+    bindTabClicks();
+    renderTabContent();
+  }
+
+  function renderHero() {
+    return `
+      <div class="an-hero">
+        <div class="an-hero-top">
+          <div class="an-hero-icon">🧠</div>
+          <div>
+            <h1>Smart Аналитика</h1>
+            <div class="subtitle">Sotuvni chuqur tahlil qilish · ${fmt(products.length)} ta tovar · ${fmt(calculated.length)} ta sotuv qator</div>
+          </div>
+          <div class="an-hero-ai-badge"><span class="dot"></span>AI INSIGHT</div>
+        </div>
+
+        <div class="an-kpis">
+          <div class="an-kpi">
+            <div class="label">💰 Jami sotuv</div>
+            <div class="value">${fmtMoney(totalRevenue, '₽')}</div>
+            <div class="hint">${fmt(products.length)} ta SKU</div>
+          </div>
+          <div class="an-kpi">
+            <div class="label">💎 Toza foyda</div>
+            <div class="value" style="color: ${totalProfit >= 0 ? '#ABEBC8' : '#FFBABA'};">${fmtMoney(totalProfit, '₽')}</div>
+            <div class="hint">${totalProfit >= 0 ? 'Plus' : 'Minus'}</div>
+          </div>
+          <div class="an-kpi">
+            <div class="label">📊 O'rtacha marja</div>
+            <div class="value">${avgMargin.toFixed(1)}%</div>
+            <div class="hint">${avgMargin >= 15 ? "✓ Yaxshi" : avgMargin >= 5 ? "○ O'rta" : "✕ Past"}</div>
+          </div>
+          <div class="an-kpi">
+            <div class="label">🚀 ROI</div>
+            <div class="value">${avgRoi.toFixed(0)}%</div>
+            <div class="hint">tannarx qaytishi</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderTabs() {
+    const returnCount = products.filter(p => {
+      const total = p.buyouts_qty + p.returns_qty;
+      return total > 5 && (p.returns_qty / total) > 0.2;
+    }).length;
+    return `
+      <div class="an-tabs" id="anTabs">
+        <button class="an-tab ${activeTab === 'diag' ? 'active' : ''}" data-tab="diag">
+          🎯 Diagnostika
+        </button>
+        <button class="an-tab ${activeTab === 'trend' ? 'active' : ''}" data-tab="trend">
+          📈 Trend
+        </button>
+        <button class="an-tab ${activeTab === 'returns' ? 'active' : ''}" data-tab="returns">
+          🔁 Qaytarishlar ${returnCount > 0 ? `<span class="badge">${returnCount}</span>` : ''}
+        </button>
+        <button class="an-tab ${activeTab === 'geo' ? 'active' : ''}" data-tab="geo">
+          🌍 География
+        </button>
+      </div>
+    `;
+  }
+
+  function bindTabClicks() {
+    document.querySelectorAll('.an-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        activeTab = tab.getAttribute('data-tab');
+        document.querySelectorAll('.an-tab').forEach(t => t.classList.toggle('active', t === tab));
+        const tabContent = document.getElementById('tabContent');
+        tabContent.style.animation = 'none';
+        void tabContent.offsetWidth;
+        tabContent.style.animation = '';
+        destroyCharts();
+        renderTabContent();
+      });
+    });
+  }
+
+  function renderTabContent() {
+    if (activeTab === 'diag')    return renderDiagTab();
+    if (activeTab === 'trend')   return renderTrendTab();
+    if (activeTab === 'returns') return renderReturnsTab();
+    if (activeTab === 'geo')     return renderGeoTab();
+  }
+
+  // ============ TAB 1: DIAGNOSTIKA ============
+  let selectedArticle = null;
+
+  function renderDiagTab() {
+    const tc = document.getElementById('tabContent');
+    if (!selectedArticle) selectedArticle = products[0]?.article || null;
+
+    // Top 3 AI insights (general)
+    const topProfit = [...products].sort((a, b) => b.profit - a.profit)[0];
+    const topLoss = [...products].sort((a, b) => a.profit - b.profit)[0];
+    const insight = topProfit ?
+      `<strong>${topProfit.article}</strong> sizning eng foydali tovaringiz — ${fmtMoney(topProfit.profit, '₽')} foyda, ${topProfit.margin_pct.toFixed(1)}% marja. ${topLoss && topLoss.profit < 0 ? `Lekin <strong>${topLoss.article}</strong> ${fmtMoney(Math.abs(topLoss.profit), '₽')} zarar berib turibti — diqqat qiling.` : ''}` :
+      'Ma\'lumot yetarli emas';
+
+    tc.innerHTML = `
+      <div class="ai-insight">
+        <div class="ai-insight-icon">✨</div>
+        <div class="ai-insight-body">
+          <div class="ai-insight-title">🧠 AI Insight · Umumiy</div>
+          <div class="ai-insight-text">${insight}</div>
+        </div>
+      </div>
+
+      <div class="an-card">
+        <div class="an-card-header">
+          <div>
+            <div class="an-card-title">🎯 Tovar diagnostikasi</div>
+            <div class="an-card-subtitle">Artikul tanlang — uning to'liq hayoti ko'rsatiladi</div>
+          </div>
+        </div>
+
+        <div class="article-search-wrap">
+          <span class="article-search-icon">🔍</span>
+          <input type="text" class="article-search" id="articleSearch" placeholder="Artikul yoki tovar nomini yozing..." autocomplete="off">
+          <div class="article-results" id="articleResults"></div>
+        </div>
+
+        <div id="diagBody"></div>
+      </div>
+    `;
+    bindArticleSearch();
+    renderDiagBody();
+  }
+
+  function bindArticleSearch() {
+    const input = document.getElementById('articleSearch');
+    const results = document.getElementById('articleResults');
+    const showResults = (query) => {
+      const q = query.trim().toLowerCase();
+      const matches = q.length === 0
+        ? products.slice(0, 50)
+        : products.filter(p =>
+            (p.article || '').toLowerCase().includes(q) ||
+            (p.product || '').toLowerCase().includes(q)
+          ).slice(0, 50);
+      if (matches.length === 0) {
+        results.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-tertiary); font-size: 12px;">Topilmadi</div>';
+      } else {
+        results.innerHTML = matches.map(p => `
+          <div class="article-result" data-article="${escapeHtml(p.article)}">
+            <div>
+              <div class="name">${escapeHtml(p.article)}</div>
+              <div class="meta">${escapeHtml((p.product || '').substring(0, 60))}${p.product && p.product.length > 60 ? '…' : ''}</div>
+            </div>
+            <div class="meta">${fmt(p.qty)} · ${fmtMoney(p.revenue, '₽')}</div>
+          </div>
+        `).join('');
+        results.querySelectorAll('.article-result').forEach(el => {
+          el.addEventListener('click', () => {
+            selectedArticle = el.getAttribute('data-article');
+            input.value = selectedArticle;
+            results.classList.remove('show');
+            renderDiagBody();
+          });
+        });
+      }
+      results.classList.add('show');
+    };
+    input.addEventListener('focus', () => showResults(input.value));
+    input.addEventListener('input', () => showResults(input.value));
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.article-search-wrap')) results.classList.remove('show');
+    });
+  }
+
+  function renderDiagBody() {
+    const body = document.getElementById('diagBody');
+    if (!body) return;
+    if (!selectedArticle) {
+      body.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-tertiary);">Artikul tanlang</div>';
+      return;
+    }
+    const p = products.find(x => x.article === selectedArticle);
+    if (!p) {
+      body.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-tertiary);">Topilmadi</div>';
+      return;
+    }
+    // Filter base rows for this article
+    const articleRows = calculated.filter(r => (r.AT || r.article) === selectedArticle);
+
+    // Daily sales (kunlik sotuv)
+    const byDay = {};
+    for (const r of articleRows) {
+      const d = r.AP || r.sale_date;
+      if (!d) continue;
+      const day = d.substring(0, 10);
+      if (!byDay[day]) byDay[day] = { qty: 0, revenue: 0 };
+      byDay[day].qty += (r.D || 0) - (r.E || 0);
+      byDay[day].revenue += r.I || 0;
+    }
+    const days = Object.keys(byDay).sort();
+
+    // Size × Sklad heatmap
+    const sizeSklad = {};
+    const sizes = new Set();
+    const sklads = new Set();
+    for (const r of articleRows) {
+      const sz = r.AV || r.size || '—';
+      const sk = r.warehouse_name || '—';
+      if (!sz || !sk) continue;
+      sizes.add(sz);
+      sklads.add(sk);
+      const key = sz + '|' + sk;
+      sizeSklad[key] = (sizeSklad[key] || 0) + ((r.D || 0) - (r.E || 0));
+    }
+    const sizeArr = [...sizes];
+    const sklArr = [...sklads];
+
+    // AI insight per article
+    let aiInsight = '';
+    if (p.profit > 0 && p.margin_pct > 15) {
+      aiInsight = `Bu — <strong>yaxshi tovar</strong>! Marja ${p.margin_pct.toFixed(1)}%, ROI ${p.roi_pct.toFixed(0)}%. `;
+    } else if (p.profit < 0) {
+      aiInsight = `<strong>⚠ Diqqat:</strong> bu tovar ${fmtMoney(Math.abs(p.profit), '₽')} zarar berdi. `;
+    } else {
+      aiInsight = `Marja past (${p.margin_pct.toFixed(1)}%). Tannarxni qayta ko'rib chiqing. `;
+    }
+    if (sklArr.length > 0) {
+      let bestSk = null, bestQty = 0;
+      for (const sk of sklArr) {
+        let q = 0;
+        for (const sz of sizeArr) q += sizeSklad[sz + '|' + sk] || 0;
+        if (q > bestQty) { bestQty = q; bestSk = sk; }
+      }
+      if (bestSk) aiInsight += `Eng yaxshi sklad — <strong>${bestSk}</strong> (${fmt(bestQty)} dona).`;
+    }
+
+    body.innerHTML = `
+      <div class="ai-insight" style="margin-bottom: 18px;">
+        <div class="ai-insight-icon">✨</div>
+        <div class="ai-insight-body">
+          <div class="ai-insight-title">🧠 ${escapeHtml(p.article)} — AI tahlil</div>
+          <div class="ai-insight-text">${aiInsight}</div>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom: 18px;">
+        <div class="an-card" style="margin: 0;">
+          <div class="an-card-subtitle">Sotuv</div>
+          <div style="font-size: 22px; font-weight: 800; color: var(--navy); margin-top: 6px;">${fmt(p.qty)} dona</div>
+          <div style="font-size: 11px; color: var(--text-tertiary); margin-top: 4px;">${fmtMoney(p.revenue, '₽')}</div>
+        </div>
+        <div class="an-card" style="margin: 0;">
+          <div class="an-card-subtitle">Foyda</div>
+          <div style="font-size: 22px; font-weight: 800; color: ${p.profit >= 0 ? 'var(--green-dark)' : 'var(--red-dark)'}; margin-top: 6px;">${fmtMoney(p.profit, '₽')}</div>
+          <div style="font-size: 11px; color: var(--text-tertiary); margin-top: 4px;">Marja ${p.margin_pct.toFixed(1)}% · ROI ${p.roi_pct.toFixed(0)}%</div>
+        </div>
+        <div class="an-card" style="margin: 0;">
+          <div class="an-card-subtitle">Qaytarish</div>
+          <div style="font-size: 22px; font-weight: 800; color: ${p.returns_qty / (p.buyouts_qty + p.returns_qty || 1) > 0.3 ? 'var(--red-dark)' : 'var(--text)'}; margin-top: 6px;">${fmt(p.returns_qty)} dona</div>
+          <div style="font-size: 11px; color: var(--text-tertiary); margin-top: 4px;">${((p.returns_qty / (p.buyouts_qty + p.returns_qty || 1)) * 100).toFixed(1)}%</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="an-card" style="margin: 0;">
+          <div class="an-card-header" style="margin-bottom: 8px;">
+            <div class="an-card-title" style="font-size: 13px;">📈 Kunlik sotuv</div>
+          </div>
+          <div class="chart-wrap"><canvas id="diagChart"></canvas></div>
+        </div>
+        <div class="an-card" style="margin: 0;">
+          <div class="an-card-header" style="margin-bottom: 8px;">
+            <div class="an-card-title" style="font-size: 13px;">🗺 Razmer × Sklad</div>
+          </div>
+          ${renderHeatmap(sizeArr, sklArr, sizeSklad)}
+        </div>
+      </div>
+    `;
+
+    // Chart
+    setTimeout(() => {
+      const canvas = document.getElementById('diagChart');
+      if (canvas && days.length > 0) {
+        const ctx = canvas.getContext('2d');
+        chartInstances.push(new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: days.map(d => d.substring(5)),
+            datasets: [{
+              label: 'Sotuv (dona)',
+              data: days.map(d => byDay[d].qty),
+              borderColor: '#185FA5',
+              backgroundColor: 'rgba(24, 95, 165, 0.12)',
+              borderWidth: 2.5,
+              tension: 0.35,
+              fill: true,
+              pointRadius: 3,
+              pointHoverRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true, ticks: { font: { size: 10 } } },
+              x: { ticks: { font: { size: 10 }, maxTicksLimit: 12 } }
+            }
+          }
+        }));
+      }
+    }, 100);
+  }
+
+  function renderHeatmap(sizes, sklads, dataMap) {
+    if (sizes.length === 0 || sklads.length === 0) {
+      return '<div style="padding: 30px; text-align: center; color: var(--text-tertiary); font-size: 12px;">Ma\'lumot yetarli emas</div>';
+    }
+    // Find max for normalization
+    let max = 0;
+    for (const sz of sizes) for (const sk of sklads) {
+      const v = dataMap[sz + '|' + sk] || 0;
+      if (v > max) max = v;
+    }
+    const heatClass = (v) => {
+      if (v === 0) return 'h0';
+      const p = v / max;
+      if (p > 0.75) return 'h4';
+      if (p > 0.5) return 'h3';
+      if (p > 0.25) return 'h2';
+      return 'h1';
+    };
+    // Limit to top 6 sklads to keep clean
+    const sklTop = [...sklads].sort((a, b) => {
+      let sa = 0, sb = 0;
+      for (const sz of sizes) { sa += dataMap[sz + '|' + a] || 0; sb += dataMap[sz + '|' + b] || 0; }
+      return sb - sa;
+    }).slice(0, 6);
+
+    return `
+      <div style="overflow-x: auto; max-height: 240px;">
+        <table class="heatmap-table">
+          <thead>
+            <tr>
+              <th class="heatmap-row-label" style="text-align: left;">Razmer</th>
+              ${sklTop.map(sk => `<th class="heatmap-col-label" style="font-size: 9px;">${escapeHtml(sk.substring(0, 8))}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            ${sizes.map(sz => `
+              <tr>
+                <td class="heatmap-row-label">${escapeHtml(String(sz))}</td>
+                ${sklTop.map(sk => {
+                  const v = dataMap[sz + '|' + sk] || 0;
+                  return `<td class="heatmap-cell ${heatClass(v)}">${v > 0 ? fmt(v) : '·'}</td>`;
+                }).join('')}
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  // ============ TAB 2: TREND ============
+  let trendRange = 30;
+
+  function renderTrendTab() {
+    const tc = document.getElementById('tabContent');
+
+    // Group sales by day
+    const byDay = {};
+    for (const r of calculated) {
+      const d = r.AP || r.sale_date;
+      if (!d) continue;
+      const day = d.substring(0, 10);
+      if (!byDay[day]) byDay[day] = { qty: 0, revenue: 0, profit: 0 };
+      byDay[day].qty += (r.D || 0) - (r.E || 0);
+      byDay[day].revenue += r.I || 0;
+      byDay[day].profit += (r.Y || 0) - (r.AC || 0) - (r.AB || 0);
+    }
+    const allDays = Object.keys(byDay).sort();
+    const lastDays = allDays.slice(-trendRange);
+
+    // Week-over-week comparison
+    const wow = computeWoW(lastDays, byDay);
+
+    // Anomalies — find articles with sudden change
+    const anomalies = computeAnomalies(calculated, trendRange);
+
+    // AI insight
+    let trendInsight = '';
+    if (wow.delta > 10) trendInsight = `Sotuvlar oxirgi hafta <strong>+${wow.delta.toFixed(1)}% o'sdi</strong>! Bu yaxshi belgi — yangi tovarlarni qo'shing.`;
+    else if (wow.delta < -10) trendInsight = `Sotuvlar <strong>${wow.delta.toFixed(1)}% tushdi</strong>. Aniqlash kerak — reklama, narx, sezon?`;
+    else trendInsight = `Sotuvlar barqaror (${wow.delta >= 0 ? '+' : ''}${wow.delta.toFixed(1)}%).`;
+    if (anomalies.up.length > 0) trendInsight += ` Eng tez o'sayotgan: <strong>${anomalies.up[0].article}</strong>.`;
+
+    tc.innerHTML = `
+      <div class="ai-insight">
+        <div class="ai-insight-icon">📈</div>
+        <div class="ai-insight-body">
+          <div class="ai-insight-title">🧠 Trend AI · Oxirgi ${trendRange} kun</div>
+          <div class="ai-insight-text">${trendInsight}</div>
+        </div>
+      </div>
+
+      <div class="an-card">
+        <div class="an-card-header">
+          <div>
+            <div class="an-card-title">📈 Sotuv dinamikasi</div>
+            <div class="an-card-subtitle">Kunlik sotuv (dona)</div>
+          </div>
+          <div class="range-pills" id="rangePills">
+            <button class="${trendRange === 7 ? 'active' : ''}" data-range="7">7 kun</button>
+            <button class="${trendRange === 30 ? 'active' : ''}" data-range="30">30 kun</button>
+            <button class="${trendRange === 60 ? 'active' : ''}" data-range="60">60 kun</button>
+            <button class="${trendRange === 90 ? 'active' : ''}" data-range="90">90 kun</button>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height: 320px;"><canvas id="trendChart"></canvas></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="an-card" style="margin: 0;">
+          <div class="an-card-header">
+            <div class="an-card-title" style="font-size: 13px;">🚀 Tez o'sayotganlar</div>
+          </div>
+          ${anomalies.up.length === 0 ? '<div style="padding: 20px; text-align: center; color: var(--text-tertiary); font-size: 12px;">Hozircha aniq trend yo\'q</div>' :
+            anomalies.up.slice(0, 5).map(a => `
+              <div class="anomaly-card up">
+                <div class="info">
+                  <div class="name">${escapeHtml(a.article)}</div>
+                  <div class="desc">${fmt(a.prev)} → ${fmt(a.curr)} dona</div>
+                </div>
+                <div class="change">↑${a.pct.toFixed(0)}%</div>
+              </div>
+            `).join('')
+          }
+        </div>
+
+        <div class="an-card" style="margin: 0;">
+          <div class="an-card-header">
+            <div class="an-card-title" style="font-size: 13px;">⚠ Tushib ketganlar</div>
+          </div>
+          ${anomalies.down.length === 0 ? '<div style="padding: 20px; text-align: center; color: var(--text-tertiary); font-size: 12px;">Yaxshi — hech kim tushmagan</div>' :
+            anomalies.down.slice(0, 5).map(a => `
+              <div class="anomaly-card">
+                <div class="info">
+                  <div class="name">${escapeHtml(a.article)}</div>
+                  <div class="desc">${fmt(a.prev)} → ${fmt(a.curr)} dona</div>
+                </div>
+                <div class="change">↓${Math.abs(a.pct).toFixed(0)}%</div>
+              </div>
+            `).join('')
+          }
+        </div>
+      </div>
+
+      <div class="an-card">
+        <div class="an-card-header">
+          <div class="an-card-title">📊 Hafta solishtirma</div>
+        </div>
+        <div class="grid-3">
+          <div>
+            <div class="an-card-subtitle">Bu hafta</div>
+            <div style="font-size: 22px; font-weight: 800; color: var(--navy); margin-top: 6px;">${fmt(wow.thisWeek)} dona</div>
+          </div>
+          <div>
+            <div class="an-card-subtitle">O'tgan hafta</div>
+            <div style="font-size: 22px; font-weight: 800; color: var(--text-secondary); margin-top: 6px;">${fmt(wow.prevWeek)} dona</div>
+          </div>
+          <div>
+            <div class="an-card-subtitle">Farq</div>
+            <div style="font-size: 22px; font-weight: 800; color: ${wow.delta >= 0 ? 'var(--green-dark)' : 'var(--red-dark)'}; margin-top: 6px;">${wow.delta >= 0 ? '+' : ''}${wow.delta.toFixed(1)}%</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Range pills
+    document.querySelectorAll('#rangePills button').forEach(b => {
+      b.addEventListener('click', () => {
+        trendRange = Number(b.getAttribute('data-range'));
+        renderTrendTab();
+      });
+    });
+
+    // Render chart
+    setTimeout(() => {
+      const canvas = document.getElementById('trendChart');
+      if (canvas && lastDays.length > 0) {
+        const ctx = canvas.getContext('2d');
+        chartInstances.push(new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: lastDays.map(d => d.substring(5)),
+            datasets: [{
+              label: 'Sotuv (dona)',
+              data: lastDays.map(d => byDay[d].qty),
+              borderColor: '#185FA5',
+              backgroundColor: 'rgba(24, 95, 165, 0.10)',
+              borderWidth: 2.5,
+              tension: 0.4,
+              fill: true,
+              pointRadius: 2,
+              pointHoverRadius: 7
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true, ticks: { font: { size: 10 } } },
+              x: { ticks: { font: { size: 10 }, maxTicksLimit: 15 } }
+            }
+          }
+        }));
+      }
+    }, 100);
+  }
+
+  function computeWoW(days, byDay) {
+    if (days.length < 14) {
+      const half = Math.floor(days.length / 2);
+      const prev = days.slice(0, half);
+      const curr = days.slice(half);
+      const prevSum = prev.reduce((s, d) => s + byDay[d].qty, 0);
+      const currSum = curr.reduce((s, d) => s + byDay[d].qty, 0);
+      return {
+        prevWeek: prevSum,
+        thisWeek: currSum,
+        delta: prevSum > 0 ? ((currSum - prevSum) / prevSum * 100) : 0
+      };
+    }
+    const last7 = days.slice(-7);
+    const prev7 = days.slice(-14, -7);
+    const thisWeek = last7.reduce((s, d) => s + byDay[d].qty, 0);
+    const prevWeek = prev7.reduce((s, d) => s + byDay[d].qty, 0);
+    return {
+      prevWeek,
+      thisWeek,
+      delta: prevWeek > 0 ? ((thisWeek - prevWeek) / prevWeek * 100) : 0
+    };
+  }
+
+  function computeAnomalies(rows, range) {
+    // Group by article × half
+    const allDays = [...new Set(rows.map(r => (r.AP || r.sale_date || '').substring(0, 10)))].filter(Boolean).sort();
+    if (allDays.length < 8) return { up: [], down: [] };
+    const lastDays = allDays.slice(-range);
+    const half = Math.floor(lastDays.length / 2);
+    const prevDays = new Set(lastDays.slice(0, half));
+    const currDays = new Set(lastDays.slice(half));
+
+    const byArt = {};
+    for (const r of rows) {
+      const art = r.AT || r.article;
+      if (!art) continue;
+      const day = (r.AP || r.sale_date || '').substring(0, 10);
+      if (!day) continue;
+      if (!byArt[art]) byArt[art] = { prev: 0, curr: 0 };
+      const qty = (r.D || 0) - (r.E || 0);
+      if (prevDays.has(day)) byArt[art].prev += qty;
+      else if (currDays.has(day)) byArt[art].curr += qty;
+    }
+
+    const changes = [];
+    for (const [art, v] of Object.entries(byArt)) {
+      if (v.prev < 3 && v.curr < 3) continue;
+      const pct = v.prev > 0 ? ((v.curr - v.prev) / v.prev * 100) : (v.curr > 5 ? 999 : 0);
+      changes.push({ article: art, prev: v.prev, curr: v.curr, pct });
+    }
+    const up = changes.filter(c => c.pct > 30 && c.curr > c.prev).sort((a, b) => b.pct - a.pct);
+    const down = changes.filter(c => c.pct < -30).sort((a, b) => a.pct - b.pct);
+    return { up, down };
+  }
+
+  // ============ TAB 3: RETURNS ============
+
+  function renderReturnsTab() {
+    const tc = document.getElementById('tabContent');
+
+    // Compute return analytics
+    const withReturns = products.map(p => {
+      const total = p.buyouts_qty + p.returns_qty;
+      const pct = total > 0 ? (p.returns_qty / total * 100) : 0;
+      return { ...p, total, return_pct: pct };
+    }).filter(p => p.total > 3);
+
+    const topReturns = [...withReturns].sort((a, b) => b.returns_qty - a.returns_qty).slice(0, 15);
+    const topPctReturns = [...withReturns].filter(p => p.return_pct > 15).sort((a, b) => b.return_pct - a.return_pct).slice(0, 10);
+
+    const avgReturnPct = withReturns.length > 0
+      ? withReturns.reduce((s, p) => s + p.return_pct, 0) / withReturns.length
+      : 0;
+
+    const totalLost = withReturns.reduce((s, p) => s + (p.returns_rub || 0), 0);
+
+    // By size
+    const bySize = {};
+    for (const r of calculated) {
+      const sz = r.AV || r.size || '—';
+      if (!bySize[sz]) bySize[sz] = { buy: 0, ret: 0 };
+      bySize[sz].buy += r.D || 0;
+      bySize[sz].ret += r.E || 0;
+    }
+    const sizeRows = Object.entries(bySize).map(([sz, v]) => {
+      const total = v.buy + v.ret;
+      return { size: sz, buy: v.buy, ret: v.ret, total, pct: total > 0 ? v.ret / total * 100 : 0 };
+    }).filter(s => s.total > 5).sort((a, b) => b.pct - a.pct);
+
+    // AI insight
+    let retInsight = '';
+    if (topPctReturns.length > 0 && topPctReturns[0].return_pct > 30) {
+      retInsight = `<strong>⚠ ${topPctReturns[0].article}</strong> ${topPctReturns[0].return_pct.toFixed(1)}% qaytarmoqda — bu juda yuqori. Sifat yoki razmer to'g'rilash kerak. `;
+    } else if (avgReturnPct < 8) {
+      retInsight = `Qaytarish darajangiz past (${avgReturnPct.toFixed(1)}%) — yaxshi natija! `;
+    } else {
+      retInsight = `O'rtacha qaytarish ${avgReturnPct.toFixed(1)}%. ${topPctReturns.length > 0 ? `Top muammoli: <strong>${topPctReturns[0].article}</strong> (${topPctReturns[0].return_pct.toFixed(1)}%).` : ''}`;
+    }
+
+    tc.innerHTML = `
+      <div class="ai-insight">
+        <div class="ai-insight-icon">🔁</div>
+        <div class="ai-insight-body">
+          <div class="ai-insight-title">🧠 Qaytarishlar AI</div>
+          <div class="ai-insight-text">${retInsight}</div>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom: 16px;">
+        <div class="an-card" style="margin: 0;">
+          <div class="an-card-subtitle">Qaytarish %</div>
+          <div style="font-size: 26px; font-weight: 800; color: ${avgReturnPct > 15 ? 'var(--red-dark)' : avgReturnPct > 8 ? 'var(--amber-dark)' : 'var(--green-dark)'}; margin-top: 6px;">${avgReturnPct.toFixed(1)}%</div>
+          <div style="font-size: 11px; color: var(--text-tertiary); margin-top: 4px;">o'rtacha</div>
+        </div>
+        <div class="an-card" style="margin: 0;">
+          <div class="an-card-subtitle">Yo'qotilgan summa</div>
+          <div style="font-size: 26px; font-weight: 800; color: var(--red-dark); margin-top: 6px;">${fmtMoney(totalLost, '₽')}</div>
+          <div style="font-size: 11px; color: var(--text-tertiary); margin-top: 4px;">qaytarish</div>
+        </div>
+        <div class="an-card" style="margin: 0;">
+          <div class="an-card-subtitle">Muammoli tovarlar</div>
+          <div style="font-size: 26px; font-weight: 800; color: ${topPctReturns.length > 5 ? 'var(--red-dark)' : 'var(--navy)'}; margin-top: 6px;">${topPctReturns.length}</div>
+          <div style="font-size: 11px; color: var(--text-tertiary); margin-top: 4px;">>15% qaytaradi</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="an-card" style="margin: 0;">
+          <div class="an-card-header">
+            <div class="an-card-title" style="font-size: 13px;">📉 Eng ko'p qaytaradiganlar</div>
+          </div>
+          ${topReturns.length === 0 ? '<div style="padding: 30px; text-align: center; color: var(--text-tertiary); font-size: 12px;">Qaytarish yo\'q</div>' : `
+            <table class="an-tbl">
+              <thead>
+                <tr><th>#</th><th>Artikul</th><th class="num">Qayt.</th><th class="num">%</th></tr>
+              </thead>
+              <tbody>
+                ${topReturns.map((p, i) => `
+                  <tr class="${i < 3 ? 'row-top' : ''}">
+                    <td><span class="rank-medal ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}">${i + 1}</span></td>
+                    <td><strong>${escapeHtml(p.article)}</strong></td>
+                    <td class="num">${fmt(p.returns_qty)}</td>
+                    <td class="num">${returnPctCell(p.return_pct)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `}
+        </div>
+
+        <div class="an-card" style="margin: 0;">
+          <div class="an-card-header">
+            <div class="an-card-title" style="font-size: 13px;">📐 Razmer bo'yicha</div>
+          </div>
+          ${sizeRows.length === 0 ? '<div style="padding: 30px; text-align: center; color: var(--text-tertiary); font-size: 12px;">Razmer ma\'lumoti yo\'q</div>' : `
+            <table class="an-tbl">
+              <thead>
+                <tr><th>Razmer</th><th class="num">Sotuv</th><th class="num">Qayt.</th><th class="num">%</th></tr>
+              </thead>
+              <tbody>
+                ${sizeRows.slice(0, 12).map(s => `
+                  <tr>
+                    <td><strong>${escapeHtml(String(s.size))}</strong></td>
+                    <td class="num">${fmt(s.buy)}</td>
+                    <td class="num">${fmt(s.ret)}</td>
+                    <td class="num">${returnPctCell(s.pct)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `}
+        </div>
+      </div>
+
+      ${topPctReturns.length > 0 ? `
+        <div class="an-card">
+          <div class="an-card-header">
+            <div>
+              <div class="an-card-title">⚠ Diqqat talab tovarlari</div>
+              <div class="an-card-subtitle">Qaytarish 15%dan yuqori — sifat tekshirish kerak</div>
+            </div>
+          </div>
+          <table class="an-tbl">
+            <thead>
+              <tr><th>Artikul</th><th class="num">Sotildi</th><th class="num">Qayt.</th><th class="num">Qayt. %</th><th class="num">Yo'qotish</th></tr>
+            </thead>
+            <tbody>
+              ${topPctReturns.map(p => `
+                <tr>
+                  <td><strong>${escapeHtml(p.article)}</strong></td>
+                  <td class="num">${fmt(p.qty)}</td>
+                  <td class="num" style="color: var(--red-dark);">${fmt(p.returns_qty)}</td>
+                  <td class="num">${returnPctCell(p.return_pct)}</td>
+                  <td class="num" style="color: var(--red-dark); font-weight: 600;">${fmtMoney(p.returns_rub || 0, '₽')}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      ` : ''}
+    `;
+  }
+
+  function returnPctCell(pct) {
+    const cls = pct > 20 ? 'r-high' : pct > 10 ? 'r-mid' : 'r-low';
+    return `<span class="return-pct-cell ${cls}">${pct.toFixed(1)}%</span>`;
+  }
+
+  // ============ TAB 4: GEOGRAPHY ============
+
+  function renderGeoTab() {
+    const tc = document.getElementById('tabContent');
+    const warehouses = allWarehouses;
+
+    // Top warehouses by zakaz (sales)
+    const topBySales = [...warehouses].sort((a, b) => b.sold_qty - a.sold_qty).slice(0, 10);
+
+    // Top by net (vykup successful)
+    const topByNet = [...warehouses].sort((a, b) => b.net_qty - a.net_qty).slice(0, 10);
+
+    // Top by returns
+    const topByReturns = [...warehouses].filter(w => w.sold_qty > 5).sort((a, b) => b.return_pct - a.return_pct).slice(0, 10);
+
+    const totalSales = warehouses.reduce((s, w) => s + w.sold_qty, 0);
+    const totalReturns = warehouses.reduce((s, w) => s + w.returns_qty, 0);
+
+    // AI insight
+    let geoInsight = '';
+    if (topBySales.length > 0) {
+      const t = topBySales[0];
+      const sharePct = totalSales > 0 ? (t.sold_qty / totalSales * 100) : 0;
+      geoInsight = `Eng faol sklad — <strong>${escapeHtml(t.warehouse)}</strong> (${sharePct.toFixed(0)}% jami sotuv, ${fmt(t.sold_qty)} dona). `;
+    }
+    if (topByReturns.length > 0 && topByReturns[0].return_pct > 25) {
+      geoInsight += `<strong>${escapeHtml(topByReturns[0].warehouse)}</strong>'da qaytarish yuqori (${topByReturns[0].return_pct.toFixed(1)}%) — saqlashni kamaytiring.`;
+    }
+
+    tc.innerHTML = `
+      <div class="ai-insight">
+        <div class="ai-insight-icon">🌍</div>
+        <div class="ai-insight-body">
+          <div class="ai-insight-title">🧠 Geografik AI</div>
+          <div class="ai-insight-text">${geoInsight || 'Ma\'lumot to\'planmoqda'}</div>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom: 16px;">
+        <div class="an-card" style="margin: 0;">
+          <div class="an-card-subtitle">Skladlar soni</div>
+          <div style="font-size: 26px; font-weight: 800; color: var(--navy); margin-top: 6px;">${fmt(warehouses.length)}</div>
+          <div style="font-size: 11px; color: var(--text-tertiary); margin-top: 4px;">faol joylar</div>
+        </div>
+        <div class="an-card" style="margin: 0;">
+          <div class="an-card-subtitle">Jami sotuv</div>
+          <div style="font-size: 26px; font-weight: 800; color: var(--green-dark); margin-top: 6px;">${fmt(totalSales)}</div>
+          <div style="font-size: 11px; color: var(--text-tertiary); margin-top: 4px;">dona</div>
+        </div>
+        <div class="an-card" style="margin: 0;">
+          <div class="an-card-subtitle">Jami qaytarish</div>
+          <div style="font-size: 26px; font-weight: 800; color: var(--red-dark); margin-top: 6px;">${fmt(totalReturns)}</div>
+          <div style="font-size: 11px; color: var(--text-tertiary); margin-top: 4px;">${totalSales > 0 ? ((totalReturns / totalSales * 100).toFixed(1)) : 0}%</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="an-card" style="margin: 0;">
+          <div class="an-card-header">
+            <div class="an-card-title" style="font-size: 13px;">📦 Eng ko'p zakaz tushadi</div>
+          </div>
+          <table class="an-tbl">
+            <thead><tr><th>#</th><th>Sklad</th><th class="num">Sotuv</th><th class="num">% jamidan</th></tr></thead>
+            <tbody>
+              ${topBySales.map((w, i) => `
+                <tr class="${i < 3 ? 'row-top' : ''}">
+                  <td><span class="rank-medal ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}">${i + 1}</span></td>
+                  <td><strong>${escapeHtml(w.warehouse)}</strong></td>
+                  <td class="num">${fmt(w.sold_qty)}</td>
+                  <td class="num">${totalSales > 0 ? (w.sold_qty / totalSales * 100).toFixed(1) : 0}%</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="an-card" style="margin: 0;">
+          <div class="an-card-header">
+            <div class="an-card-title" style="font-size: 13px;">✅ Eng ko'p vykup qiladi</div>
+          </div>
+          <table class="an-tbl">
+            <thead><tr><th>#</th><th>Sklad</th><th class="num">Toza sotuv</th><th class="num">Vykup %</th></tr></thead>
+            <tbody>
+              ${topByNet.map((w, i) => {
+                const buyPct = w.sold_qty > 0 ? ((w.sold_qty - w.returns_qty) / w.sold_qty * 100) : 0;
+                return `
+                <tr class="${i < 3 ? 'row-top' : ''}">
+                  <td><span class="rank-medal ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}">${i + 1}</span></td>
+                  <td><strong>${escapeHtml(w.warehouse)}</strong></td>
+                  <td class="num">${fmt(w.net_qty)}</td>
+                  <td class="num"><span class="return-pct-cell ${buyPct > 90 ? 'r-low' : buyPct > 75 ? 'r-mid' : 'r-high'}">${buyPct.toFixed(0)}%</span></td>
+                </tr>
+              `}).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      ${topByReturns.length > 0 ? `
+        <div class="an-card">
+          <div class="an-card-header">
+            <div>
+              <div class="an-card-title">⚠ Eng ko'p qaytaradigan skladlar</div>
+              <div class="an-card-subtitle">Bu joylarda saqlash arzimasligi mumkin</div>
+            </div>
+          </div>
+          <table class="an-tbl">
+            <thead>
+              <tr><th>Sklad</th><th class="num">Sotuv</th><th class="num">Qayt.</th><th class="num">Qayt. %</th></tr>
+            </thead>
+            <tbody>
+              ${topByReturns.map(w => `
+                <tr>
+                  <td><strong>${escapeHtml(w.warehouse)}</strong></td>
+                  <td class="num">${fmt(w.sold_qty)}</td>
+                  <td class="num">${fmt(w.returns_qty)}</td>
+                  <td class="num">${returnPctCell(w.return_pct)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      ` : ''}
+    `;
+  }
+
+  // ============ HELPERS ============
+  function destroyCharts() {
+    chartInstances.forEach(c => { try { c.destroy(); } catch(e) {} });
+    chartInstances = [];
+  }
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // ============ Boshlash ============
+  renderPage();
+};
+
+initPage();
+</script>
+{% endverbatim %}
+{% endblock %}

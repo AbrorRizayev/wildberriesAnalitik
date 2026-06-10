@@ -1,0 +1,74 @@
+{% load i18n %}
+{% comment %}Sidebar navigation — ported from js/main.js generateSidebar(). Labels are
+translated via {% trans %} (catalogs in locale/ru and locale/uz).{% endcomment %}
+<div class="sidebar-logo">
+  <div class="sidebar-logo-icon">AIRA</div>
+  <div>
+    <div class="sidebar-logo-text">AIRA</div>
+    <div style="font-size: 9px; color: rgba(255,255,255,0.5); margin-top: 1px;">WB Analytics</div>
+  </div>
+</div>
+<nav class="sidebar-nav">
+  <a href="{% url 'analytics:dashboard' %}" class="sidebar-link {% if active_page == 'dashboard' %}active{% endif %}">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>{% trans "Dashboard" %}</span>
+  </a>
+  <a href="{% url 'reports:upload' %}" class="sidebar-link {% if active_page == 'upload' %}active{% endif %}">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" stroke-linecap="round" stroke-linejoin="round"/></svg><span>{% trans "Achot yuklash" %}</span>
+  </a>
+
+  <div class="sidebar-section">{% trans "MA'LUMOTLAR" %}</div>
+  <a href="{% url 'reports:list_reports' %}" class="sidebar-link {% if active_page == 'list-reports' %}active{% endif %}">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>{% trans "Список отчётов" %}</span>
+  </a>
+  <a href="{% url 'reports:base' %}" class="sidebar-link {% if active_page == 'base' %}active{% endif %}">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 7v10c0 2 3 3 8 3s8-1 8-3V7M4 7c0 2 3 3 8 3s8-1 8-3M4 7c0-2 3-3 8-3s8 1 8 3m0 5c0 2-3 3-8 3s-8-1-8-3" stroke-linecap="round"/></svg><span>{% trans "База" %}</span>
+  </a>
+  <a href="{% url 'reports:costs' %}" class="sidebar-link {% if active_page == 'costs' %}active{% endif %}">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4" stroke-linecap="round"/></svg><span>{% trans "Себестоимость" %}</span>
+  </a>
+  <a href="{% url 'reports:storage' %}" class="sidebar-link {% if active_page == 'storage' %}active{% endif %}">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>{% trans "Хранение" %}</span>
+  </a>
+  <a href="{% url 'reports:self_purchase' %}" class="sidebar-link {% if active_page == 'self_purchase' %}active{% endif %}">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round"/></svg><span>{% trans "Самовыкупы" %}</span>
+  </a>
+  <a href="{% url 'reports:ext_expenses' %}" class="sidebar-link {% if active_page == 'ext_expenses' %}active{% endif %}">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" stroke-linecap="round"/></svg><span>{% trans "Внешние расходы" %}</span>
+  </a>
+
+  <div class="sidebar-section">{% trans "HISOBOTLAR" %}</div>
+  <a href="{% url 'analytics:charts' %}" class="sidebar-link {% if active_page == 'charts' %}active{% endif %}">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>{% trans "Графики" %}</span>
+  </a>
+  <a href="{% url 'analytics:fines' %}" class="sidebar-link {% if active_page == 'fines' %}active{% endif %}">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4a2 2 0 00-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z" stroke-linecap="round" stroke-linejoin="round"/></svg><span>{% trans "Штрафы" %}</span>
+  </a>
+  <a href="{% url 'analytics:pnl' %}" class="sidebar-link {% if active_page == 'pnl' %}active{% endif %}">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round"/></svg><span>{% trans "P&amp;L" %}</span>
+  </a>
+  <a href="{% url 'analytics:monthly' %}" class="sidebar-link {% if active_page == 'monthly' %}active{% endif %}">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"/></svg><span>{% trans "Отчёт по месяцам" %}</span>
+  </a>
+  <a href="{% url 'analytics:abc' %}" class="sidebar-link {% if active_page == 'abc' %}active{% endif %}">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" stroke-linecap="round"/><path d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" stroke-linecap="round"/></svg><span>{% trans "ABC tahlil" %}</span>
+  </a>
+  <a href="{% url 'analytics:products' %}" class="sidebar-link {% if active_page == 'products' %}active{% endif %}">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-linecap="round"/></svg><span>{% trans "Отчёт по товарам" %}</span>
+  </a>
+
+  <div class="sidebar-section">{% trans "VOSITALAR" %}</div>
+  <a href="{% url 'analytics:calculator' %}" class="sidebar-link {% if active_page == 'calculator' %}active{% endif %}">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" stroke-linejoin="round"/><line x1="8" y1="7" x2="16" y2="7" stroke-linecap="round"/><line x1="8" y1="18" x2="14" y2="18" stroke-linecap="round"/></svg><span>{% trans "Калькулятор" %}</span>
+  </a>
+  <a href="{% url 'analytics:capitalization' %}" class="sidebar-link {% if active_page == 'capitalization' %}active{% endif %}">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" stroke-linecap="round" stroke-linejoin="round"/><polyline points="3.27 6.96 12 12.01 20.73 6.96" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="22.08" x2="12" y2="12" stroke-linecap="round"/></svg><span>{% trans "Капитализация" %}</span>
+  </a>
+  <a href="{% url 'analytics:smart' %}" class="sidebar-link {% if active_page == 'analytics' %}active{% endif %}">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z" stroke-linecap="round" stroke-linejoin="round"/></svg><span>{% trans "Smart Аналитика" %}</span>
+  </a>
+
+  <div class="sidebar-section">{% trans "BOSHQA" %}</div>
+  <a href="{% url 'accounts:settings' %}" class="sidebar-link {% if active_page == 'settings' %}active{% endif %}">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-linecap="round"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round"/></svg><span>{% trans "Sozlamalar" %}</span>
+  </a>
+</nav>

@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static aira i18n %}
+
+{% block title %}AIRA — ABC Tahlil{% endblock %}
+
+{% block head %}
+<style>
+  .cat-badge { font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: 700; }
+  .cat-A { background: var(--green-light); color: var(--green-dark); }
+  .cat-B { background: var(--amber-light); color: var(--amber-dark); }
+  .cat-C { background: var(--blue-bg); color: var(--blue); }
+  .cat-D { background: var(--red-light); color: var(--red-dark); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">{% trans "ABC Tahlil" %}</h1>
+  <p class="page-subtitle">{% trans "Tovarlar A/B/C kategoriyalarga ajratilgan (Pareto qoidasi 80/20)" %}</p>
+</div>
+
+{% if not has_data %}
+  <div class="empty-state" style="padding: 60px 20px; text-align: center;">
+    <div class="empty-state-icon" style="font-size: 40px;">🏆</div>
+    <h3 style="font-size: 16px; margin: 12px 0 8px; color: var(--text);">{% trans "ABC tahlil yo'q" %}</h3>
+    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">{% trans "Avval Подробный отчёт yuklang" %}</p>
+    <a href="{% url 'reports:upload' %}" class="btn btn-primary">📤 {% trans "Yuklash" %}</a>
+  </div>
+{% else %}
+  <div id="content"></div>
+  {{ abc_revenue|json_script:"abc-revenue" }}
+  {{ abc_profit|json_script:"abc-profit" }}
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if has_data %}
+<script>
+const cur = "{{ currency|escapejs }}";
+const abcByRevenue = JSON.parse(document.getElementById('abc-revenue').textContent);
+const abcByProfit = JSON.parse(document.getElementById('abc-profit').textContent);
+const countByCat = { A: {{ count_by_cat.A }}, B: {{ count_by_cat.B }}, C: {{ count_by_cat.C }} };
+const totalProducts = {{ total_products }};
+
+function fmt(n) { if (typeof n !== 'number' || isNaN(n)) return '—'; return Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' '); }
+function fmtMoney(n, c) { if (typeof n !== 'number' || isNaN(n)) return '—'; return fmt(n) + ' ' + (c || cur); }
+function fmtPercent(n) { if (typeof n !== 'number' || isNaN(n)) return '—'; return n.toFixed(1) + '%'; }
+
+const content = document.getElementById('content');
+let activeTab = 'revenue';
+
+function render() {
+  const list = activeTab === 'revenue' ? abcByRevenue : abcByProfit;
+  content.innerHTML = `
+    <div class="kpi-grid">
+      <div class="kpi-card success">
+        <div class="kpi-label">A kategoriya</div>
+        <div class="kpi-value">${countByCat.A}</div>
+        <div class="kpi-change">Top 80% daromad</div>
+      </div>
+      <div class="kpi-card warning">
+        <div class="kpi-label">B kategoriya</div>
+        <div class="kpi-value">${countByCat.B}</div>
+        <div class="kpi-change">80-95% daromad</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">C kategoriya</div>
+        <div class="kpi-value">${countByCat.C}</div>
+        <div class="kpi-change">Oxirgi 5%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Jami tovarlar</div>
+        <div class="kpi-value">${totalProducts}</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Tovarlar reytingi</div>
+          <div class="card-subtitle">Pareto qoidasi: 80% daromad — eng yaxshi tovarlardan</div>
+        </div>
+        <div class="lang-switch">
+          <button class="lang-btn ${activeTab === 'revenue' ? 'active' : ''}" data-tab="revenue">Daromad bo'yicha</button>
+          <button class="lang-btn ${activeTab === 'profit' ? 'active' : ''}" data-tab="profit">Foyda bo'yicha</button>
+        </div>
+      </div>
+
+      <div class="table-wrapper" style="border: none;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>#</th><th>Kat.</th><th>Artikul</th><th>Tovar</th>
+              <th class="num">Sotuvlar</th><th class="num">Daromad</th><th class="num">Foyda</th>
+              <th class="num">Marja</th>
+              <th class="num">${activeTab === 'revenue' ? 'Daromad %' : 'Foyda %'}</th>
+              <th class="num">Kümülativ %</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${list.map((p, i) => {
+              const cat = activeTab === 'revenue' ? p.revenue_cat : p.profit_cat;
+              const pct = activeTab === 'revenue' ? p.revenue_pct : p.profit_pct;
+              const cum = activeTab === 'revenue' ? p.revenue_cum : p.profit_cum;
+              const catClass = cat === 'Убыток' ? 'cat-D' : `cat-${cat}`;
+              return `
+                <tr>
+                  <td>${i + 1}</td>
+                  <td><span class="cat-badge ${catClass}">${cat}</span></td>
+                  <td><strong>${p.article}</strong></td>
+                  <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis;" title="${p.product}">${(p.product || '').substring(0, 35)}${p.product && p.product.length > 35 ? '…' : ''}</td>
+                  <td class="num">${fmt(p.qty)}</td>
+                  <td class="num num-positive">${fmtMoney(p.revenue, cur)}</td>
+                  <td class="num ${p.profit >= 0 ? 'num-positive' : 'num-negative'}">${fmtMoney(p.profit, cur)}</td>
+                  <td class="num">${fmtPercent(p.margin_pct)}</td>
+                  <td class="num"><strong>${fmtPercent(pct)}</strong></td>
+                  <td class="num">${fmtPercent(cum)}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  document.querySelectorAll('[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => { activeTab = btn.getAttribute('data-tab'); render(); });
+  });
+}
+
+render();
+</script>
+{% endif %}
+{% endblock %}

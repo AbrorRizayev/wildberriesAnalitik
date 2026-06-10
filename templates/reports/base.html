@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load static aira i18n %}
+
+{% block title %}AIRA — {% trans "База" %}{% endblock %}
+
+{% block head %}
+<style>
+  .base-table { font-size: 11px; }
+  .base-table th { font-size: 10px; padding: 6px 8px; white-space: nowrap; }
+  .base-table td { padding: 5px 8px; white-space: nowrap; }
+  .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 16px; }
+  .page-btn { padding: 6px 10px; font-size: 11px; background: white; border: 1px solid var(--border);
+              border-radius: 4px; cursor: pointer; text-decoration: none; color: var(--text); }
+  .page-btn:hover { background: var(--gray-50); }
+  .page-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+  .badge-sale { background: var(--green-light); color: var(--green-dark); }
+  .badge-return { background: var(--red-light); color: var(--red-dark); }
+  .badge-log { background: var(--blue-bg); color: var(--navy); }
+  .badge-fine { background: var(--amber-light); color: var(--amber-dark); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">{% trans "База" %}</h1>
+  <p class="page-subtitle">{% trans "Hamma sotuv qatorlari — formulalar bilan avtomat hisoblangan" %}</p>
+</div>
+
+{% if not has_data %}
+  <div class="empty-state" style="padding: 60px 20px; text-align: center;">
+    <div class="empty-state-icon" style="font-size: 40px;">📊</div>
+    <h3 style="font-size: 16px; margin: 12px 0 8px; color: var(--text);">{% trans "База bo'sh" %}</h3>
+    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">{% trans "Подробный отчёт fayllarini yuklang — bu yerda hamma sotuv qatorlari ko'rinadi" %}</p>
+    <a href="{% url 'reports:upload' %}" class="btn btn-primary">📤 {% trans "Yuklash sahifasiga" %}</a>
+  </div>
+{% else %}
+{% csrf_token %}
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-label">{% trans "Jami qatorlar" %}</div>
+    <div class="kpi-value">{{ filtered_count|fmt }}</div>
+    <div class="kpi-change">{% if filtered_count != total_rows %}{% blocktrans with t=total_rows|fmt %}jami {{ t }} dan{% endblocktrans %}{% endif %}</div>
+  </div>
+  <div class="kpi-card success">
+    <div class="kpi-label">{% trans "Выручка" %}</div>
+    <div class="kpi-value">{{ kpi.revenue|money_short:currency }}</div>
+    <div class="kpi-change">{% blocktrans with q=kpi.sales_qty|fmt %}{{ q }} dona sotilgan{% endblocktrans %}</div>
+  </div>
+  <div class="kpi-card warning">
+    <div class="kpi-label">{% trans "WB ushlanmalari" %}</div>
+    <div class="kpi-value">{{ kpi.all_wb_deductions|money_short:currency }}</div>
+    <div class="kpi-change">{% blocktrans with p=kpi.all_ded_pct|percent %}{{ p }} daromaddan{% endblocktrans %}</div>
+  </div>
+  <div class="kpi-card success">
+    <div class="kpi-label">{% trans "Оплата на РС" %}</div>
+    <div class="kpi-value">{{ kpi.to_pay_rs|money_short:currency }}</div>
+  </div>
+  <div class="kpi-card {% if kpi.net_profit >= 0 %}success{% else %}danger{% endif %}">
+    <div class="kpi-label">{% trans "Toza foyda" %}</div>
+    <div class="kpi-value">{{ kpi.net_profit|money_short:currency }}</div>
+    <div class="kpi-change">{% blocktrans with m=kpi.margin_pct|percent %}Marja {{ m }}{% endblocktrans %}</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">{% trans "База — sotuv qatorlari" %}</div>
+      <div class="card-subtitle">{% trans "Asosiy ustunlar ko'rsatiladi" %}</div>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <a class="btn btn-outline" href="?{% if querystring %}{{ querystring }}&{% endif %}format=csv" style="font-size: 11px;">📥 {% trans "CSV eksport" %}</a>
+      {% if sel_report %}
+        <button class="btn btn-outline" onclick="clearOneReport('{{ sel_report }}')" style="font-size: 11px; color: var(--amber-dark);">🗑 {% blocktrans with n=sel_report %}Faqat № {{ n }} o'chirish{% endblocktrans %}</button>
+      {% endif %}
+      <button class="btn btn-outline" onclick="clearBaseAll()" style="font-size: 11px; color: var(--red); background: var(--red-light);">🗑 {% trans "Hamma Bazani o'chirish" %}</button>
+    </div>
+  </div>
+
+  <form class="filters" method="get" id="filterForm">
+    <div class="filter-group">
+      <span class="filter-label">{% trans "Achot:" %}</span>
+      <select class="filter-select" name="report" style="min-width: 150px;" onchange="this.form.submit()">
+        <option value="">{% trans "Hammasi" %}</option>
+        {% for rn in reports %}<option value="{{ rn }}" {% if rn == sel_report %}selected{% endif %}>№ {{ rn }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">{% trans "Tovar:" %}</span>
+      <select class="filter-select" name="article" style="min-width: 180px;" onchange="this.form.submit()">
+        <option value="">{% trans "Hammasi" %}</option>
+        {% for a in articles %}<option value="{{ a }}" {% if a == sel_article %}selected{% endif %}>{{ a }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">{% trans "Tur:" %}</span>
+      <select class="filter-select" name="type" style="min-width: 120px;" onchange="this.form.submit()">
+        <option value="">{% trans "Hammasi" %}</option>
+        <option value="sale" {% if sel_type == 'sale' %}selected{% endif %}>{% trans "Sotuv" %}</option>
+        <option value="return" {% if sel_type == 'return' %}selected{% endif %}>{% trans "Qaytarish" %}</option>
+        <option value="logistics" {% if sel_type == 'logistics' %}selected{% endif %}>{% trans "Logistika" %}</option>
+        <option value="fine" {% if sel_type == 'fine' %}selected{% endif %}>{% trans "Shtraf" %}</option>
+      </select>
+    </div>
+    <div class="search-box" style="flex: 1; max-width: 280px;">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round"/></svg>
+      <input type="text" name="q" placeholder="{% trans "Artikul, tovar nomi..." %}" value="{{ search }}">
+    </div>
+  </form>
+
+  <div class="table-wrapper" style="max-height: 600px;">
+    <table class="table base-table">
+      <thead>
+        <tr>
+          <th>{% trans "№ Отчёта" %}</th><th>{% trans "Tur" %}</th><th>{% trans "Artikul" %}</th><th>{% trans "Tovar" %}</th>
+          <th class="num">{% trans "Прод. шт." %}</th><th class="num">{% trans "Возвр. шт." %}</th>
+          <th class="num">{% trans "Выручка" %}</th><th class="num">{% trans "К перечисл." %}</th>
+          <th class="num">{% trans "Комиссия" %}</th><th class="num">{% trans "Эквайринг" %}</th>
+          <th class="num">{% trans "Лог. прям." %}</th><th class="num">{% trans "Лог. обр." %}</th>
+          <th class="num">{% trans "Штраф" %}</th><th class="num">{% trans "Хранение" %}</th>
+          <th class="num">{% trans "Себест." %}</th><th class="num">{% trans "Налог" %}</th>
+          <th class="num">{% trans "Опл. РС" %}</th><th>{% trans "Дата" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+          <tr>
+            <td style="font-weight: 600; color: var(--blue);">{{ r.report_num|default:'—' }}</td>
+            <td><span class="check-cell {{ r.badge_class }}">{{ r.badge_label }}</span></td>
+            <td><strong>{{ r.article|default:'—' }}</strong></td>
+            <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;" title="{{ r.product }}">{{ r.product|truncatechars:30 }}</td>
+            <td class="num">{{ r.D|floatformat:0 }}</td>
+            <td class="num">{{ r.E|floatformat:0 }}</td>
+            <td class="num {% if r.I > 0 %}num-positive{% elif r.I < 0 %}num-negative{% endif %}">{% if r.I %}{{ r.I|money:currency }}{% else %}—{% endif %}</td>
+            <td class="num">{% if r.J %}{{ r.J|money:currency }}{% else %}—{% endif %}</td>
+            <td class="num num-negative">{% if r.K %}{{ r.K|money:currency }}{% else %}—{% endif %}</td>
+            <td class="num num-negative">{% if r.L %}{{ r.L|money:currency }}{% else %}—{% endif %}</td>
+            <td class="num num-negative">{% if r.S %}{{ r.S|money:currency }}{% else %}—{% endif %}</td>
+            <td class="num num-negative">{% if r.T %}{{ r.T|money:currency }}{% else %}—{% endif %}</td>
+            <td class="num num-negative">{% if r.fine %}-{{ r.fine|money:currency }}{% else %}—{% endif %}</td>
+            <td class="num num-negative">{% if r.AD %}-{{ r.AD|money:currency }}{% else %}—{% endif %}</td>
+            <td class="num num-negative">{% if r.AC %}-{{ r.AC|money:currency }}{% else %}—{% endif %}</td>
+            <td class="num num-negative">{% if r.AB %}-{{ r.AB|money:currency }}{% else %}—{% endif %}</td>
+            <td class="num {% if r.Y > 0 %}num-positive{% else %}num-negative{% endif %}" style="font-weight: 600;">{% if r.Y %}{{ r.Y|money:currency }}{% else %}—{% endif %}</td>
+            <td style="font-size: 10px;">{% if r.date %}{{ r.date|date:'d.m.Y' }}{% else %}—{% endif %}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="18" style="text-align: center; padding: 30px; color: var(--text-tertiary);">{% trans "Filtrga mos qatorlar topilmadi" %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    {% if page_obj.has_previous %}
+      <a class="page-btn" href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">← {% trans "Oldingi" %}</a>
+    {% else %}
+      <span class="page-btn disabled">← {% trans "Oldingi" %}</span>
+    {% endif %}
+    <span style="font-size: 12px; color: var(--text-secondary);">
+      {% blocktrans with n=page_obj.number total=page_obj.paginator.num_pages cnt=filtered_count|fmt %}Sahifa <strong>{{ n }}</strong> / {{ total }} · {{ cnt }} qator{% endblocktrans %}
+    </span>
+    {% if page_obj.has_next %}
+      <a class="page-btn" href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.next_page_number }}">{% trans "Keyingi" %} →</a>
+    {% else %}
+      <span class="page-btn disabled">{% trans "Keyingi" %} →</span>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if has_data %}
+<script>
+  function _csrf() { const el = document.querySelector('[name=csrfmiddlewaretoken]'); return el ? el.value : ''; }
+  async function _post(url, body) {
+    const r = await fetch(url, { method: 'POST', headers: { 'X-CSRFToken': _csrf(),
+      'Content-Type': 'application/x-www-form-urlencoded' }, body: body || '' });
+    return r.json();
+  }
+  window.clearBaseAll = async function() {
+    if (!confirm("⚠️ Diqqat!\n\nHamma БАЗА ma'lumotlari o'chiriladi va qaytarib bo'lmaydi.\n(Список отчётов va Себестоимость saqlanadi)\n\nDavom etasizmi?")) return;
+    if (!confirm("🚨 OXIRGI TASDIQLASH! Rostakammi o'chirasizmi?")) return;
+    const res = await _post("{% url 'reports:clear_base' %}");
+    if (res.ok) { alert('✓ ' + res.deleted + ' ta yozuv o\'chirildi'); window.location = "{% url 'reports:base' %}"; }
+  };
+  window.clearOneReport = async function(reportNum) {
+    if (!confirm('№ ' + reportNum + ' achotning qatorlari o\'chiriladi. Rostakammi?')) return;
+    const res = await _post("{% url 'reports:clear_report' %}", 'report_num=' + encodeURIComponent(reportNum));
+    if (res.ok) { alert('✓ ' + res.deleted + ' ta qator o\'chirildi'); window.location = "{% url 'reports:base' %}"; }
+  };
+</script>
+{% endif %}
+{% endblock %}

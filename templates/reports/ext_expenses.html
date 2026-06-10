@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static aira i18n %}
+
+{% block title %}AIRA — {% trans "Внешние расходы" %}{% endblock %}
+
+{% block head %}
+<style>
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(4, 44, 83, 0.5); display: none; align-items: center; justify-content: center; z-index: 999; }
+  .modal-overlay.show { display: flex; }
+  .modal-content { background: white; padding: 24px; border-radius: 12px; max-width: 480px; width: 90%; max-height: 90vh; overflow-y: auto; }
+  .form-row { display: grid; grid-template-columns: 120px 1fr; gap: 12px; margin-bottom: 12px; align-items: center; }
+  .form-row label { font-size: 12px; color: var(--text-secondary); }
+  .cat-badge { display: inline-block; padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+  .cat-reklama { background: #FEE2E2; color: #B7332E; }
+  .cat-marketing { background: #DBEAFE; color: #185FA5; }
+  .cat-tovarlar { background: #DCFCE7; color: #095440; }
+  .cat-logistika { background: #FEF3C7; color: #92400E; }
+  .cat-soliq { background: #E0E7FF; color: #4338CA; }
+  .cat-boshqa { background: #F3F4F6; color: #6B7280; }
+</style>
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="page-header">
+  <h1 class="page-title">💸 {% trans "Внешние расходы" %}</h1>
+  <p class="page-subtitle">{% trans "WB'dan tashqaridagi xarajatlar — informatsion hisob" %}</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px;">
+  <div class="kpi-card danger">
+    <div class="kpi-label">💸 {% trans "Jami xarajat" %}</div>
+    <div class="kpi-value">{{ total_amount|money_short:currency }}</div>
+    <div class="kpi-change">{% blocktrans %}{{ all_count }} ta yozuv{% endblocktrans %}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">📊 {% trans "Kategoriyalar" %}</div>
+    <div class="kpi-value">{{ category_count }}</div>
+    <div class="kpi-change">{% trans "turli xil" %}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">📅 {% trans "Oylar" %}</div>
+    <div class="kpi-value">{{ month_count }}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">📈 {% trans "O'rtacha" %}</div>
+    <div class="kpi-value">{% if all_count %}{{ avg|money_short:currency }}{% else %}—{% endif %}</div>
+    <div class="kpi-change">{% trans "har xarajatda" %}</div>
+  </div>
+</div>
+
+{% if categories %}
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">📊 {% trans "Kategoriyalar bo'yicha" %}</div>
+        <div class="card-subtitle">{% trans "Qaysi kategoriyaga ko'p sarflagansiz" %}</div>
+      </div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px;">
+      {% for d in categories %}
+        <div style="padding: 12px; background: var(--gray-50); border-radius: 8px; border-left: 3px solid var(--purple);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <span class="cat-badge">{{ d.cat }}</span>
+            <span style="font-size: 11px; color: var(--text-tertiary);">{% blocktrans with c=d.count %}{{ c }} ta{% endblocktrans %}</span>
+          </div>
+          <div style="font-size: 18px; font-weight: 700; color: var(--navy);">{{ d.total|money:currency }}</div>
+          <div style="height: 5px; background: var(--gray-100); border-radius: 3px; overflow: hidden; margin-top: 8px;">
+            <div style="height: 100%; background: var(--purple); width: {{ d.pct|floatformat:1 }}%;"></div>
+          </div>
+          <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 3px; text-align: right;">{{ d.pct|floatformat:1 }}%</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
+
+<div class="card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">📋 {% trans "Hamma xarajatlar" %}</div>
+      <div class="card-subtitle">{% blocktrans with n=items|length %}{{ n }} ta yozuv{% endblocktrans %} · {{ filtered_total|money:currency }}</div>
+    </div>
+    <form method="get" id="filterForm" style="display: flex; gap: 8px; align-items: center; margin:0;">
+      <select name="category" onchange="document.getElementById('filterForm').submit()" class="form-input" style="font-size: 11px; padding: 6px 10px; max-width: 140px;">
+        <option value="">{% trans "Hamma kategoriya" %}</option>
+        {% for d in categories %}<option value="{{ d.cat }}" {% if sel_category == d.cat %}selected{% endif %}>{{ d.cat }}</option>{% endfor %}
+      </select>
+      <select name="month" onchange="document.getElementById('filterForm').submit()" class="form-input" style="font-size: 11px; padding: 6px 10px; max-width: 140px;">
+        <option value="">{% trans "Hamma oy" %}</option>
+        {% for m in months %}<option value="{{ m }}" {% if sel_month == m %}selected{% endif %}>{{ m }}</option>{% endfor %}
+      </select>
+      <button type="button" class="btn btn-primary" onclick="openModal()" style="font-size: 11px;">+ {% trans "Yangi" %}</button>
+    </form>
+  </div>
+
+  {% if not items %}
+    <div style="padding: 40px 20px; text-align: center; color: var(--text-tertiary);">
+      <div style="font-size: 48px; margin-bottom: 12px;">💸</div>
+      <h3 style="font-size: 15px; color: var(--text); margin: 0 0 6px 0;">{% trans "Hozircha bo'sh" %}</h3>
+      <p style="font-size: 12px; margin: 0 0 16px 0;">{% if has_data %}{% trans "Filtr bo'yicha hech narsa topilmadi" %}{% else %}{% trans "Tashqi xarajatlarni qo'shing" %}{% endif %}</p>
+      {% if not has_data %}<button class="btn btn-primary" onclick="openModal()" style="font-size: 12px;">+ {% trans "Birinchisini qo'shish" %}</button>{% endif %}
+    </div>
+  {% else %}
+    <div class="table-wrapper" style="border: none;">
+      <table class="table" style="font-size: 12px;">
+        <thead>
+          <tr><th>{% trans "Sana" %}</th><th>{% trans "Kategoriya" %}</th><th>{% trans "Tavsif" %}</th><th class="num">{% trans "Summa" %}</th><th>{% trans "Eslatma" %}</th><th>{% trans "Action" %}</th></tr>
+        </thead>
+        <tbody>
+          {% for e in items %}
+            <tr data-item='{"id":{{ e.id }},"date":"{{ e.date|date:'Y-m-d' }}","category":"{{ e.category|escapejs }}","description":"{{ e.name|escapejs }}","amount":{{ e.amount|stringformat:'g' }},"note":"{{ e.note|escapejs }}"}'>
+              <td>{% if e.date %}{{ e.date|date:'d.m.Y' }}{% else %}—{% endif %}</td>
+              <td><span class="cat-badge {{ e.cat_class }}">{{ e.category|default:'—' }}</span></td>
+              <td><strong>{{ e.name|default:'—' }}</strong></td>
+              <td class="num num-negative" style="font-weight: 700;">{{ e.amount|money:currency }}</td>
+              <td style="font-size: 11px; color: var(--text-secondary); max-width: 200px; overflow: hidden; text-overflow: ellipsis;" title="{{ e.note }}">{{ e.note }}</td>
+              <td>
+                <button onclick="editItem(this)" style="background: none; border: 1px solid var(--blue); color: var(--blue); padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 10px;">✎</button>
+                <button onclick="deleteItem({{ e.id }})" style="background: none; border: 1px solid var(--red); color: var(--red); padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 10px;">×</button>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr style="background: var(--gray-100); font-weight: 700;">
+            <td colspan="3">{% blocktrans with n=items|length %}JAMI ({{ n }} ta){% endblocktrans %}</td>
+            <td class="num num-negative">{{ filtered_total|money:currency }}</td>
+            <td colspan="2"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Modal -->
+<div id="addModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 id="modalTitle" style="margin: 0 0 16px; font-size: 16px;">{% trans "Yangi xarajat" %}</h3>
+    <input type="hidden" id="editId">
+    <div class="form-row"><label>{% trans "Sana" %}</label><input type="date" class="form-input" id="newDate"></div>
+    <div class="form-row"><label>{% trans "Kategoriya" %}</label>
+      <select class="form-input" id="newCategory">
+        {% for c in all_categories %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="form-row"><label>{% trans "Tavsif" %} *</label><input type="text" class="form-input" id="newDescription"></div>
+    <div class="form-row"><label>{% trans "Summa" %} *</label><input type="number" class="form-input" id="newAmount" step="1"></div>
+    <div class="form-row"><label>{% trans "Eslatma" %}</label><input type="text" class="form-input" id="newNote"></div>
+    <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px;">
+      <button class="btn btn-outline" onclick="closeModal()">{% trans "Bekor" %}</button>
+      <button class="btn btn-primary" onclick="saveExpense()">{% trans "Saqlash" context "action" %}</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function _csrf() { const el = document.querySelector('[name=csrfmiddlewaretoken]'); return el ? el.value : ''; }
+  async function _post(url, body) {
+    const r = await fetch(url, { method: 'POST', headers: { 'X-CSRFToken': _csrf(),
+      'Content-Type': 'application/x-www-form-urlencoded' }, body: body || '' });
+    return r.json();
+  }
+  function _enc(obj) { return Object.entries(obj).map(([k, v]) => k + '=' + encodeURIComponent(v)).join('&'); }
+  function _today() { return new Date().toISOString().substring(0, 10); }
+
+  window.openModal = function() {
+    document.getElementById('editId').value = '';
+    document.getElementById('modalTitle').textContent = 'Yangi xarajat';
+    document.getElementById('newDate').value = _today();
+    document.getElementById('newCategory').value = 'Реклама';
+    ['newDescription', 'newAmount', 'newNote'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('addModal').classList.add('show');
+    setTimeout(() => document.getElementById('newDescription').focus(), 50);
+  };
+  window.closeModal = function() { document.getElementById('addModal').classList.remove('show'); };
+
+  window.editItem = function(btn) {
+    const d = JSON.parse(btn.closest('tr').getAttribute('data-item'));
+    document.getElementById('editId').value = d.id;
+    document.getElementById('modalTitle').textContent = 'Tahrirlash';
+    document.getElementById('newDate').value = d.date || '';
+    document.getElementById('newCategory').value = d.category || 'Другое';
+    document.getElementById('newDescription').value = d.description || '';
+    document.getElementById('newAmount').value = d.amount || '';
+    document.getElementById('newNote').value = d.note || '';
+    document.getElementById('addModal').classList.add('show');
+  };
+
+  window.saveExpense = async function() {
+    const description = document.getElementById('newDescription').value.trim();
+    const amount = parseFloat(document.getElementById('newAmount').value);
+    if (!description || !amount) { alert('Tavsif va summa majburiy'); return; }
+    const data = {
+      id: document.getElementById('editId').value,
+      date: document.getElementById('newDate').value,
+      category: document.getElementById('newCategory').value,
+      description, amount,
+      note: document.getElementById('newNote').value.trim(),
+    };
+    const res = await _post("{% url 'reports:ext_expense_save' %}", _enc(data));
+    if (res.ok) { notify('Saqlandi', 'success'); location.reload(); }
+    else notify(res.error || 'Xato', 'error');
+  };
+
+  window.deleteItem = async function(id) {
+    if (!confirm("O'chirasizmi?")) return;
+    const res = await _post("{% url 'reports:ext_expense_delete' %}", _enc({ id }));
+    if (res.ok) { notify("O'chirildi", 'warning'); location.reload(); }
+  };
+
+  document.getElementById('addModal').addEventListener('click', e => {
+    if (e.target.id === 'addModal') closeModal();
+  });
+</script>
+{% endblock %}

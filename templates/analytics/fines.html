@@ -1,0 +1,1054 @@
+{% extends 'base.html' %}
+{% load static aira l10n i18n %}
+
+{% block title %}AIRA — {% trans "Детализация штрафов" %}{% endblock %}
+
+{% block head %}
+<style>
+  /* ============================================
+     FINES PAGE — PREMIUM DESIGN
+     Red/amber tones — "audit detail" feel
+     ============================================ */
+
+  /* HERO HEADER — qizil/amber gradient */
+  .fines-hero {
+    background:
+      radial-gradient(ellipse 700px 350px at 85% -10%, rgba(226, 75, 74, 0.32) 0%, transparent 55%),
+      radial-gradient(ellipse 500px 280px at 15% 110%, rgba(186, 117, 23, 0.30) 0%, transparent 55%),
+      linear-gradient(135deg, #2a0a05 0%, #4A1B0C 35%, #6E2F1A 80%, #854F0B 100%);
+    color: white;
+    border-radius: 20px;
+    padding: 32px 36px 28px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px -20px rgba(74, 27, 12, 0.45);
+  }
+  .fines-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Ccircle cx='2' cy='2' r='0.4' fill='%23ffffff' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  .fines-hero::after {
+    content: '';
+    position: absolute;
+    top: -60%;
+    right: -15%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(255, 200, 100, 0.10) 0%, transparent 60%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .fines-hero-content { position: relative; z-index: 1; }
+  .fines-hero-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255, 220, 200, 0.7);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .fines-hero-eyebrow::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: rgba(255, 220, 200, 0.5);
+  }
+  .fines-hero-title {
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+    background: linear-gradient(180deg, #ffffff 0%, #ffd7c2 130%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .fines-hero-subtitle {
+    color: rgba(255, 220, 200, 0.75);
+    font-size: 14px;
+    max-width: 540px;
+    line-height: 1.55;
+  }
+
+  /* INSIGHTS */
+  .insights-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 14px;
+    margin-top: 24px;
+    position: relative;
+    z-index: 1;
+  }
+  .insight {
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    border-radius: 12px;
+    padding: 14px 16px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .insight:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.22);
+  }
+  .insight-label {
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: rgba(255, 220, 200, 0.65);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .insight-value {
+    font-size: 19px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: -0.3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .insight-extra {
+    font-size: 11px;
+    color: rgba(255, 220, 200, 0.65);
+    margin-top: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* FILTERS */
+  .filters-bar {
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.04);
+  }
+  .filter-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 4px 4px 4px 12px;
+    border: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .filter-pill:focus-within { border-color: var(--red); }
+  .filter-pill-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+  }
+  .filter-pill select {
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 500;
+    padding: 4px 6px;
+    cursor: pointer;
+    outline: none;
+    min-width: 100px;
+    max-width: 260px;
+  }
+
+  /* CHART CARDS */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 18px;
+    margin-bottom: 18px;
+  }
+  .chart-card {
+    background: white;
+    border-radius: 16px;
+    padding: 22px 24px 20px;
+    border: 1px solid var(--border-light);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: cardFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+  .chart-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 40px -18px rgba(163, 45, 45, 0.18);
+    border-color: rgba(163, 45, 45, 0.2);
+  }
+  .chart-card:nth-child(1) { animation-delay: 0.05s; }
+  .chart-card:nth-child(2) { animation-delay: 0.12s; }
+  .chart-card:nth-child(3) { animation-delay: 0.19s; }
+
+  @keyframes cardFadeIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .chart-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent, var(--red)), transparent);
+    opacity: 0.7;
+  }
+
+  .chart-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+    gap: 12px;
+  }
+  .chart-card-headline { display: flex; align-items: center; gap: 12px; }
+  .chart-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    background: linear-gradient(135deg, var(--accent, var(--red)), var(--accent2, var(--red-dark)));
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 6px 16px -6px var(--accent, var(--red));
+  }
+  .chart-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: -0.2px;
+    margin-bottom: 2px;
+  }
+  .chart-subtitle {
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+  .chart-card-meta { text-align: right; flex-shrink: 0; }
+  .chart-card-meta-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .chart-card-meta-label {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .chart-canvas-wrap { position: relative; height: 280px; }
+  .chart-canvas-wrap.tall { height: 360px; }
+
+  /* DONUT CENTER */
+  .donut-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+  }
+  .donut-center-label {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 600;
+  }
+  .donut-center-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--red-dark);
+    letter-spacing: -0.3px;
+    margin-top: 2px;
+  }
+
+  /* CHART LEGEND */
+  .chart-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border-light);
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    padding: 4px 0;
+  }
+  .legend-row strong { color: var(--text); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .legend-value {
+    color: var(--text);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    margin-left: auto;
+  }
+  .legend-pct {
+    color: var(--text-tertiary);
+    font-size: 10px;
+    min-width: 38px;
+    text-align: right;
+  }
+
+  /* DETAIL TABLE — EXCEL PIVOT STYLE */
+  .detail-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--border-light);
+    overflow: hidden;
+    margin-bottom: 16px;
+    animation: cardFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.25s backwards;
+  }
+  .detail-card-head {
+    padding: 18px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-light);
+    background: linear-gradient(180deg, #fafbfc 0%, #ffffff 100%);
+  }
+  .detail-card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: -0.2px;
+  }
+  .detail-card-subtitle {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+  }
+
+  .detail-actions { display: flex; gap: 8px; }
+  .detail-action-btn {
+    font-size: 11px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+  .detail-action-btn:hover {
+    background: var(--gray-50);
+    border-color: var(--border);
+    color: var(--text);
+  }
+  .detail-action-btn.primary {
+    background: var(--blue);
+    color: white;
+    border-color: var(--blue);
+  }
+  .detail-action-btn.primary:hover { background: var(--navy); border-color: var(--navy); }
+
+  /* PIVOT GROUPS */
+  .pivot-group {
+    border-bottom: 1px solid var(--border-light);
+  }
+  .pivot-group:last-child { border-bottom: none; }
+
+  .pivot-group-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 22px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+    background: linear-gradient(90deg, rgba(163, 45, 45, 0.04) 0%, transparent 100%);
+  }
+  .pivot-group-header:hover { background: linear-gradient(90deg, rgba(163, 45, 45, 0.08) 0%, rgba(163, 45, 45, 0.02) 100%); }
+
+  .pivot-group-chevron {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    flex-shrink: 0;
+  }
+  .pivot-group.open .pivot-group-chevron { transform: rotate(90deg); color: var(--red); }
+
+  .pivot-group-rank {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--gray-100);
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .pivot-group.open .pivot-group-rank {
+    background: linear-gradient(135deg, var(--red), var(--red-dark));
+    color: white;
+  }
+
+  .pivot-group-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+    flex: 1;
+    min-width: 0;
+  }
+  .pivot-group-count {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    background: var(--gray-100);
+    border-radius: 10px;
+    padding: 2px 9px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .pivot-group-bar {
+    flex: 0 0 90px;
+    height: 6px;
+    background: var(--gray-100);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .pivot-group-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--red), var(--red-dark));
+    border-radius: 3px;
+    transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .pivot-group-total {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--red-dark);
+    font-variant-numeric: tabular-nums;
+    min-width: 110px;
+    text-align: right;
+  }
+  .pivot-group-pct {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    min-width: 42px;
+    text-align: right;
+    font-weight: 600;
+  }
+
+  /* PIVOT BODY (collapsed/expanded) */
+  .pivot-group-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  .pivot-group.open .pivot-group-body {
+    max-height: 100000px;
+  }
+
+  .pivot-rows-wrap {
+    background: var(--bg-alt);
+    border-top: 1px solid var(--border-light);
+    overflow-x: auto;
+  }
+  .pivot-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+  .pivot-table thead th {
+    background: rgba(247, 250, 252, 0.95);
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-tertiary);
+    border-bottom: 1px solid var(--border-light);
+    position: sticky;
+    top: 0;
+  }
+  .pivot-table thead th.num { text-align: right; }
+  .pivot-table tbody td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+    color: var(--text);
+    font-size: 11px;
+  }
+  .pivot-table tbody td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--red-dark);
+  }
+  .pivot-table tbody tr:hover { background: rgba(163, 45, 45, 0.04); }
+  .pivot-table .article-cell { font-weight: 600; color: var(--navy); }
+  .pivot-table .product-cell {
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-secondary);
+  }
+  .pivot-table .srid-cell {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pivot-table .wh-empty { color: var(--text-tertiary); font-style: italic; }
+
+  /* GRAND TOTAL FOOTER */
+  .pivot-grand-total {
+    background: linear-gradient(135deg, #2a0a05 0%, #4A1B0C 100%);
+    color: white;
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .pivot-grand-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(255, 220, 200, 0.7);
+    font-weight: 700;
+  }
+  .pivot-grand-value {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+  }
+  .pivot-grand-count {
+    font-size: 11px;
+    color: rgba(255, 220, 200, 0.6);
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    background: white;
+    border-radius: 16px;
+    padding: 70px 40px;
+    text-align: center;
+    border: 1px solid var(--border-light);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 980px) {
+    .charts-grid { grid-template-columns: 1fr; }
+    .fines-hero { padding: 24px 22px; border-radius: 16px; }
+    .fines-hero-title { font-size: 28px; }
+    .chart-canvas-wrap { height: 240px; }
+    .chart-canvas-wrap.tall { height: 320px; }
+    .pivot-group-header { padding: 12px 14px; flex-wrap: wrap; gap: 8px; }
+    .pivot-group-name { width: 100%; order: 4; font-size: 12px; }
+    .pivot-group-bar { display: none; }
+    .pivot-grand-value { font-size: 18px; }
+    .pivot-table { font-size: 10px; }
+    .pivot-table thead th { padding: 6px 8px; }
+    .pivot-table tbody td { padding: 6px 8px; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if not has_data %}
+  <div class="empty-state" style="padding: 60px 20px; text-align: center;">
+    <div style="font-size: 56px; margin-bottom: 16px;">⚠️</div>
+    <h2 style="color: var(--navy); margin-bottom: 8px; font-size: 22px;">{% trans "Shtraflar tahlili uchun ma'lumot yo'q" %}</h2>
+    <p style="color: var(--text-tertiary); margin-bottom: 20px;">{% trans "Avval Подробный отчёт yuklang — shtraflar va ushlanmalar avtomat ko'rinadi" %}</p>
+    <a href="{% url 'reports:upload' %}" class="btn btn-primary">📤 {% trans "Yuklash sahifasi" %}</a>
+  </div>
+{% else %}
+  <div id="content"></div>
+  {{ penalty_json|json_script:"fines-data" }}
+  {{ filter_reports|json_script:"fines-reports" }}
+  {{ filter_months|json_script:"fines-months" }}
+  {{ filter_types|json_script:"fines-types" }}
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if has_data %}
+<script src="{% static 'js/lib/chart.umd.min.js' %}"></script>
+<script>
+(function() {
+  const cur = "{{ currency|escapejs }}" || '₽';
+  const content = document.getElementById('content');
+
+  const data = JSON.parse(document.getElementById('fines-data').textContent);
+  const uniqueReports = JSON.parse(document.getElementById('fines-reports').textContent);
+  const uniqueMonths = JSON.parse(document.getElementById('fines-months').textContent);
+  const allUniqueTypes = JSON.parse(document.getElementById('fines-types').textContent);
+  const totalRevenue = {{ total_revenue|unlocalize }};
+  const filterReport = "{{ selected_report|escapejs }}";
+  const filterMonth = "{{ selected_month|escapejs }}";
+  const filterType = "{{ selected_type|escapejs }}";
+  const finesUrl = "{% url 'analytics:fines' %}";
+
+  function fmt(n) { if (typeof n !== 'number' || isNaN(n)) return '0'; return Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' '); }
+  function fmtMoney(n, c) { if (typeof n !== 'number' || isNaN(n)) return '—'; return fmt(n) + ' ' + (c || cur); }
+  function fmtPercent(n) { if (typeof n !== 'number' || isNaN(n)) return '—'; return n.toFixed(1) + '%'; }
+  function fmtDate(s) {
+    if (!s) return '';
+    const m = String(s).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return m ? `${m[3]}.${m[2]}.${m[1]}` : String(s);
+  }
+
+  // ============ Chart.js global config ============
+  Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+  Chart.defaults.font.size = 11;
+  Chart.defaults.color = '#4A5568';
+  Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(42, 10, 5, 0.96)';
+  Chart.defaults.plugins.tooltip.titleColor = '#ffffff';
+  Chart.defaults.plugins.tooltip.bodyColor = '#ffd7c2';
+  Chart.defaults.plugins.tooltip.padding = 12;
+  Chart.defaults.plugins.tooltip.cornerRadius = 10;
+  Chart.defaults.plugins.tooltip.titleFont = { weight: '600', size: 12 };
+  Chart.defaults.plugins.tooltip.bodyFont = { size: 12 };
+  Chart.defaults.plugins.tooltip.boxPadding = 6;
+  Chart.defaults.plugins.legend.display = false;
+  Chart.defaults.animation.duration = 700;
+  Chart.defaults.animation.easing = 'easeOutQuart';
+
+  function fmtK(n) {
+    if (typeof n !== 'number' || isNaN(n)) return '0';
+    const abs = Math.abs(n);
+    if (abs >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+    if (abs >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+    return Math.round(n).toString();
+  }
+  function fmtKMoney(n) { return fmtK(n) + ' ' + cur; }
+
+  const chartInstances = {};
+
+  function render() {
+    // Server-side filtering already applied; data is the filtered penalty result.
+    let { types, allRows, grandTotal, totalCount } = data;
+
+    // Tovar bo'yicha jamlash
+    const productMap = {};
+    for (const r of allRows) {
+      const key = r.article || '(noma\'lum)';
+      if (!productMap[key]) {
+        productMap[key] = { article: key, product: r.product || '', brand: r.brand || '', total: 0, count: 0 };
+      }
+      productMap[key].total += r.amount;
+      productMap[key].count++;
+    }
+    const products = Object.values(productMap).sort((a, b) => b.total - a.total);
+
+    // Achot bo'yicha
+    const reportMap = {};
+    for (const r of allRows) {
+      const rn = r.report_num || '(noma\'lum)';
+      if (!reportMap[rn]) reportMap[rn] = { report_num: rn, total: 0, count: 0 };
+      reportMap[rn].total += r.amount;
+      reportMap[rn].count++;
+    }
+    const reports = Object.values(reportMap).sort((a, b) => b.total - a.total);
+
+    // Eng yomon
+    const worstType = types[0];
+    const worstProduct = products[0];
+    let biggestRow = allRows[0];
+    for (const r of allRows) if (!biggestRow || r.amount > biggestRow.amount) biggestRow = r;
+
+    const pctOfRevenue = totalRevenue > 0 ? (grandTotal / totalRevenue * 100) : 0;
+
+    content.innerHTML = `
+      <!-- HERO -->
+      <section class="fines-hero">
+        <div class="fines-hero-content">
+          <div class="fines-hero-eyebrow">Audit · Детализация</div>
+          <h1 class="fines-hero-title">Штрафы</h1>
+          <p class="fines-hero-subtitle">Qaysi shtraflar keldi, nima sababdan, qaysi tovarga — har qator detallari bilan. Excel "Детализация штрафов" pivot jadvali kabi.</p>
+
+          <div class="insights-row">
+            <div class="insight">
+              <div class="insight-label">⚠️ Jami ushlanma</div>
+              <div class="insight-value">${fmtKMoney(grandTotal)}</div>
+              <div class="insight-extra">${fmtPercent(pctOfRevenue)} daromaddan</div>
+            </div>
+            <div class="insight">
+              <div class="insight-label">🔢 Qatorlar</div>
+              <div class="insight-value">${fmt(totalCount)}</div>
+              <div class="insight-extra">${types.length} ta sabab</div>
+            </div>
+            <div class="insight">
+              <div class="insight-label">🏆 Eng katta sabab</div>
+              <div class="insight-value">${worstType ? fmtKMoney(worstType.total) : '—'}</div>
+              <div class="insight-extra" title="${worstType ? worstType.type : ''}">${worstType ? (worstType.type.length > 28 ? worstType.type.substring(0, 28) + '…' : worstType.type) : '—'}</div>
+            </div>
+            <div class="insight">
+              <div class="insight-label">💔 Eng yomon tovar</div>
+              <div class="insight-value">${worstProduct ? fmtKMoney(worstProduct.total) : '—'}</div>
+              <div class="insight-extra" title="${worstProduct ? worstProduct.article : ''}">${worstProduct ? worstProduct.article : '—'}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FILTERS -->
+      <div class="filters-bar">
+        <div style="font-size: 11px; color: var(--text-tertiary); font-weight: 700; letter-spacing: 0.8px;">FILTRLAR</div>
+        <div class="filter-pill">
+          <span class="filter-pill-label">Achot</span>
+          <select id="filterReport">
+            <option value="">Hammasi</option>
+            ${uniqueReports.map(rn => `<option value="${rn}" ${rn === filterReport ? 'selected' : ''}>№ ${rn}</option>`).join('')}
+          </select>
+        </div>
+        <div class="filter-pill">
+          <span class="filter-pill-label">Oy</span>
+          <select id="filterMonth">
+            <option value="">Hammasi</option>
+            ${uniqueMonths.map(m => `<option value="${m}" ${m === filterMonth ? 'selected' : ''}>${m}</option>`).join('')}
+          </select>
+        </div>
+        <div class="filter-pill">
+          <span class="filter-pill-label">Sabab</span>
+          <select id="filterType">
+            <option value="">Hammasi (${allUniqueTypes.length})</option>
+            ${allUniqueTypes.map(t => `<option value="${t.replace(/"/g, '&quot;')}" ${t === filterType ? 'selected' : ''}>${t.length > 50 ? t.substring(0, 50) + '…' : t}</option>`).join('')}
+          </select>
+        </div>
+        ${(filterReport || filterMonth || filterType) ? `<button id="clearFilters" class="btn btn-outline" style="font-size: 11px; padding: 6px 12px;">✕ Tozalash</button>` : ''}
+        <div style="margin-left: auto; font-size: 11px; color: var(--text-tertiary);">${fmt(allRows.length)} ta qator</div>
+      </div>
+
+      ${types.length === 0 ? `
+        <div class="empty-state">
+          <div style="font-size: 48px; margin-bottom: 12px;">🎉</div>
+          <h3 style="color: var(--green-dark); margin-bottom: 6px;">Tanlangan filtrda shtraflar yo'q!</h3>
+          <p style="color: var(--text-tertiary);">Hech qanday ushlanma topilmadi</p>
+        </div>
+      ` : `
+
+      <!-- CHARTS (sabab + tovar) -->
+      <div class="charts-grid">
+
+        <!-- Donut: sabab -->
+        <div class="chart-card" style="--accent: #A32D2D; --accent2: #6E1F1F;">
+          <div class="chart-card-head">
+            <div class="chart-card-headline">
+              <div class="chart-icon">🍩</div>
+              <div>
+                <div class="chart-title">Sabab bo'yicha</div>
+                <div class="chart-subtitle">Qaysi sabab eng katta ushlanma</div>
+              </div>
+            </div>
+            <div class="chart-card-meta">
+              <div class="chart-card-meta-value">${types.length}</div>
+              <div class="chart-card-meta-label">sabab</div>
+            </div>
+          </div>
+          <div class="chart-canvas-wrap" style="position: relative;">
+            <canvas id="chartTypes"></canvas>
+            <div class="donut-center">
+              <div class="donut-center-label">Jami</div>
+              <div class="donut-center-value">${fmtK(grandTotal)}</div>
+            </div>
+          </div>
+          <div id="legendTypes" class="chart-legend"></div>
+        </div>
+
+        <!-- Bar: top tovar -->
+        <div class="chart-card" style="--accent: #BA7517; --accent2: #854F0B;">
+          <div class="chart-card-head">
+            <div class="chart-card-headline">
+              <div class="chart-icon">📦</div>
+              <div>
+                <div class="chart-title">Top 10 tovar</div>
+                <div class="chart-subtitle">Eng ko'p ushlanma kelgan artikullar</div>
+              </div>
+            </div>
+            <div class="chart-card-meta">
+              <div class="chart-card-meta-value">${products.length}</div>
+              <div class="chart-card-meta-label">tovar</div>
+            </div>
+          </div>
+          <div class="chart-canvas-wrap tall">
+            <canvas id="chartProducts"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- DETAIL TABLE (Excel pivot kabi) -->
+      <div class="detail-card">
+        <div class="detail-card-head">
+          <div>
+            <div class="detail-card-title">📋 Batafsil — har sabab bo'yicha tovarlar</div>
+            <div class="detail-card-subtitle">Sababga bosing → kengayadi · har qator: srid, artikul, tovar, sklad, summa</div>
+          </div>
+          <div class="detail-actions">
+            <button class="detail-action-btn" id="expandAll">⬇ Hammasini ochish</button>
+            <button class="detail-action-btn" id="collapseAll">⬆ Yopish</button>
+            <button class="detail-action-btn primary" id="exportCsv">📥 CSV</button>
+          </div>
+        </div>
+
+        ${types.map((t, i) => `
+          <div class="pivot-group" data-type-idx="${i}">
+            <div class="pivot-group-header" onclick="this.parentElement.classList.toggle('open')">
+              <div class="pivot-group-chevron">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+              <div class="pivot-group-rank">${i + 1}</div>
+              <div class="pivot-group-name">${t.type}</div>
+              <div class="pivot-group-count">${fmt(t.count)} qator</div>
+              <div class="pivot-group-bar">
+                <div class="pivot-group-bar-fill" style="width: ${t.share_pct.toFixed(1)}%;"></div>
+              </div>
+              <div class="pivot-group-pct">${fmtPercent(t.share_pct)}</div>
+              <div class="pivot-group-total">${fmtMoney(t.total, cur)}</div>
+            </div>
+            <div class="pivot-group-body">
+              <div class="pivot-rows-wrap">
+                <table class="pivot-table">
+                  <thead>
+                    <tr>
+                      <th>Sana</th>
+                      <th>Achot</th>
+                      <th>Artikul</th>
+                      <th>Tovar</th>
+                      <th>Razmer</th>
+                      <th>Sklad</th>
+                      <th>Srid</th>
+                      <th class="num">Summa</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${t.rows.map(r => `
+                      <tr>
+                        <td>${fmtDate(r.date) || '—'}</td>
+                        <td>${r.report_num || '—'}</td>
+                        <td class="article-cell">${r.article || '—'}</td>
+                        <td class="product-cell" title="${(r.product || '').replace(/"/g, '&quot;')}">${r.product || '—'}</td>
+                        <td>${r.size || '—'}</td>
+                        <td>${r.warehouse ? r.warehouse : '<span class="wh-empty">noma\'lum</span>'}</td>
+                        <td class="srid-cell" title="${r.srid || ''}">${r.srid || '—'}</td>
+                        <td class="num">${fmtMoney(r.amount, cur)}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+
+        <!-- GRAND TOTAL -->
+        <div class="pivot-grand-total">
+          <div>
+            <div class="pivot-grand-label">Общий итог</div>
+            <div class="pivot-grand-count">${fmt(totalCount)} qator · ${types.length} sabab</div>
+          </div>
+          <div class="pivot-grand-value">${fmtMoney(grandTotal, cur)}</div>
+        </div>
+      </div>
+      `}
+    `;
+
+    // ============ Event listeners (server-side filtering via GET) ============
+    const fr = document.getElementById('filterReport');
+    const fm = document.getElementById('filterMonth');
+    const ft = document.getElementById('filterType');
+    const cf = document.getElementById('clearFilters');
+    function applyFilters() {
+      const p = new URLSearchParams();
+      if (fr && fr.value) p.set('report', fr.value);
+      if (fm && fm.value) p.set('month', fm.value);
+      if (ft && ft.value) p.set('type', ft.value);
+      const qs = p.toString();
+      window.location = finesUrl + (qs ? '?' + qs : '');
+    }
+    if (fr) fr.addEventListener('change', applyFilters);
+    if (fm) fm.addEventListener('change', applyFilters);
+    if (ft) ft.addEventListener('change', applyFilters);
+    if (cf) cf.addEventListener('click', () => { window.location = finesUrl; });
+
+    // Expand/Collapse all
+    const eaBtn = document.getElementById('expandAll');
+    const caBtn = document.getElementById('collapseAll');
+    if (eaBtn) eaBtn.addEventListener('click', () => {
+      document.querySelectorAll('.pivot-group').forEach(g => g.classList.add('open'));
+    });
+    if (caBtn) caBtn.addEventListener('click', () => {
+      document.querySelectorAll('.pivot-group').forEach(g => g.classList.remove('open'));
+    });
+
+    // CSV eksport
+    const csvBtn = document.getElementById('exportCsv');
+    if (csvBtn) csvBtn.addEventListener('click', () => {
+      const header = ['Sabab', 'Sana', 'Achot', 'Artikul', 'Tovar', 'Razmer', 'Sklad', 'Srid', 'Summa'];
+      const rows = [];
+      for (const t of types) {
+        for (const r of t.rows) {
+          rows.push([
+            t.type,
+            r.date || '',
+            r.report_num || '',
+            r.article || '',
+            (r.product || '').replace(/[;\n\r]/g, ' '),
+            r.size || '',
+            r.warehouse || '',
+            r.srid || '',
+            r.amount.toFixed(2)
+          ]);
+        }
+      }
+      const csv = [header, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(';')).join('\n');
+      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `aira-fines-${new Date().toISOString().substring(0, 10)}.csv`;
+      a.click();
+    });
+
+    // Destroy old charts
+    Object.values(chartInstances).forEach(c => { try { c.destroy(); } catch(e) {} });
+
+    if (types.length === 0) return;
+
+    // ============ Chart 1: Sabab donut ============
+    const palette = ['#A32D2D', '#BA7517', '#534AB7', '#185FA5', '#0F6E56', '#6E1F1F', '#854F0B', '#3C3489', '#0C447C', '#085041', '#993C1D', '#D85A30', '#D4537E', '#993556'];
+    const top12 = types.slice(0, 12);
+    const others = types.slice(12);
+    const othersSum = others.reduce((s, t) => s + t.total, 0);
+
+    const ctxT = document.getElementById('chartTypes').getContext('2d');
+    chartInstances.types = new Chart(ctxT, {
+      type: 'doughnut',
+      data: {
+        labels: [...top12.map(t => t.type), ...(othersSum > 0 ? ['Boshqalar'] : [])],
+        datasets: [{
+          data: [...top12.map(t => t.total), ...(othersSum > 0 ? [othersSum] : [])],
+          backgroundColor: [...palette.slice(0, top12.length), '#a0aec0'],
+          borderWidth: 0,
+          hoverOffset: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '68%',
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: (item) => {
+                const pct = ((item.parsed / grandTotal) * 100).toFixed(1);
+                return `  ${fmtMoney(item.parsed, cur)} (${pct}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Legend
+    const legendT = document.getElementById('legendTypes');
+    legendT.innerHTML = top12.map((t, i) => `
+      <div class="legend-row">
+        <span class="legend-dot" style="background: ${palette[i]};"></span>
+        <strong title="${t.type}">${t.type.length > 38 ? t.type.substring(0, 38) + '…' : t.type}</strong>
+        <span class="legend-value">${fmtKMoney(t.total)}</span>
+        <span class="legend-pct">${fmtPercent(t.share_pct)}</span>
+      </div>
+    `).join('') + (othersSum > 0 ? `
+      <div class="legend-row">
+        <span class="legend-dot" style="background: #a0aec0;"></span>
+        <strong style="color: var(--text-tertiary);">+${others.length} ta yana</strong>
+        <span class="legend-value">${fmtKMoney(othersSum)}</span>
+      </div>
+    ` : '');
+
+    // ============ Chart 2: Top tovar (horizontal bar) ============
+    if (products.length > 0) {
+      const top10p = products.slice(0, 10);
+      const ctxP = document.getElementById('chartProducts').getContext('2d');
+      const gradP = ctxP.createLinearGradient(0, 0, ctxP.canvas.width, 0);
+      gradP.addColorStop(0, '#BA7517');
+      gradP.addColorStop(1, '#e8a847');
+
+      chartInstances.products = new Chart(ctxP, {
+        type: 'bar',
+        data: {
+          labels: top10p.map(p => p.article),
+          datasets: [{
+            data: top10p.map(p => p.total),
+            backgroundColor: gradP,
+            borderColor: '#854F0B',
+            borderWidth: 1,
+            borderRadius: 5,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                title: (items) => '📦 ' + items[0].label,
+                label: (item) => '  Ushlanma: ' + fmtMoney(item.parsed.x, cur),
+                afterLabel: (item) => {
+                  const p = top10p[item.dataIndex];
+                  return [
+                    '  Qatorlar: ' + fmt(p.count),
+                    p.product ? '  ' + (p.product.length > 40 ? p.product.substring(0, 40) + '…' : p.product) : ''
+                  ].filter(Boolean);
+                }
+              }
+            }
+          },
+          scales: {
+            x: { grid: { color: 'rgba(226, 232, 240, 0.5)' }, ticks: { font: { size: 10 }, color: '#718096', callback: (v) => fmtK(v) } },
+            y: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#4A5568', autoSkip: false } }
+          }
+        }
+      });
+    }
+  }
+
+  render();
+})();
+</script>
+{% endif %}
+{% endblock %}

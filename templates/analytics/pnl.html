@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static aira i18n %}
+
+{% block title %}AIRA — P&L{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">{% trans "P&L — Profit & Loss" %}</h1>
+  <p class="page-subtitle">{% trans "Haftalik foyda-zarar hisoboti — sizning Excel kabi" %}</p>
+</div>
+
+{% if not has_data %}
+  <div class="empty-state" style="padding: 60px 20px; text-align: center;">
+    <div class="empty-state-icon" style="font-size: 40px;">📑</div>
+    <h3 style="font-size: 16px; margin: 12px 0 8px; color: var(--text);">{% trans "P&L bo'sh" %}</h3>
+    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">{% trans "Avval Список отчётов va Подробный отчёт yuklang" %}</p>
+    <a href="{% url 'reports:upload' %}" class="btn btn-primary">📤 {% trans "Yuklash sahifasi" %}</a>
+  </div>
+{% else %}
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-label">{% trans "Haftalar" %}</div>
+    <div class="kpi-value">{{ weeks|length }}</div>
+  </div>
+  <div class="kpi-card success">
+    <div class="kpi-label">{% trans "Jami daromad" %}</div>
+    <div class="kpi-value">{{ totals.revenue|money_short:currency }}</div>
+  </div>
+  <div class="kpi-card {% if totals.profit >= 0 %}success{% else %}danger{% endif %}">
+    <div class="kpi-label">{% trans "Jami foyda" %}</div>
+    <div class="kpi-value">{{ totals.profit|money_short:currency }}</div>
+    <div class="kpi-change">{% blocktrans with m=totals.margin_pct|percent %}Marja {{ m }}{% endblocktrans %}</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">{% trans "Haftalik P&L jadval" %}</div>
+      <div class="card-subtitle">{% trans "Har bir hafta uchun batafsil hisobot" %}</div>
+    </div>
+  </div>
+
+  <div class="table-wrapper" style="border: none;">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{% trans "Hafta (Дата)" %}</th>
+          <th class="num">{% trans "Sotuvlar" %}</th>
+          <th class="num">{% trans "Qaytarish" %}</th>
+          <th class="num">{% trans "Daromad" %}</th>
+          <th class="num">{% trans "Komissiya" %}</th>
+          <th class="num">{% trans "Logistika" %}</th>
+          <th class="num">{% trans "Saqlash" %}</th>
+          <th class="num">{% trans "Shtraflar" %}</th>
+          <th class="num">{% trans "Reklama" %}</th>
+          <th class="num">{% trans "Tannarx" %}</th>
+          <th class="num">{% trans "Soliq" %}</th>
+          <th class="num">{% trans "Foyda" %}</th>
+          <th class="num">{% trans "Marja" %}</th>
+          <th class="num">{% trans "ROI" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for w in weeks %}
+          <tr>
+            <td><strong style="color: var(--blue);">{{ w.week|date:'d.m.Y' }}</strong></td>
+            <td class="num">{{ w.qty|fmt }}</td>
+            <td class="num">{{ w.returns_qty|fmt }}</td>
+            <td class="num num-positive">{{ w.revenue|money:currency }}</td>
+            <td class="num num-negative">{{ w.commission|money:currency }}</td>
+            <td class="num num-negative">{{ w.logistics|money:currency }}</td>
+            <td class="num num-negative">{{ w.storage|money:currency }}</td>
+            <td class="num num-negative">{{ w.fines|money:currency }}</td>
+            <td class="num num-negative">{{ w.promotion|money:currency }}</td>
+            <td class="num num-negative">{{ w.cost|money:currency }}</td>
+            <td class="num num-negative">{{ w.tax|money:currency }}</td>
+            <td class="num {% if w.profit >= 0 %}num-positive{% else %}num-negative{% endif %}" style="font-weight: 700;">{{ w.profit|money:currency }}</td>
+            <td class="num">{{ w.margin_pct|percent }}</td>
+            <td class="num">{{ w.roi_pct|percent }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr style="background: var(--gray-50); font-weight: 700;">
+          <td>{% trans "JAMI" %}</td>
+          <td class="num">{{ totals.qty|fmt }}</td>
+          <td class="num">{{ totals.returns_qty|fmt }}</td>
+          <td class="num">{{ totals.revenue|money:currency }}</td>
+          <td class="num num-negative">{{ totals.commission|money:currency }}</td>
+          <td class="num num-negative">{{ totals.logistics|money:currency }}</td>
+          <td class="num num-negative">{{ totals.storage|money:currency }}</td>
+          <td class="num num-negative">{{ totals.fines|money:currency }}</td>
+          <td class="num num-negative">{{ totals.promotion|money:currency }}</td>
+          <td class="num num-negative">{{ totals.cost|money:currency }}</td>
+          <td class="num num-negative">{{ totals.tax|money:currency }}</td>
+          <td class="num {% if totals.profit >= 0 %}num-positive{% else %}num-negative{% endif %}">{{ totals.profit|money:currency }}</td>
+          <td class="num">{{ totals.margin_pct|percent }}</td>
+          <td class="num">{{ totals.roi_pct|percent }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+{% endif %}
+{% endblock %}

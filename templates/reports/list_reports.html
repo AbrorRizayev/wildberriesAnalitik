@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load static aira i18n %}
+
+{% block title %}AIRA — {% trans "Список отчётов" %}{% endblock %}
+
+{% block head %}
+<style>
+  .check-cell { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+  .check-ok { background: var(--green-light); color: var(--green-dark); }
+  .check-warn { background: var(--amber-light); color: var(--amber-dark); }
+  .check-err { background: var(--red-light); color: var(--red-dark); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">{% trans "Список отчётов" %}</h1>
+  <p class="page-subtitle">{% trans "WB Финансовые отчёты — har bir haftalik achot" %}</p>
+</div>
+
+{% if not has_data %}
+  <div class="empty-state" style="padding: 60px 20px; text-align: center;">
+    <div class="empty-state-icon" style="font-size: 40px;">📋</div>
+    <h3 style="font-size: 16px; margin: 12px 0 8px; color: var(--text);">{% trans "Список отчётов bo'sh" %}</h3>
+    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">{% blocktranslate %}WB Финансовые отчёты sahifasidan "Скачать Excel" tugmasi bilan ro'yxatni yuklab oling{% endblocktranslate %}</p>
+    <a href="{% url 'reports:upload' %}" class="btn btn-primary">📤 {% trans "Achot yuklash sahifasi" %}</a>
+  </div>
+{% else %}
+{% csrf_token %}
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-label">{% trans "Jami achotlar" %}</div>
+    <div class="kpi-value">{{ reports|length }}</div>
+    <div class="kpi-change">{% blocktrans with c=loaded_count %}{{ c }} ta Подробный yuklangan{% endblocktrans %}</div>
+  </div>
+  <div class="kpi-card success">
+    <div class="kpi-label">{% trans "Jami sotuv (Продажа)" %}</div>
+    <div class="kpi-value">{{ totals.sale|money_short:currency }}</div>
+  </div>
+  <div class="kpi-card success">
+    <div class="kpi-label">{% trans "Итого к оплате" %}</div>
+    <div class="kpi-value">{{ totals.total_to_pay|money_short:currency }}</div>
+    <div class="kpi-change">{% trans "RS hisobga" %}</div>
+  </div>
+  <div class="kpi-card warning">
+    <div class="kpi-label">{% trans "Logistika" %}</div>
+    <div class="kpi-value">{{ totals.logistics|money_short:currency }}</div>
+  </div>
+  <div class="kpi-card warning">
+    <div class="kpi-label">{% trans "Saqlash" %}</div>
+    <div class="kpi-value">{{ totals.storage|money_short:currency }}</div>
+  </div>
+  <div class="kpi-card danger">
+    <div class="kpi-label">{% trans "Shtraflar" %}</div>
+    <div class="kpi-value">{{ totals.fines|money_short:currency }}</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">{% trans "Achotlar jadvali" %}</div>
+      <div class="card-subtitle">{% blocktranslate %}Sizning Excel "Список отчётов" varagi kabi{% endblocktranslate %}</div>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <a class="btn btn-outline" href="?format=csv" style="font-size: 11px;">📥 CSV</a>
+      <button class="btn btn-outline" onclick="confirmClear()" style="font-size: 11px; color: var(--red);">🗑 {% trans "Tozalash" %}</button>
+    </div>
+  </div>
+
+  <div class="table-wrapper" style="border: none; max-height: 600px;">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{% trans "№ Отчёта" %}</th><th>{% trans "Юр. лицо" %}</th><th>{% trans "Дата начала" %}</th><th>{% trans "Дата конца" %}</th><th>{% trans "Тип" %}</th>
+          <th class="num">{% trans "Продажа" %}</th><th class="num">{% trans "К перечислению" %}</th><th class="num">{% trans "Логистика" %}</th>
+          <th class="num">{% trans "Хранение" %}</th><th class="num">{% trans "Штрафы" %}</th><th class="num">{% trans "Прочие" %}</th>
+          <th class="num">{% trans "Итого к оплате" %}</th><th class="num">{% trans "#Неделя" %}</th><th>{% trans "Подробный" %}</th>
+          <th style="width: 50px; text-align: center;">⚙</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in reports %}
+          <tr>
+            <td><strong style="color: var(--blue);">{{ r.report_num }}</strong></td>
+            <td style="font-size: 11px;">{{ r.legal_entity|default:'—' }}</td>
+            <td style="font-size: 11px;">{% if r.date_from %}{{ r.date_from|date:'d.m.Y' }}{% else %}—{% endif %}</td>
+            <td style="font-size: 11px;">{% if r.date_to %}{{ r.date_to|date:'d.m.Y' }}{% else %}—{% endif %}</td>
+            <td style="font-size: 11px;">{{ r.report_type|default:'—' }}</td>
+            <td class="num">{{ r.sale_total|money:currency }}</td>
+            <td class="num num-positive">{{ r.to_pay|money:currency }}</td>
+            <td class="num num-negative">{% if r.logistics_cost %}-{{ r.logistics_cost|money:currency }}{% else %}—{% endif %}</td>
+            <td class="num num-negative">{% if r.storage_cost %}-{{ r.storage_cost|money:currency }}{% else %}—{% endif %}</td>
+            <td class="num num-negative">{% if r.fines_total %}-{{ r.fines_total|money:currency }}{% else %}—{% endif %}</td>
+            <td class="num num-negative">{% if r.other_deductions %}-{{ r.other_deductions|money:currency }}{% else %}—{% endif %}</td>
+            <td class="num" style="font-weight: 700; color: var(--green-dark);">{{ r.total_to_pay|money:currency }}</td>
+            <td class="num">{{ r.week_num }}</td>
+            <td>
+              {% if r.is_loaded %}<span class="check-cell check-ok">✓ {% trans "Yuklangan" %}</span>
+              {% else %}<span class="check-cell check-warn">⚠ {% trans "Yo'q" %}</span>{% endif %}
+            </td>
+            <td style="text-align: center;">
+              <button onclick="deleteReport('{{ r.report_num }}', {{ r.is_loaded|yesno:'true,false' }})" title="{% trans "Achotni o'chirish" %}" style="background: none; border: 1px solid var(--red); color: var(--red); width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 14px; padding: 0;">×</button>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr style="background: var(--gray-50); font-weight: 700;">
+          <td colspan="5">{% blocktrans with n=reports|length %}JAMI ({{ n }} ta){% endblocktrans %}</td>
+          <td class="num">{{ totals.sale|money:currency }}</td>
+          <td class="num num-positive">{{ totals.to_pay|money:currency }}</td>
+          <td class="num num-negative">-{{ totals.logistics|money:currency }}</td>
+          <td class="num num-negative">-{{ totals.storage|money:currency }}</td>
+          <td class="num num-negative">-{{ totals.fines|money:currency }}</td>
+          <td class="num num-negative">-{{ totals.other|money:currency }}</td>
+          <td class="num" style="color: var(--green-dark);">{{ totals.total_to_pay|money:currency }}</td>
+          <td></td>
+          <td>{{ loaded_count }}/{{ reports|length }}</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+{% if all_loaded %}
+  <div class="tip-box success" style="margin-top: 16px;">
+    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4.5 12.75l6 6 9-13.5" stroke-linecap="round"/></svg>
+    <div class="tip-content">
+      <strong>✅ {% trans "Mukammal!" %}</strong> {% trans "Barcha achotlar uchun Подробный отчёт yuklangan." %}
+      <a href="{% url 'analytics:dashboard' %}" style="color: var(--green-dark); font-weight: 500;">{% trans "Dashboard'ga o'ting" %} →</a>
+    </div>
+  </div>
+{% else %}
+  <div class="tip-box info" style="margin-top: 16px;">
+    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M11.25 11.25l.041-.02a.75.75 0 011.063.852" stroke-linecap="round"/></svg>
+    <div class="tip-content">
+      <strong>{% trans "Maslahat:" %}</strong> {% blocktranslate %}"⚠ Yo'q" deb belgilangan achotlar uchun{% endblocktranslate %} <strong>{% trans "Подробный отчёт" %}</strong> {% trans "yuklang." %}
+      <br><a href="{% url 'reports:upload' %}" style="color: var(--blue); font-weight: 500;">📤 {% trans "Yuklash sahifasiga" %} →</a>
+    </div>
+  </div>
+{% endif %}
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if has_data %}
+<script>
+  function _csrf() { const el = document.querySelector('[name=csrfmiddlewaretoken]'); return el ? el.value : ''; }
+  async function _post(url, body) {
+    const r = await fetch(url, { method: 'POST', headers: { 'X-CSRFToken': _csrf(),
+      'Content-Type': 'application/x-www-form-urlencoded' }, body: body || '' });
+    return r.json();
+  }
+  window.confirmClear = async function() {
+    if (!confirm("Список отчётов o'chiriladi (База va Tannarx saqlanib qoladi). Davom etasizmi?")) return;
+    const res = await _post("{% url 'reports:clear_list' %}");
+    if (res.ok) window.location.reload();
+  };
+  window.deleteReport = async function(reportNum, isLoaded) {
+    const extra = isLoaded ? "\n\n⚠ Bu achot Bazadan ham o'chiriladi." : '';
+    if (!confirm('№ ' + reportNum + " achotni o'chirasizmi?" + extra)) return;
+    if (isLoaded && !confirm("ROSTAKAMMI? Bazadagi qatorlar ham o'chadi.")) return;
+    const res = await _post("{% url 'reports:delete_report' %}", 'report_num=' + encodeURIComponent(reportNum));
+    if (res.ok) window.location.reload();
+  };
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,393 @@
+{% load static i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>{% trans "AIRA — аналитика и финансы для продавцов Wildberries" %}</title>
+<meta name="description" content="{% trans "AIRA — сервис аналитики Wildberries: загрузите отчёт WB и получите точный P&L, ABC-анализ, себестоимость, юнит-экономику и капитализацию склада. Считаем вашу чистую прибыль автоматически." %}">
+<meta name="keywords" content="AIRA, аналитика Wildberries, WB аналитика, отчёт Wildberries, прибыль WB, P&L Wildberries, юнит экономика, ABC анализ, себестоимость WB">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#042C53">
+<link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}/">
+
+<!-- Open Graph / social preview -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AIRA">
+<meta property="og:title" content="{% trans "AIRA — аналитика и финансы для продавцов Wildberries" %}">
+<meta property="og:description" content="{% trans "Загрузите отчёт WB — получите готовый P&L, ABC-анализ, себестоимость и реальную чистую прибыль." %}">
+<meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{% trans "AIRA — аналитика Wildberries" %}">
+<meta name="twitter:description" content="{% trans "Реальная прибыль с Wildberries без таблиц. Загрузите отчёт — получите аналитику." %}">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<!-- Structured data: helps the brand/domain surface in search -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "AIRA",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "description": "Сервис аналитики и финансового учёта для продавцов Wildberries: P&L, ABC-анализ, себестоимость, юнит-экономика и капитализация.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "UZS" }
+}
+</script>
+
+<style>
+  :root{
+    --navy:#042C53; --navy-dark:#021A33; --blue:#185FA5; --blue-light:#4A85C8;
+    --blue-bg:#EAF3FB; --green:#0F6E56; --green-light:#D4F0E5; --ink:#0F1C2E;
+    --muted:#5A6B80; --line:#E6ECF3; --bg:#F7FAFD; --white:#fff;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    color:var(--ink); background:var(--white); line-height:1.55; -webkit-font-smoothing:antialiased;}
+  a{text-decoration:none; color:inherit;}
+  .container{max-width:1140px; margin:0 auto; padding:0 24px;}
+  .btn{display:inline-flex; align-items:center; gap:8px; border-radius:12px; font-weight:600;
+    font-size:15px; padding:13px 22px; cursor:pointer; border:1px solid transparent; transition:.18s;}
+  .btn-primary{background:linear-gradient(135deg,var(--blue),var(--navy)); color:#fff;
+    box-shadow:0 10px 24px rgba(24,95,165,.28);}
+  .btn-primary:hover{transform:translateY(-2px); box-shadow:0 14px 30px rgba(24,95,165,.36);}
+  .btn-ghost{background:#fff; color:var(--navy); border-color:var(--line);}
+  .btn-ghost:hover{border-color:var(--blue-light); background:var(--blue-bg);}
+  .btn-light{background:rgba(255,255,255,.14); color:#fff; border-color:rgba(255,255,255,.25);}
+  .btn-light:hover{background:rgba(255,255,255,.24);}
+
+  /* ===== NAVBAR ===== */
+  header.nav{position:sticky; top:0; z-index:50; background:rgba(255,255,255,.82);
+    backdrop-filter:saturate(180%) blur(14px); border-bottom:1px solid var(--line);}
+  .nav-inner{display:flex; align-items:center; justify-content:space-between; height:68px;}
+  .logo{display:flex; align-items:center; gap:11px; font-weight:800; font-size:19px; color:var(--navy);}
+  .logo-mark{width:38px; height:38px; border-radius:11px; display:flex; align-items:center;
+    justify-content:center; color:#fff; font-weight:900; font-size:13px; letter-spacing:.5px;
+    background:linear-gradient(135deg,var(--blue),var(--navy)); box-shadow:0 6px 14px rgba(4,44,83,.25);}
+  .nav-links{display:flex; align-items:center; gap:30px;}
+  .nav-links a.link{font-size:15px; font-weight:500; color:var(--muted);}
+  .nav-links a.link:hover{color:var(--navy);}
+  .nav-cta{display:flex; align-items:center; gap:12px;}
+  .lang-mini{display:flex; align-items:center; gap:2px; background:var(--blue-bg); border-radius:9px; padding:3px;}
+  .lang-mini form{display:inline; margin:0;}
+  .lang-mini button{border:0; background:none; cursor:pointer; font-size:13px; font-weight:700;
+    color:var(--muted); padding:5px 9px; border-radius:7px; font-family:inherit;}
+  .lang-mini button.active{background:#fff; color:var(--navy); box-shadow:0 1px 3px rgba(4,44,83,.12);}
+  .burger{display:none; background:none; border:0; cursor:pointer; padding:8px;}
+  .burger span{display:block; width:22px; height:2px; background:var(--navy); margin:4px 0; border-radius:2px;}
+
+  /* ===== HERO ===== */
+  .hero{position:relative; overflow:hidden; background:
+      radial-gradient(900px 500px at 85% -10%, rgba(24,95,165,.14), transparent 60%),
+      radial-gradient(700px 500px at 0% 20%, rgba(15,110,86,.10), transparent 55%),
+      linear-gradient(180deg,#fff 0%, var(--bg) 100%);}
+  .hero-grid{display:grid; grid-template-columns:1.05fr .95fr; gap:48px; align-items:center;
+    padding:84px 0 90px;}
+  .pill{display:inline-flex; align-items:center; gap:8px; background:var(--blue-bg); color:var(--blue);
+    font-size:13px; font-weight:600; padding:7px 14px; border-radius:999px; margin-bottom:22px;}
+  .pill .dot{width:7px; height:7px; border-radius:50%; background:var(--green);}
+  h1.hero-title{font-size:clamp(34px,4.6vw,56px); line-height:1.07; font-weight:900;
+    letter-spacing:-1.2px; color:var(--navy);}
+  h1.hero-title .grad{background:linear-gradient(120deg,var(--blue),var(--green));
+    -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .hero-sub{font-size:18px; color:var(--muted); margin:22px 0 30px; max-width:520px;}
+  .hero-actions{display:flex; gap:14px; flex-wrap:wrap;}
+  .hero-trust{display:flex; gap:26px; margin-top:34px; flex-wrap:wrap;}
+  .hero-trust .t{display:flex; flex-direction:column;}
+  .hero-trust .t b{font-size:24px; font-weight:800; color:var(--navy);}
+  .hero-trust .t span{font-size:13px; color:var(--muted);}
+
+  /* dashboard mock */
+  .mock{background:#fff; border:1px solid var(--line); border-radius:20px; padding:18px;
+    box-shadow:0 30px 70px rgba(4,44,83,.16); transform:perspective(1200px) rotateY(-6deg) rotateX(2deg);}
+  .mock-top{display:flex; align-items:center; gap:7px; padding:0 4px 14px;}
+  .mock-top i{width:11px; height:11px; border-radius:50%; background:#E2E8F0;}
+  .mock-kpis{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:14px;}
+  .mk{background:var(--bg); border:1px solid var(--line); border-radius:13px; padding:13px;}
+  .mk .lab{font-size:11px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.4px;}
+  .mk .val{font-size:19px; font-weight:800; color:var(--navy); margin-top:5px;}
+  .mk .chg{font-size:11px; font-weight:700; margin-top:3px;}
+  .mk .up{color:var(--green);} .mk .down{color:#C0392B;}
+  .mock-chart{background:var(--bg); border:1px solid var(--line); border-radius:13px; padding:14px;}
+  .bars{display:flex; align-items:flex-end; gap:9px; height:120px; margin-top:10px;}
+  .bars .bar{flex:1; border-radius:6px 6px 0 0; background:linear-gradient(180deg,var(--blue-light),var(--blue));}
+  .bars .bar:nth-child(odd){background:linear-gradient(180deg,#5FB89B,var(--green));}
+
+  /* ===== SECTIONS ===== */
+  section{padding:84px 0;}
+  .sec-head{text-align:center; max-width:680px; margin:0 auto 52px;}
+  .sec-tag{font-size:13px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--blue);}
+  .sec-head h2{font-size:clamp(28px,3.4vw,40px); font-weight:800; color:var(--navy);
+    letter-spacing:-.8px; margin:12px 0 14px;}
+  .sec-head p{font-size:17px; color:var(--muted);}
+
+  .features{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+  .card{background:#fff; border:1px solid var(--line); border-radius:18px; padding:28px; transition:.2s;}
+  .card:hover{transform:translateY(-4px); box-shadow:0 22px 44px rgba(4,44,83,.10); border-color:var(--blue-light);}
+  .card .ico{width:50px; height:50px; border-radius:13px; display:flex; align-items:center;
+    justify-content:center; font-size:24px; margin-bottom:18px; background:var(--blue-bg);}
+  .card.g .ico{background:var(--green-light);}
+  .card h3{font-size:19px; font-weight:700; color:var(--navy); margin-bottom:9px;}
+  .card p{font-size:15px; color:var(--muted);}
+
+  /* steps */
+  .steps-wrap{background:linear-gradient(180deg,var(--bg),#fff);}
+  .steps{display:grid; grid-template-columns:repeat(3,1fr); gap:22px; position:relative;}
+  .step{text-align:center; padding:10px 18px;}
+  .step .n{width:54px; height:54px; margin:0 auto 18px; border-radius:16px; display:flex;
+    align-items:center; justify-content:center; font-weight:900; font-size:21px; color:#fff;
+    background:linear-gradient(135deg,var(--blue),var(--navy)); box-shadow:0 10px 22px rgba(4,44,83,.22);}
+  .step h3{font-size:18px; font-weight:700; color:var(--navy); margin-bottom:8px;}
+  .step p{font-size:15px; color:var(--muted);}
+
+  /* benefits split */
+  .split{display:grid; grid-template-columns:1fr 1fr; gap:50px; align-items:center;}
+  .blist{list-style:none; display:flex; flex-direction:column; gap:18px;}
+  .blist li{display:flex; gap:14px; align-items:flex-start;}
+  .blist .ck{flex:0 0 26px; width:26px; height:26px; border-radius:8px; background:var(--green-light);
+    color:var(--green); display:flex; align-items:center; justify-content:center; font-weight:900; margin-top:2px;}
+  .blist b{display:block; font-size:16px; color:var(--navy); font-weight:700;}
+  .blist span{font-size:15px; color:var(--muted);}
+  .panel{background:linear-gradient(150deg,var(--navy),var(--navy-dark)); border-radius:22px;
+    padding:36px; color:#fff; box-shadow:0 30px 60px rgba(4,44,83,.28);}
+  .panel h3{font-size:22px; font-weight:800; margin-bottom:6px;}
+  .panel p{font-size:15px; color:rgba(255,255,255,.7); margin-bottom:24px;}
+  .panel .row{display:flex; justify-content:space-between; align-items:center; padding:14px 0;
+    border-top:1px solid rgba(255,255,255,.12);}
+  .panel .row span{color:rgba(255,255,255,.75); font-size:14px;}
+  .panel .row b{font-size:18px; font-weight:800;}
+  .panel .row b.pos{color:#7EE0C0;}
+
+  /* CTA */
+  .cta{background:linear-gradient(135deg,var(--blue),var(--navy)); border-radius:26px; text-align:center;
+    padding:64px 32px; color:#fff; box-shadow:0 30px 70px rgba(4,44,83,.3); position:relative; overflow:hidden;}
+  .cta::after{content:""; position:absolute; inset:0;
+    background:radial-gradient(500px 300px at 80% 0%, rgba(255,255,255,.16), transparent 60%);}
+  .cta h2{font-size:clamp(28px,3.4vw,40px); font-weight:900; letter-spacing:-.6px; position:relative;}
+  .cta p{font-size:18px; color:rgba(255,255,255,.82); margin:14px auto 28px; max-width:520px; position:relative;}
+  .cta .hero-actions{justify-content:center; position:relative;}
+
+  /* footer */
+  footer{border-top:1px solid var(--line); padding:42px 0; background:var(--bg);}
+  .foot{display:flex; justify-content:space-between; align-items:center; gap:18px; flex-wrap:wrap;}
+  .foot .muted{font-size:14px; color:var(--muted);}
+  .foot .flinks{display:flex; gap:22px;}
+  .foot .flinks a{font-size:14px; color:var(--muted);}
+  .foot .flinks a:hover{color:var(--navy);}
+
+  /* responsive */
+  @media (max-width:900px){
+    .hero-grid{grid-template-columns:1fr; gap:36px; padding:54px 0 64px;}
+    .mock{transform:none;}
+    .features,.steps{grid-template-columns:1fr 1fr;}
+    .split{grid-template-columns:1fr; gap:30px;}
+    .nav-links{position:fixed; inset:68px 0 auto 0; flex-direction:column; gap:0; background:#fff;
+      border-bottom:1px solid var(--line); padding:8px 0; display:none; box-shadow:0 18px 40px rgba(4,44,83,.12);}
+    .nav-links.open{display:flex;}
+    .nav-links a.link{width:100%; padding:14px 24px;}
+    .nav-links .nav-cta{flex-direction:column; width:100%; padding:12px 24px 18px; gap:10px; align-items:stretch;}
+    .nav-links .nav-cta .btn{width:100%; justify-content:center;}
+    .lang-mini{justify-content:center;}
+    .burger{display:block;}
+    section{padding:60px 0;}
+  }
+  @media (max-width:560px){ .features,.steps{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="/" class="logo"><span class="logo-mark">AIRA</span> AIRA</a>
+    <nav class="nav-links" id="navLinks">
+      <a class="link" href="#features">{% trans "Возможности" %}</a>
+      <a class="link" href="#how">{% trans "Как это работает" %}</a>
+      <a class="link" href="#why">{% trans "Преимущества" %}</a>
+      <div class="nav-cta">
+        <div class="lang-mini">
+          <form method="post" action="{% url 'set_language' %}">{% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <input type="hidden" name="language" value="uz">
+            <button type="submit" class="{% if LANGUAGE_CODE == 'uz' %}active{% endif %}">UZ</button>
+          </form>
+          <form method="post" action="{% url 'set_language' %}">{% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <input type="hidden" name="language" value="ru">
+            <button type="submit" class="{% if LANGUAGE_CODE == 'ru' %}active{% endif %}">RU</button>
+          </form>
+        </div>
+        {% if is_authed %}
+          <a class="btn btn-primary" href="{% url 'analytics:dashboard' %}">{% trans "Личный кабинет →" %}</a>
+        {% else %}
+          <a class="btn btn-ghost" href="{% url 'accounts:login' %}">{% trans "Войти" %}</a>
+        {% endif %}
+      </div>
+    </nav>
+    <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" style="padding:0;">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <span class="pill"><span class="dot"></span> {% trans "Аналитика Wildberries нового поколения" %}</span>
+        <h1 class="hero-title">{% blocktranslate %}Реальная <span class="grad">прибыль</span> с Wildberries — без таблиц{% endblocktranslate %}</h1>
+        <p class="hero-sub">{% trans "Загрузите отчёт WB — и AIRA сама посчитает себестоимость, комиссии, логистику, штрафы и налоги. Вы видите чистую прибыль, P&L, ABC-анализ и юнит-экономику в один клик." %}</p>
+        <div class="hero-actions">
+          {% if is_authed %}
+            <a class="btn btn-primary" href="{% url 'analytics:dashboard' %}">{% trans "Перейти в кабинет →" %}</a>
+          {% else %}
+            <a class="btn btn-primary" href="{% url 'accounts:login' %}">{% trans "Войти в кабинет →" %}</a>
+          {% endif %}
+          <a class="btn btn-ghost" href="#features">{% trans "Смотреть возможности" %}</a>
+        </div>
+        <div class="hero-trust">
+          <div class="t"><b>51</b><span>{% trans "формула расчёта" %}</span></div>
+          <div class="t"><b>100%</b><span>{% trans "данные изолированы" %}</span></div>
+          <div class="t"><b>{% trans "1 клик" %}</b><span>{% trans "от отчёта до прибыли" %}</span></div>
+        </div>
+      </div>
+
+      <!-- dashboard mockup -->
+      <div class="mock">
+        <div class="mock-top"><i></i><i></i><i></i></div>
+        <div class="mock-kpis">
+          <div class="mk"><div class="lab">{% trans "Выручка" %}</div><div class="val">224 593 ₽</div><div class="chg up">▲ 12.4%</div></div>
+          <div class="mk"><div class="lab">{% trans "К выплате" %}</div><div class="val">103 993 ₽</div><div class="chg up">▲ 6.1%</div></div>
+          <div class="mk"><div class="lab">{% trans "Прибыль" %}</div><div class="val">99 980 ₽</div><div class="chg up">▲ 18.2%</div></div>
+        </div>
+        <div class="mock-chart">
+          <div class="lab" style="font-size:11px; color:var(--muted); font-weight:600;">{% trans "Прибыль по неделям" %}</div>
+          <div class="bars">
+            <div class="bar" style="height:46%"></div><div class="bar" style="height:64%"></div>
+            <div class="bar" style="height:38%"></div><div class="bar" style="height:78%"></div>
+            <div class="bar" style="height:58%"></div><div class="bar" style="height:88%"></div>
+            <div class="bar" style="height:70%"></div><div class="bar" style="height:96%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="container">
+    <div class="sec-head">
+      <div class="sec-tag">{% trans "Возможности" %}</div>
+      <h2>{% trans "Вся аналитика магазина в одном месте" %}</h2>
+      <p>{% trans "От загрузки отчёта Wildberries до готовых финансовых выводов — каждая метрика рассчитана автоматически." %}</p>
+    </div>
+    <div class="features">
+      <div class="card"><div class="ico">📊</div><h3>{% trans "Дашборд" %}</h3>
+        <p>{% trans "Выручка, к выплате, чистая прибыль и ключевые KPI в реальном времени по каждому отчёту." %}</p></div>
+      <div class="card g"><div class="ico">💰</div><h3>{% trans "P&L отчёт" %}</h3>
+        <p>{% trans "Полный отчёт о прибылях и убытках: продажи, комиссии WB, логистика, штрафы, налоги." %}</p></div>
+      <div class="card"><div class="ico">🎯</div><h3>{% trans "ABC-анализ" %}</h3>
+        <p>{% trans "Определяйте, какие товары приносят основную прибыль, а какие тянут магазин вниз." %}</p></div>
+      <div class="card g"><div class="ico">🧮</div><h3>{% trans "Юнит-калькулятор" %}</h3>
+        <p>{% trans "Считайте экономику товара до закупки: цена, маржа, точка безубыточности." %}</p></div>
+      <div class="card"><div class="ico">📦</div><h3>{% trans "Капитализация склада" %}</h3>
+        <p>{% trans "Оценка остатков, неликвидов и замороженных денег на складах Wildberries." %}</p></div>
+      <div class="card g"><div class="ico">⚡</div><h3>{% trans "Smart-аналитика" %}</h3>
+        <p>{% trans "Тренды, возвраты, география продаж и диагностика проблем магазина." %}</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" class="steps-wrap">
+  <div class="container">
+    <div class="sec-head">
+      <div class="sec-tag">{% trans "Как это работает" %}</div>
+      <h2>{% trans "Три шага до точной прибыли" %}</h2>
+      <p>{% trans "Без сложных таблиц и ручных расчётов. AIRA делает всю работу за вас." %}</p>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h3>{% trans "Загрузите отчёт WB" %}</h3>
+        <p>{% trans "Выгрузите детальный отчёт из личного кабинета Wildberries и загрузите его в AIRA. Файл не хранится на сервере." %}</p></div>
+      <div class="step"><div class="n">2</div><h3>{% trans "Автоматический расчёт" %}</h3>
+        <p>{% trans "51 формула пересчитывает себестоимость, комиссии, логистику, штрафы и налоги по каждой строке." %}</p></div>
+      <div class="step"><div class="n">3</div><h3>{% trans "Готовая аналитика" %}</h3>
+        <p>{% trans "Дашборд, P&L, ABC-анализ и капитализация — всё доступно сразу после загрузки." %}</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY / BENEFITS -->
+<section id="why">
+  <div class="container">
+    <div class="split">
+      <div>
+        <div class="sec-tag">{% trans "Почему AIRA" %}</div>
+        <h2 style="font-size:clamp(28px,3.2vw,38px); font-weight:800; color:var(--navy); letter-spacing:-.6px; margin:12px 0 26px;">
+          {% trans "Считаем как бухгалтер, показываем как аналитик" %}</h2>
+        <ul class="blist">
+          <li><span class="ck">✓</span><div><b>{% trans "Точные формулы" %}</b><span>{% trans "Расчёты выверены до копейки и совпадают с реальными отчётами Wildberries." %}</span></div></li>
+          <li><span class="ck">✓</span><div><b>{% trans "Ваши данные защищены" %}</b><span>{% trans "Каждая компания видит только свои данные. Excel-файлы не сохраняются на сервере." %}</span></div></li>
+          <li><span class="ck">✓</span><div><b>{% trans "Несколько магазинов" %}</b><span>{% trans "Ведите учёт нескольких компаний и брендов в одном аккаунте раздельно." %}</span></div></li>
+          <li><span class="ck">✓</span><div><b>{% trans "Русский и узбекский" %}</b><span>{% trans "Полностью двуязычный интерфейс — переключайте язык в один клик." %}</span></div></li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>{% trans "P&L за период" %}</h3>
+        <p>{% trans "Пример того, что вы увидите после загрузки" %}</p>
+        <div class="row"><span>{% trans "Выручка" %}</span><b>224 593 ₽</b></div>
+        <div class="row"><span>{% trans "Комиссия WB и логистика" %}</span><b>−96 600 ₽</b></div>
+        <div class="row"><span>{% trans "Себестоимость" %}</span><b>−24 000 ₽</b></div>
+        <div class="row"><span>{% trans "Штрафы и хранение" %}</span><b>−4 013 ₽</b></div>
+        <div class="row"><span>{% trans "Чистая прибыль" %}</span><b class="pos">+99 980 ₽</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section style="padding-top:0;">
+  <div class="container">
+    <div class="cta">
+      <h2>{% trans "Начните считать прибыль уже сегодня" %}</h2>
+      <p>{% trans "Войдите в личный кабинет и загрузите первый отчёт Wildberries — аналитика будет готова за секунды." %}</p>
+      <div class="hero-actions">
+        {% if is_authed %}
+          <a class="btn btn-light" href="{% url 'analytics:dashboard' %}">{% trans "Перейти в кабинет →" %}</a>
+        {% else %}
+          <a class="btn btn-light" href="{% url 'accounts:login' %}">{% trans "Войти в кабинет →" %}</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container foot">
+    <a href="/" class="logo" style="font-size:17px;"><span class="logo-mark" style="width:32px;height:32px;font-size:11px;">AIRA</span> AIRA</a>
+    <div class="flinks">
+      <a href="#features">{% trans "Возможности" %}</a>
+      <a href="#how">{% trans "Как это работает" %}</a>
+      <a href="{% url 'accounts:login' %}">{% trans "Войти" %}</a>
+    </div>
+    <div class="muted">{% trans "© AIRA — аналитика Wildberries" %}</div>
+  </div>
+</footer>
+
+<script>
+  // Mobile menu toggle
+  var burger = document.getElementById('burger');
+  var links = document.getElementById('navLinks');
+  burger.addEventListener('click', function(){ links.classList.toggle('open'); });
+  links.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){ links.classList.remove('open'); });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% load static aira i18n %}
+
+{% block title %}AIRA — {% trans "Хранение" %}{% endblock %}
+
+{% block head %}
+<style>
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .week-bar { display: flex; align-items: center; gap: 12px; padding: 10px; border-bottom: 1px solid var(--border-light); }
+  .week-bar:hover { background: var(--gray-50); }
+  .week-bar-label { min-width: 100px; font-size: 12px; color: var(--text-secondary); }
+  .week-bar-track { flex: 1; height: 16px; background: var(--gray-100); border-radius: 8px; overflow: hidden; }
+  .week-bar-fill { height: 100%; background: linear-gradient(90deg, #185FA5, #6F4FD8); border-radius: 8px; transition: width 0.4s; }
+  .week-bar-value { min-width: 110px; text-align: right; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+
+  .product-bar { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px dashed var(--border-light); font-size: 12px; }
+  .product-bar-rank { min-width: 30px; color: var(--text-tertiary); font-weight: 700; }
+  .product-bar-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .product-bar-name strong { color: var(--navy); }
+  .product-bar-track { width: 120px; height: 8px; background: var(--gray-100); border-radius: 4px; overflow: hidden; flex-shrink: 0; }
+  .product-bar-fill { height: 100%; background: var(--purple); }
+  .product-bar-value { min-width: 90px; text-align: right; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; flex-shrink: 0; }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if not has_data %}
+  <div class="empty-state" style="padding: 60px 20px; text-align: center;">
+    <div class="empty-state-icon" style="font-size: 40px;">📦</div>
+    <h3 style="font-size: 16px; margin: 12px 0 8px; color: var(--text);">{% trans "Saqlash ma'lumoti yo'q" %}</h3>
+    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">{% trans "Avval Подробный отчёt yuklang — saqlash xarajatlari avtomat hisoblanadi" %}</p>
+    <a href="{% url 'reports:upload' %}" class="btn btn-primary">📤 {% trans "Yuklash" %}</a>
+  </div>
+{% else %}
+<div class="page-header">
+  <h1 class="page-title">📦 {% trans "Хранение (Saqlash)" %}</h1>
+  <p class="page-subtitle">{% trans "WB omborida saqlash xarajatlari batafsil" %}</p>
+</div>
+
+<div class="filters-bar" style="display:flex; gap:8px; align-items:center; margin-bottom:16px;">
+  <form method="get" id="filterForm" style="display:flex; gap:8px; align-items:center; margin:0;">
+    <select name="report" onchange="document.getElementById('filterForm').submit()" class="form-input" style="font-size:11px; padding:6px 10px; max-width:160px;">
+      <option value="">{% trans "Hamma achot" %}</option>
+      {% for rn in filter_reports %}<option value="{{ rn }}" {% if selected_report == rn %}selected{% endif %}>№ {{ rn }}</option>{% endfor %}
+    </select>
+    <select name="month" onchange="document.getElementById('filterForm').submit()" class="form-input" style="font-size:11px; padding:6px 10px; max-width:140px;">
+      <option value="">{% trans "Hamma oy" %}</option>
+      {% for m in filter_months %}<option value="{{ m }}" {% if selected_month == m %}selected{% endif %}>{{ m }}</option>{% endfor %}
+    </select>
+    {% if selected_report or selected_month %}<a href="{% url 'reports:storage' %}" class="btn btn-outline" style="font-size:11px; padding:6px 10px;">✕ {% trans "Tozalash" %}</a>{% endif %}
+  </form>
+</div>
+
+<!-- KPI -->
+<div class="stat-grid">
+  <div class="kpi-card">
+    <div class="kpi-label">💰 {% trans "Jami saqlash" %}</div>
+    <div class="kpi-value">{{ data.total|money_short:currency }}</div>
+    <div class="kpi-change">{% blocktrans with n=data.row_count|fmt %}{{ n }} ta qatorda{% endblocktrans %}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">🏬 {% trans "Skladlar" %}</div>
+    <div class="kpi-value">{{ data.warehouses|length }}</div>
+    <div class="kpi-change">{% trans "turli xil" %}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">📅 {% trans "Haftalar" %}</div>
+    <div class="kpi-value">{{ data.weeks|length }}</div>
+    <div class="kpi-change">{% blocktrans with v=data.avg_per_week|money:currency %}o'rt. {{ v }}/hafta{% endblocktrans %}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">📦 {% trans "Tovarlar" %}</div>
+    <div class="kpi-value">{{ data.products|length }}</div>
+    <div class="kpi-change">{% trans "saqlash bilan" %}</div>
+  </div>
+</div>
+
+<!-- Hafta bo'yicha -->
+<div class="card">
+  <div class="card-header">
+    <div><div class="card-title">📅 {% trans "Hafta bo'yicha saqlash" %}</div><div class="card-subtitle">{% trans "Qaysi haftada qancha to'lagansiz" %}</div></div>
+  </div>
+  {% for w in data.weeks %}
+    <div class="week-bar">
+      <div class="week-bar-label">📅 {{ w.week_label }}</div>
+      <div class="week-bar-track"><div class="week-bar-fill" style="width: {{ w.pct|floatformat:1 }}%;"></div></div>
+      <div class="week-bar-value">{{ w.total|money:currency }}</div>
+    </div>
+  {% empty %}
+    <div style="padding: 20px; text-align: center; color: var(--text-tertiary);">{% trans "Saqlash qatorlari topilmadi" %}</div>
+  {% endfor %}
+  {% if data.weeks %}
+    <div style="margin-top: 10px; padding: 10px; background: var(--gray-50); border-radius: 6px; font-size: 12px; color: var(--text-secondary); text-align: center;">
+      <strong style="color: var(--text);">{% trans "JAMI:" %}</strong> {{ data.total|money:currency }} ·
+      <strong style="color: var(--text);">{% trans "O'RTACHA:" %}</strong> {% blocktrans with v=data.avg_per_week|money:currency %}{{ v }}/hafta{% endblocktrans %}
+    </div>
+  {% endif %}
+</div>
+
+<!-- Sklad bo'yicha -->
+{% if data.warehouses %}
+  <div class="card">
+    <div class="card-header">
+      <div><div class="card-title">🏬 {% trans "Sklad bo'yicha taqsimot" %}</div><div class="card-subtitle">{% trans "Qaysi sklad'da qaysi tovarlar ko'p saqlanmoqda" %}</div></div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 12px;">
+      {% for w in data.warehouses %}
+        <div style="border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: white;">
+          <div style="padding: 12px 14px; background: linear-gradient(135deg, #185FA5, #0F6E56); color: white;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div>
+                <div style="font-size: 14px; font-weight: 700;">🏬 {{ w.warehouse }}</div>
+                <div style="font-size: 10px; opacity: 0.85; margin-top: 2px;">{% blocktrans with c=w.count p=w.products|length %}{{ c }} qator · {{ p }} tovar{% endblocktrans %}</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 16px; font-weight: 700;">{{ w.total|money:currency }}</div>
+                <div style="font-size: 10px; opacity: 0.85;">{% blocktrans with v=w.share_pct|floatformat:1 %}{{ v }}% jamidan{% endblocktrans %}</div>
+              </div>
+            </div>
+          </div>
+          <div style="padding: 10px 14px;">
+            <div style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 6px; text-transform: uppercase;">{% trans "Top 5 tovar shu sklad'da:" %}</div>
+            {% for p in w.top_products %}
+              <div style="display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px dashed var(--border-light); font-size: 11px;">
+                <span style="color: var(--text-tertiary); font-weight: 700; min-width: 18px;">#{{ forloop.counter }}</span>
+                <div style="flex: 1; min-width: 0;">
+                  <strong style="color: var(--navy);">{{ p.article }}</strong>
+                  {% if p.product %}<div style="color: var(--text-tertiary); font-size: 10px;">{{ p.product|truncatechars:30 }}</div>{% endif %}
+                </div>
+                <div style="text-align: right; font-weight: 600; color: var(--text); min-width: 80px;">{{ p.total|money:currency }}</div>
+              </div>
+            {% endfor %}
+            {% if w.extra_products %}<div style="padding: 6px 0 0; font-size: 10px; color: var(--text-tertiary); text-align: center;">... {% blocktrans with n=w.extra_products %}va yana {{ n }} ta tovar{% endblocktrans %}</div>{% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
+
+<!-- 2 ta yonma-yon -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 14px;">
+  <div class="card">
+    <div class="card-header">
+      <div><div class="card-title">📦 {% trans "Tovarlar bo'yicha" %}</div><div class="card-subtitle">{% trans "Qaysi tovar ko'p saqlanmoqda (Top 20)" %}</div></div>
+    </div>
+    {% for p in data.products|slice:":20" %}
+      <div class="product-bar">
+        <div class="product-bar-rank">#{{ forloop.counter }}</div>
+        <div class="product-bar-name">
+          <strong>{{ p.article|default:'—' }}</strong>
+          {% if p.product_name %}<span style="color: var(--text-tertiary); font-size: 10px; margin-left: 4px;">{{ p.product_name|truncatechars:25 }}</span>{% endif %}
+        </div>
+        <div class="product-bar-track"><div class="product-bar-fill" style="width: {{ p.pct|floatformat:1 }}%;"></div></div>
+        <div class="product-bar-value">{{ p.total|money:currency }}</div>
+      </div>
+    {% endfor %}
+    {% if data.products|length > 20 %}<div style="margin-top: 8px; padding: 8px; text-align: center; color: var(--text-tertiary); font-size: 11px;">... {% blocktrans with n=data.products|length|add:"-20" %}va yana {{ n }} ta tovar{% endblocktrans %}</div>{% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div><div class="card-title">📋 {% trans "Achot bo'yicha" %}</div><div class="card-subtitle">{% trans "Har achot uchun saqlash summasi" %}</div></div>
+    </div>
+    {% for r in data.reports %}
+      <div class="product-bar">
+        <div class="product-bar-name">
+          <strong>№ {{ r.report_num }}</strong>
+          {% if r.date_from %}<span style="color: var(--text-tertiary); font-size: 10px; margin-left: 4px;">{{ r.date_from|date:'d.m.Y' }} – {{ r.date_to|date:'d.m.Y' }}</span>{% endif %}
+        </div>
+        <div class="product-bar-value">{{ r.total|money:currency }}</div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Jadval (batafsil) -->
+<div class="card">
+  <div class="card-header">
+    <div><div class="card-title">📋 {% trans "Saqlash qatorlari (batafsil)" %}</div><div class="card-subtitle">{% blocktrans with n=data.row_count|fmt %}{{ n }} ta qator{% endblocktrans %}</div></div>
+    <a class="btn btn-outline" href="?{% if selected_report %}report={{ selected_report }}&{% endif %}{% if selected_month %}month={{ selected_month }}&{% endif %}format=csv" style="font-size: 11px;">📥 CSV</a>
+  </div>
+  <div class="table-wrapper" style="border: none; max-height: 500px; overflow-y: auto;">
+    <table class="table" style="font-size: 11px;">
+      <thead style="position: sticky; top: 0; background: var(--gray-100); z-index: 5;">
+        <tr><th>{% trans "Sana" %}</th><th>{% trans "№ Achot" %}</th><th>🏬 {% trans "Sklad" %}</th><th>{% trans "Brand" %}</th><th>{% trans "Artikul" %}</th><th>{% trans "Tovar" %}</th><th class="num">{% trans "Saqlash" %}</th></tr>
+      </thead>
+      <tbody>
+        {% for r in data.rows %}
+          <tr>
+            <td>{% if r.sale_date %}{{ r.sale_date|date:'d.m.Y' }}{% else %}—{% endif %}</td>
+            <td><strong style="color: var(--blue);">{{ r.report_num|default:'—' }}</strong></td>
+            <td style="font-size: 11px;">{{ r.warehouse|default:'—' }}</td>
+            {% if r.article %}
+              <td>{{ r.brand|default:'—' }}</td>
+              <td><strong>{{ r.article }}</strong></td>
+              <td style="max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ r.product_name }}">{{ r.product_name|truncatechars:40 }}</td>
+            {% else %}
+              <td><span style="color: var(--text-tertiary);">{% trans "Удержания WB" %}</span></td>
+              <td><span style="color: var(--text-tertiary);">—</span></td>
+              <td><span style="color: var(--text-tertiary);">{% trans "Umumiy saqlash xarajati" %}</span></td>
+            {% endif %}
+            <td class="num num-negative" style="font-weight: 600;">{{ r.storage|money:currency }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      {% if data.row_count > 500 %}
+        <tfoot><tr><td colspan="7" style="text-align: center; padding: 12px; color: var(--text-tertiary); font-size: 11px;">... {% blocktrans with n=data.row_count|add:"-500"|fmt %}va yana {{ n }} ta qator. Hammasini CSV orqali yuklab oling{% endblocktrans %}</td></tr></tfoot>
+      {% endif %}
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

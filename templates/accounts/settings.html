@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static aira i18n %}
+
+{% block title %}AIRA — {% trans "Sozlamalar" %}{% endblock %}
+
+{% block head %}
+<style>
+  .settings-section { background: white; border-radius: 10px; padding: 18px; margin-bottom: 16px;
+                      border: 1px solid var(--border-light); }
+  .settings-section h3 { font-size: 14px; font-weight: 600; color: var(--navy); margin-bottom: 12px;
+                          padding-bottom: 10px; border-bottom: 1px solid var(--border-light); }
+  .field-row { display: grid; grid-template-columns: 180px 1fr; gap: 12px; margin-bottom: 12px;
+               align-items: center; }
+  .field-row label { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+  .tax-card { padding: 12px; border: 2px solid var(--border); border-radius: 8px; cursor: pointer;
+              transition: all 0.2s; }
+  .tax-card:hover { border-color: var(--blue); }
+  .tax-card.selected { border-color: var(--blue); background: var(--blue-bg); }
+  .tax-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+</style>
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="page-header">
+  <h1 class="page-title">{% trans "Sozlamalar" %}</h1>
+  <p class="page-subtitle">{% trans "Profil, soliq turi va sayt sozlamalari" %}</p>
+</div>
+
+<form method="post" action="{% url 'accounts:settings_save' %}" id="settingsForm">
+  {% csrf_token %}
+
+  <!-- Profil -->
+  <div class="settings-section">
+    <h3>👤 {% trans "Profil" %}</h3>
+    <div class="field-row">
+      <label>{% trans "IP nomi:" %}</label>
+      <input type="text" class="form-input" name="name" value="{{ profile.name }}" placeholder="ИП Олимова Сарвинохон О К">
+    </div>
+    <div class="field-row">
+      <label>{% trans "Brend:" %}</label>
+      <input type="text" class="form-input" name="brand" value="{{ profile.brand }}" placeholder="Piccino">
+    </div>
+    <div class="field-row">
+      <label>{% trans "Mamlakat:" %}</label>
+      <select class="form-input" name="country">
+        <option value="🇷🇺 RU" {% if profile.country == '🇷🇺 RU' %}selected{% endif %}>🇷🇺 {% trans "Rossiya (RU)" %}</option>
+        <option value="🇰🇬 KG" {% if profile.country == '🇰🇬 KG' %}selected{% endif %}>🇰🇬 {% trans "Qirg'iziston (KG)" %}</option>
+        <option value="🇰🇿 KZ" {% if profile.country == '🇰🇿 KZ' %}selected{% endif %}>🇰🇿 {% trans "Qozog'iston (KZ)" %}</option>
+        <option value="🇺🇿 UZ" {% if profile.country == '🇺🇿 UZ' %}selected{% endif %}>🇺🇿 {% trans "O'zbekiston (UZ)" %}</option>
+        <option value="🇧🇾 BY" {% if profile.country == '🇧🇾 BY' %}selected{% endif %}>🇧🇾 {% trans "Belarus (BY)" %}</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <label>{% trans "Valyuta:" %}</label>
+      <select class="form-input" name="currency">
+        <option value="₽" {% if profile.currency == '₽' %}selected{% endif %}>₽ {% trans "(rubl)" %}</option>
+        <option value="KGS" {% if profile.currency == 'KGS' %}selected{% endif %}>KGS {% trans "(som)" %}</option>
+        <option value="UZS" {% if profile.currency == 'UZS' %}selected{% endif %}>UZS {% trans "(sum)" %}</option>
+        <option value="USD" {% if profile.currency == 'USD' %}selected{% endif %}>USD ($)</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <label>{% trans "INN:" %}</label>
+      <input type="text" class="form-input" name="inn" value="{{ profile.inn }}" placeholder="{% trans "INN raqami (ixtiyoriy)" %}">
+    </div>
+  </div>
+
+  <!-- Soliq -->
+  <div class="settings-section">
+    <h3>💰 {% trans "Soliq" %}</h3>
+
+    <div class="tip-box info" style="margin-bottom: 14px;">
+      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M11.25 11.25l.041-.02a.75.75 0 011.063.852" stroke-linecap="round"/></svg>
+      <div class="tip-content">
+        {% blocktrans with tax_type_name=profile.tax_type_name tax_rate=profile.tax_rate|stringformat:'g' %}<strong>Soliq:</strong> "{{ tax_type_name }}", foiz = {{ tax_rate }}%{% endblocktrans %}
+        <br>{% blocktranslate %}<strong>Eslatma:</strong> Rossiya IP — daromadan to'laydi. Qirg'iziston IP — hisobraqamga tushgan puldan.{% endblocktranslate %}
+      </div>
+    </div>
+
+    <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;">{% blocktranslate %}<strong>Soliq turi tanlang:</strong>{% endblocktranslate %}</p>
+
+    <input type="hidden" name="tax_type" id="taxTypeInput" value="{{ profile.tax_type }}">
+    <div class="tax-grid">
+      <div class="tax-card {% if profile.tax_type == 1 %}selected{% endif %}" data-type="1" onclick="selectTaxType(1)">
+        <div style="font-weight: 600; color: var(--navy); margin-bottom: 4px;">1️⃣ {% trans "УСН-доходы (RU)" %}</div>
+        <div style="font-size: 11px; color: var(--text-secondary);">{% blocktranslate %}Soliq <strong>Sotuv summasidan</strong> (WB реализовал)<br>RU IP uchun{% endblocktranslate %}</div>
+      </div>
+      <div class="tax-card {% if profile.tax_type == 2 %}selected{% endif %}" data-type="2" onclick="selectTaxType(2)">
+        <div style="font-weight: 600; color: var(--navy); margin-bottom: 4px;">2️⃣ {% trans "УСН Д-Р (RU)" %}</div>
+        <div style="font-size: 11px; color: var(--text-secondary);">{% blocktranslate %}Soliq <strong>(Oplata - Tannarx - Xarajat)</strong> dan<br>RU IP uchun{% endblocktranslate %}</div>
+      </div>
+      <div class="tax-card {% if profile.tax_type == 3 %}selected{% endif %}" data-type="3" onclick="selectTaxType(3)">
+        <div style="font-weight: 600; color: var(--navy); margin-bottom: 4px;">3️⃣ {% trans "Не считать налог" %}</div>
+        <div style="font-size: 11px; color: var(--text-secondary);">{% blocktranslate %}Soliq <strong>hisoblamaslik</strong>{% endblocktranslate %}</div>
+      </div>
+      <div class="tax-card {% if profile.tax_type == 4 %}selected{% endif %}" data-type="4" onclick="selectTaxType(4)">
+        <div style="font-weight: 600; color: var(--navy); margin-bottom: 4px;">4️⃣ {% trans "Считать от РС (KG)" %}</div>
+        <div style="font-size: 11px; color: var(--text-secondary);">{% blocktranslate %}Soliq <strong>Hisobraqamga tushgan puldan</strong><br>KG IP uchun{% endblocktranslate %}</div>
+      </div>
+    </div>
+
+    <div class="field-row" style="margin-top: 16px;">
+      <label>{% trans "Soliq foizi:" %}</label>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <input type="number" class="form-input" name="tax_rate" value="{{ profile.tax_rate|stringformat:'g' }}" step="0.1" min="0" max="50" style="max-width: 100px;">
+        <span style="font-weight: 600;">%</span>
+        <span style="font-size: 11px; color: var(--text-tertiary);">{% trans "(masalan: 2, 6, 15)" %}</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="position: sticky; bottom: 0; background: var(--bg); padding: 16px 0; margin: 16px -24px -20px; padding-left: 24px; padding-right: 24px; border-top: 1px solid var(--border);">
+    <button type="submit" class="btn btn-primary" style="padding: 12px 32px; font-size: 14px;">💾 {% trans "Sozlamalarni saqlash" %}</button>
+    <span style="font-size: 11px; color: var(--text-tertiary); margin-left: 12px;">{% trans "Soliq o'zgarsa, База avtomat qayta hisoblanadi." %}</span>
+  </div>
+</form>
+
+<!-- Backup / Ma'lumotlar boshqaruvi -->
+<div class="settings-section" style="margin-top: 16px;">
+  <h3>💾 {% trans "Ma'lumotlar boshqaruvi" %}</h3>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+    <a class="btn btn-primary" href="{% url 'reports:backup' %}" style="padding: 12px; font-size: 13px; text-align:center;">📥 {% trans "Backup eksport (JSON)" %}</a>
+    <button class="btn btn-outline" onclick="recomputeNow()" style="padding: 12px; font-size: 13px; color: var(--blue);">🔄 {% trans "Qayta hisoblash (recompute)" %}</button>
+    <button class="btn btn-outline" onclick="clearBaseNow()" style="padding: 12px; font-size: 13px; color: var(--red);">🗑 {% trans "База tozalash" %}</button>
+    <button class="btn btn-outline" onclick="clearAllNow()" style="padding: 12px; font-size: 13px; color: var(--red); background: var(--red-light);">⚠ {% trans "HAMMASINI tozalash" %}</button>
+  </div>
+  <div style="margin-top: 14px; font-size: 11px; color: var(--text-tertiary);">
+    {% blocktranslate %}<strong>Hozir saqlangan:</strong>{% endblocktranslate %}
+    {% blocktrans with list_count=list_count base_count=base_count|fmt costs_count=costs_count %}{{ list_count }} ta achot · {{ base_count }} qator База · {{ costs_count }} ta tovar tannarx{% endblocktrans %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function _csrf() { const el = document.querySelector('[name=csrfmiddlewaretoken]'); return el ? el.value : ''; }
+  async function _post(url, body) {
+    const r = await fetch(url, { method: 'POST', headers: { 'X-CSRFToken': _csrf(),
+      'Content-Type': 'application/x-www-form-urlencoded' }, body: body || '' });
+    return r.json();
+  }
+
+  window.selectTaxType = function(type) {
+    document.getElementById('taxTypeInput').value = type;
+    document.querySelectorAll('.tax-card').forEach(c => {
+      c.classList.toggle('selected', c.getAttribute('data-type') == type);
+    });
+  };
+
+  window.recomputeNow = async function() {
+    if (!confirm('База qayta hisoblanadimi? (tannarx/soliq formulasini yangilaydi)')) return;
+    notify('Hisoblanmoqda...', 'info');
+    const res = await _post("{% url 'reports:recompute' %}");
+    if (res.ok) notify(`✓ ${res.recomputed} qator qayta hisoblandi`, 'success');
+    else notify('Xato', 'error');
+  };
+
+  window.clearBaseNow = async function() {
+    if (!confirm("База tozalanadi (Tannarx saqlanib qoladi). Davom etasizmi?")) return;
+    const res = await _post("{% url 'reports:clear_base' %}");
+    if (res.ok) { notify('База tozalandi', 'warning'); setTimeout(() => location.reload(), 600); }
+  };
+
+  window.clearAllNow = async function() {
+    if (!confirm("HAMMA MA'LUMOTLAR o'chiriladi (Список, База). Davom etasizmi?")) return;
+    if (!confirm("ROSTAKAMMI? Bu amalni qaytarib bo'lmaydi!")) return;
+    const res = await _post("{% url 'reports:clear_all' %}");
+    if (res.ok) { notify("Hammasi o'chirildi", 'warning'); setTimeout(() => location.href = "{% url 'analytics:dashboard' %}", 600); }
+  };
+</script>
+{% endblock %}

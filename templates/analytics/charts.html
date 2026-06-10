@@ -1,0 +1,608 @@
+{% extends 'base.html' %}
+{% load static aira i18n %}
+
+{% block title %}AIRA — {% trans "Графики" %}{% endblock %}
+
+{% block head %}
+<style>
+  /* ============================================
+     CHARTS PAGE — PREMIUM DESIGN
+     ============================================ */
+
+  /* HERO HEADER */
+  .charts-hero {
+    background:
+      radial-gradient(ellipse 800px 400px at 80% -20%, rgba(74, 133, 200, 0.35) 0%, transparent 50%),
+      radial-gradient(ellipse 600px 300px at 10% 110%, rgba(83, 74, 183, 0.25) 0%, transparent 50%),
+      linear-gradient(135deg, #021A33 0%, #042C53 45%, #0a3a6e 100%);
+    color: white;
+    border-radius: 20px;
+    padding: 32px 36px 28px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px -20px rgba(4, 44, 83, 0.4);
+  }
+  .charts-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Ccircle cx='2' cy='2' r='0.4' fill='%23ffffff' opacity='0.06'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  .charts-hero::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .charts-hero-content {
+    position: relative;
+    z-index: 1;
+  }
+  .charts-hero-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .charts-hero-eyebrow::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.4);
+  }
+  .charts-hero-title {
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+    background: linear-gradient(180deg, #ffffff 0%, #cbd5e0 130%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .charts-hero-subtitle {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    max-width: 520px;
+    line-height: 1.55;
+  }
+
+  /* INSIGHTS BAR */
+  .insights-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin-top: 24px;
+    position: relative;
+    z-index: 1;
+  }
+  .insight {
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 14px 16px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .insight:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  .insight-label {
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .insight-value {
+    font-size: 19px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: -0.3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .insight-extra {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 3px;
+  }
+  .insight-extra.up { color: #5fd1a3; }
+  .insight-extra.down { color: #ff8b8b; }
+
+  /* FILTERS BAR */
+  .filters-bar {
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.04);
+  }
+  .filter-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 4px 4px 4px 12px;
+    border: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .filter-pill:focus-within { border-color: var(--blue); }
+  .filter-pill-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+  }
+  .filter-pill select {
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 500;
+    padding: 4px 6px;
+    cursor: pointer;
+    outline: none;
+    min-width: 90px;
+  }
+
+  /* CHART CARD */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    margin-bottom: 18px;
+  }
+  .chart-card {
+    background: white;
+    border-radius: 16px;
+    padding: 22px 24px 20px;
+    border: 1px solid var(--border-light);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: cardFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+  .chart-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 40px -18px rgba(4, 44, 83, 0.18);
+    border-color: rgba(24, 95, 165, 0.18);
+  }
+  .chart-card:nth-child(1) { animation-delay: 0.05s; }
+  .chart-card:nth-child(2) { animation-delay: 0.1s; }
+  .chart-card:nth-child(3) { animation-delay: 0.15s; }
+  .chart-card:nth-child(4) { animation-delay: 0.2s; }
+  .chart-card.full { grid-column: 1 / -1; }
+
+  @keyframes cardFadeIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .chart-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent, var(--blue)), transparent);
+    opacity: 0.6;
+  }
+
+  .chart-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+    gap: 12px;
+  }
+  .chart-card-headline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .chart-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    background: linear-gradient(135deg, var(--accent, var(--blue)), var(--accent2, var(--blue-light)));
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 6px 16px -6px var(--accent, var(--blue));
+  }
+  .chart-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: -0.2px;
+    margin-bottom: 2px;
+  }
+  .chart-subtitle {
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+  .chart-card-meta {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .chart-card-meta-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .chart-card-meta-label {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .chart-canvas-wrap {
+    position: relative;
+    height: 280px;
+  }
+  .chart-canvas-wrap.tall { height: 380px; }
+  .chart-canvas-wrap.medium { height: 320px; }
+
+  /* CENTER DONUT TEXT */
+  .donut-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+  }
+  .donut-center-label {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 600;
+  }
+  .donut-center-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: -0.3px;
+    margin-top: 2px;
+  }
+
+  /* LEGEND BELOW CHART */
+  .chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border-light);
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .legend-value {
+    color: var(--text);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* EMPTY STATE */
+  .empty-charts {
+    background: white;
+    border-radius: 16px;
+    padding: 60px 40px;
+    text-align: center;
+    border: 1px solid var(--border-light);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 980px) {
+    .charts-grid { grid-template-columns: 1fr; }
+    .charts-hero { padding: 24px 22px; border-radius: 16px; }
+    .charts-hero-title { font-size: 28px; }
+    .chart-canvas-wrap { height: 240px; }
+    .chart-canvas-wrap.tall { height: 320px; }
+  }
+
+  /* TOOLTIP CUSTOMIZATION (Chart.js will style via JS, but body classes here) */
+  body { font-variant-numeric: tabular-nums; }
+</style>
+{% endblock %}
+
+
+{% block content %}
+{% if not has_data %}
+  <div class="empty-charts">
+    <div style="font-size: 56px; margin-bottom: 16px;">📊</div>
+    <h2 style="color: var(--navy); margin-bottom: 8px; font-size: 22px;">{% trans "Графика uchun ma'lumot yo'q" %}</h2>
+    <p style="color: var(--text-tertiary); margin-bottom: 20px;">{% trans "Avval Подробный отчёt yuklang — vizual tahlil tayyor bo'ladi" %}</p>
+    <a href="{% url 'reports:upload' %}" class="btn btn-primary">📤 {% trans "Yuklash sahifasi" %}</a>
+  </div>
+{% else %}
+
+<!-- HERO -->
+<section class="charts-hero">
+  <div class="charts-hero-content">
+    <div class="charts-hero-eyebrow">{% trans "Vizual tahlil" %}</div>
+    <h1 class="charts-hero-title">{% trans "Графики" %}</h1>
+    <p class="charts-hero-subtitle">{% trans "Bir nazarda hammasi ko'rinadi — daromad, foyda, ushlanmalar va sklad bo'yicha taqsimot." %}</p>
+    <div class="insights-row">
+      <div class="insight">
+        <div class="insight-label">💰 {% trans "Jami daromad" %}</div>
+        <div class="insight-value">{{ kpi.revenue|money_short:currency }}</div>
+        <div class="insight-extra">{% blocktrans with v=kpi.sales_qty|fmt %}{{ v }} dona{% endblocktrans %}</div>
+      </div>
+      <div class="insight">
+        <div class="insight-label">📈 {% trans "Toza foyda" %}</div>
+        <div class="insight-value">{{ kpi.net_profit|money_short:currency }}</div>
+        <div class="insight-extra {% if kpi.margin_pct >= 0 %}up{% else %}down{% endif %}">{% if kpi.margin_pct >= 0 %}▲{% else %}▼{% endif %} {% blocktrans with v=kpi.margin_pct|percent %}{{ v }} marja{% endblocktrans %}</div>
+      </div>
+      <div class="insight">
+        <div class="insight-label">🥇 {% trans "Eng yaxshi kun" %}</div>
+        <div class="insight-value">{% if best_day %}{{ best_day.revenue|money_short:currency }}{% else %}—{% endif %}</div>
+        <div class="insight-extra">{% if best_day %}{{ best_day.date }}{% else %}—{% endif %}</div>
+      </div>
+      <div class="insight">
+        <div class="insight-label">🏬 {% trans "Top sklad" %}</div>
+        <div class="insight-value">{% if top_warehouse %}{{ top_warehouse.revenue|money_short:currency }}{% else %}—{% endif %}</div>
+        <div class="insight-extra">{% if top_warehouse %}{{ top_warehouse.warehouse|truncatechars:18 }}{% else %}—{% endif %}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FILTERLAR -->
+<form method="get" id="filterForm" class="filters-bar">
+  <div style="font-size: 11px; color: var(--text-tertiary); font-weight: 700; letter-spacing: 0.8px;">{% trans "FILTRLAR" %}</div>
+  <div class="filter-pill">
+    <span class="filter-pill-label">{% trans "Achot" %}</span>
+    <select name="report" onchange="document.getElementById('filterForm').submit()">
+      <option value="">{% trans "Hammasi" %}</option>
+      {% for rn in filter_reports %}<option value="{{ rn }}" {% if selected_report == rn %}selected{% endif %}>№ {{ rn }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="filter-pill">
+    <span class="filter-pill-label">{% trans "Oy" %}</span>
+    <select name="month" onchange="document.getElementById('filterForm').submit()">
+      <option value="">{% trans "Hammasi" %}</option>
+      {% for m in filter_months %}<option value="{{ m }}" {% if selected_month == m %}selected{% endif %}>{{ m }}</option>{% endfor %}
+    </select>
+  </div>
+  {% if selected_report or selected_month %}<a href="{% url 'analytics:charts' %}" class="btn btn-outline" style="font-size: 11px; padding: 6px 12px;">✕ {% trans "Tozalash" %}</a>{% endif %}
+  <div style="margin-left: auto; font-size: 11px; color: var(--text-tertiary);">{% blocktrans with v=kpi.row_count|fmt %}{{ v }} ta qator{% endblocktrans %}</div>
+</form>
+
+<!-- CHARTS GRID -->
+<div class="charts-grid">
+  <div class="chart-card" style="--accent: #185FA5; --accent2: #4A85C8;">
+    <div class="chart-card-head">
+      <div class="chart-card-headline"><div class="chart-icon">📈</div><div><div class="chart-title">{% trans "Kunlik daromad" %}</div><div class="chart-subtitle">{% trans "Sana bo'yicha sotuv trendi" %}</div></div></div>
+      <div class="chart-card-meta"><div class="chart-card-meta-value">{{ kpi.revenue|money_short:currency }}</div><div class="chart-card-meta-label">{% trans "Jami" %}</div></div>
+    </div>
+    <div class="chart-canvas-wrap"><canvas id="chartDaily"></canvas></div>
+  </div>
+
+  <div class="chart-card" style="--accent: #0F6E56; --accent2: #4ab28d;">
+    <div class="chart-card-head">
+      <div class="chart-card-headline"><div class="chart-icon">📊</div><div><div class="chart-title">{% trans "Haftalik foyda" %}</div><div class="chart-subtitle">{% trans "P&L har hafta bo'yicha" %}</div></div></div>
+      <div class="chart-card-meta"><div class="chart-card-meta-value" style="color: {% if kpi.net_profit >= 0 %}var(--green-dark){% else %}var(--red-dark){% endif %};">{{ kpi.net_profit|money_short:currency }}</div><div class="chart-card-meta-label">{% trans "Toza foyda" %}</div></div>
+    </div>
+    <div class="chart-canvas-wrap"><canvas id="chartWeekly"></canvas></div>
+  </div>
+
+  <div class="chart-card" style="--accent: #BA7517; --accent2: #e8a847;">
+    <div class="chart-card-head">
+      <div class="chart-card-headline"><div class="chart-icon">🥧</div><div><div class="chart-title">{% trans "Top 10 tovar" %}</div><div class="chart-subtitle">{% trans "Daromad bo'yicha" %}</div></div></div>
+      <div class="chart-card-meta"><div class="chart-card-meta-value">{{ product_count }}</div><div class="chart-card-meta-label">{% trans "tovar" %}</div></div>
+    </div>
+    <div class="chart-canvas-wrap" style="position: relative;">
+      <canvas id="chartTopProducts"></canvas>
+      <div class="donut-center"><div class="donut-center-label">{% trans "Top 10" %}</div><div class="donut-center-value">{{ top10_share }}%</div></div>
+    </div>
+    <div id="legendTopProducts" class="chart-legend"></div>
+  </div>
+
+  <div class="chart-card" style="--accent: #A32D2D; --accent2: #d35858;">
+    <div class="chart-card-head">
+      <div class="chart-card-headline"><div class="chart-icon">🍩</div><div><div class="chart-title">{% trans "WB ushlanmalari" %}</div><div class="chart-subtitle">{% trans "Kategoriya bo'yicha taqsimot" %}</div></div></div>
+      <div class="chart-card-meta"><div class="chart-card-meta-value">{{ kpi.all_wb_deductions|money_short:currency }}</div><div class="chart-card-meta-label">{% trans "Jami" %}</div></div>
+    </div>
+    <div class="chart-canvas-wrap" style="position: relative;">
+      <canvas id="chartDeductions"></canvas>
+      <div class="donut-center"><div class="donut-center-label">{% trans "% daromaddan" %}</div><div class="donut-center-value">{{ kpi.all_ded_pct|percent }}</div></div>
+    </div>
+    <div id="legendDeductions" class="chart-legend"></div>
+  </div>
+
+  <div class="chart-card full" style="--accent: #534AB7; --accent2: #8479d9;">
+    <div class="chart-card-head">
+      <div class="chart-card-headline"><div class="chart-icon">🏬</div><div><div class="chart-title">{% trans "Sklad bo'yicha daromad" %}</div><div class="chart-subtitle">{% blocktrans with v=warehouse_count %}{{ v }} ta sklad{% endblocktrans %}</div></div></div>
+      <div class="chart-card-meta"><div class="chart-card-meta-value">{{ warehouse_count }}</div><div class="chart-card-meta-label">{% trans "sklad" %}</div></div>
+    </div>
+    <div class="chart-canvas-wrap tall"><canvas id="chartWarehouses"></canvas></div>
+  </div>
+
+  <div class="chart-card full" style="--accent: #042C53; --accent2: #185FA5;">
+    <div class="chart-card-head">
+      <div class="chart-card-headline"><div class="chart-icon">📈</div><div><div class="chart-title">{% trans "Oylik trend" %}</div><div class="chart-subtitle">{% trans "Daromad va toza foyda — oydan oyga" %}</div></div></div>
+      <div class="chart-card-meta"><div class="chart-card-meta-value">{{ month_count }}</div><div class="chart-card-meta-label">{% trans "oy" %}</div></div>
+    </div>
+    <div class="chart-canvas-wrap medium"><canvas id="chartMonthly"></canvas></div>
+  </div>
+</div>
+
+{{ products_json|json_script:"productsData" }}
+{{ weeks_json|json_script:"weeksData" }}
+{{ warehouses_json|json_script:"warehousesData" }}
+{{ days_json|json_script:"daysData" }}
+{{ months_json|json_script:"monthsData" }}
+{{ kpi|json_script:"kpiData" }}
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if has_data %}
+<script src="{% static 'js/lib/chart.umd.min.js' %}"></script>
+<script>
+  const cur = "{{ currency|escapejs }}";
+  const products = JSON.parse(document.getElementById('productsData').textContent);
+  const weeks = JSON.parse(document.getElementById('weeksData').textContent);
+  const warehouses = JSON.parse(document.getElementById('warehousesData').textContent);
+  const days = JSON.parse(document.getElementById('daysData').textContent);
+  const months = JSON.parse(document.getElementById('monthsData').textContent);
+  const kpi = JSON.parse(document.getElementById('kpiData').textContent);
+
+  function fmt(n) { if (typeof n !== 'number' || isNaN(n)) return '0'; return Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' '); }
+  function fmtK(n) { if (typeof n !== 'number' || isNaN(n)) return '0'; const a = Math.abs(n); if (a >= 1e6) return (n/1e6).toFixed(2)+'M'; if (a >= 1e3) return (n/1e3).toFixed(1)+'K'; return Math.round(n).toString(); }
+  function fmtKMoney(n) { return fmtK(n) + ' ' + cur; }
+  function fmtMoney(n) { return fmt(n) + ' ' + cur; }
+  function fmtPercent(n) { return (typeof n === 'number' ? n.toFixed(1) : '0') + '%'; }
+  function fmtDate(iso) { if (!iso) return '—'; const p = String(iso).split('-'); return p.length === 3 ? `${p[2]}.${p[1]}.${p[0]}` : iso; }
+
+  Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+  Chart.defaults.font.size = 11;
+  Chart.defaults.color = '#4A5568';
+  Chart.defaults.borderColor = 'rgba(226, 232, 240, 0.6)';
+  Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(2, 26, 51, 0.95)';
+  Chart.defaults.plugins.tooltip.titleColor = '#ffffff';
+  Chart.defaults.plugins.tooltip.bodyColor = '#cbd5e0';
+  Chart.defaults.plugins.tooltip.padding = 12;
+  Chart.defaults.plugins.tooltip.cornerRadius = 10;
+  Chart.defaults.plugins.legend.display = false;
+  Chart.defaults.animation.duration = 800;
+
+  // 1: Kunlik daromad
+  if (days.length > 0) {
+    const ctxD = document.getElementById('chartDaily').getContext('2d');
+    const gradD = ctxD.createLinearGradient(0, 0, 0, 280);
+    gradD.addColorStop(0, 'rgba(24, 95, 165, 0.35)'); gradD.addColorStop(1, 'rgba(24, 95, 165, 0)');
+    new Chart(ctxD, { type: 'line',
+      data: { labels: days.map(d => d.date), datasets: [{ label: 'Daromad', data: days.map(d => d.revenue),
+        borderColor: '#185FA5', backgroundColor: gradD, borderWidth: 2.5, tension: 0.35, pointRadius: 0, pointHoverRadius: 6, fill: true }] },
+      options: { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' },
+        plugins: { tooltip: { callbacks: { title: (i) => fmtDate(i[0].label), label: (i) => '  Daromad: ' + fmtMoney(i.parsed.y),
+          afterLabel: (i) => '  Sotilgan: ' + fmt(days[i.dataIndex].qty) + ' dona' } } },
+        scales: { x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 0, callback: function(v){ const l=this.getLabelForValue(v); if(!l) return ''; const p=l.split('-'); return p.length===3?`${p[2]}.${p[1]}`:l; } } },
+                  y: { ticks: { callback: (v) => fmtK(v) } } } } });
+  }
+
+  // 2: Haftalik foyda
+  if (weeks.length > 0) {
+    const ctxW = document.getElementById('chartWeekly').getContext('2d');
+    new Chart(ctxW, { type: 'bar',
+      data: { labels: weeks.map(w => w.week), datasets: [{ label: 'Toza foyda', data: weeks.map(w => w.profit || 0),
+        backgroundColor: weeks.map(w => (w.profit||0) >= 0 ? 'rgba(15,110,86,0.85)' : 'rgba(163,45,45,0.85)'),
+        borderColor: weeks.map(w => (w.profit||0) >= 0 ? '#0F6E56' : '#A32D2D'), borderWidth: 1.5, borderRadius: 6, borderSkipped: false }] },
+      options: { responsive: true, maintainAspectRatio: false,
+        plugins: { tooltip: { callbacks: { title: (i) => 'Hafta: ' + i[0].label, label: (i) => '  Foyda: ' + fmtMoney(i.parsed.y),
+          afterLabel: (i) => { const w = weeks[i.dataIndex]; return ['  Daromad: ' + fmtMoney(w.revenue), '  Marja: ' + fmtPercent(w.margin_pct||0)]; } } } },
+        scales: { x: { grid: { display: false }, ticks: { maxRotation: 0 } }, y: { ticks: { callback: (v) => fmtK(v) } } } } });
+  }
+
+  // 3: Top 10 tovar
+  if (products.length > 0) {
+    const top10 = products.slice(0, 10);
+    const othersSum = products.slice(10).reduce((s, p) => s + p.revenue, 0);
+    const palette = ['#BA7517','#e8a847','#f4c170','#185FA5','#4A85C8','#0F6E56','#4ab28d','#A32D2D','#534AB7','#8479d9'];
+    const ctxP = document.getElementById('chartTopProducts').getContext('2d');
+    new Chart(ctxP, { type: 'doughnut',
+      data: { labels: [...top10.map(p => p.article), ...(othersSum > 0 ? ['Boshqalar'] : [])],
+        datasets: [{ data: [...top10.map(p => p.revenue), ...(othersSum > 0 ? [othersSum] : [])], backgroundColor: [...palette, '#cbd5e0'], borderWidth: 0, hoverOffset: 8 }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '68%',
+        plugins: { tooltip: { callbacks: { label: (i) => { const t = kpi.revenue || 1; return `  ${i.label}: ${fmtMoney(i.parsed)} (${((i.parsed/t)*100).toFixed(1)}%)`; },
+          afterLabel: (i) => { const p = i.dataIndex < top10.length ? top10[i.dataIndex] : null; return p && p.product ? '  ' + (p.product.length>30?p.product.substring(0,30)+'…':p.product) : ''; } } } } } });
+    document.getElementById('legendTopProducts').innerHTML = top10.slice(0, 6).map((p, i) =>
+      `<div class="legend-item"><span class="legend-dot" style="background:${palette[i]};"></span><span><strong>${p.article}</strong></span><span class="legend-value">${fmtKMoney(p.revenue)}</span></div>`).join('')
+      + (top10.length > 6 ? `<div class="legend-item" style="color:var(--text-tertiary);">+${top10.length - 6} ta yana</div>` : '');
+  }
+
+  // 4: WB ushlanmalar
+  const deductions = [
+    { label: 'Комиссия', val: kpi.commission || 0, color: '#185FA5' },
+    { label: 'Логистика', val: kpi.logistics_total || 0, color: '#4A85C8' },
+    { label: 'Эквайринг', val: kpi.acquiring || 0, color: '#534AB7' },
+    { label: 'Хранение', val: kpi.storage || 0, color: '#BA7517' },
+    { label: 'Штрафы', val: kpi.fines || 0, color: '#A32D2D' },
+    { label: 'Реклама', val: kpi.promotion || 0, color: '#0F6E56' },
+    { label: 'Платная приёмка', val: kpi.paid_reception || 0, color: '#718096' }
+  ].filter(d => d.val > 0).sort((a, b) => b.val - a.val);
+  if (deductions.length > 0) {
+    const ctxX = document.getElementById('chartDeductions').getContext('2d');
+    new Chart(ctxX, { type: 'doughnut',
+      data: { labels: deductions.map(d => d.label), datasets: [{ data: deductions.map(d => d.val), backgroundColor: deductions.map(d => d.color), borderWidth: 0, hoverOffset: 8 }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '68%',
+        plugins: { tooltip: { callbacks: { label: (i) => { const t = deductions.reduce((s,d)=>s+d.val,0)||1; return `  ${i.label}: ${fmtMoney(i.parsed)} (${((i.parsed/t)*100).toFixed(1)}%)`; } } } } } });
+    const totalDed = deductions.reduce((s, d) => s + d.val, 0);
+    document.getElementById('legendDeductions').innerHTML = deductions.map(d =>
+      `<div class="legend-item"><span class="legend-dot" style="background:${d.color};"></span><span>${d.label}</span><span class="legend-value">${fmtKMoney(d.val)}</span><span style="color:var(--text-tertiary);font-size:10px;">${((d.val/totalDed)*100).toFixed(0)}%</span></div>`).join('');
+  }
+
+  // 5: Sklad
+  if (warehouses.length > 0) {
+    const ctxWh = document.getElementById('chartWarehouses').getContext('2d');
+    const gradWh = ctxWh.createLinearGradient(0, 0, ctxWh.canvas.width, 0);
+    gradWh.addColorStop(0, '#534AB7'); gradWh.addColorStop(1, '#8479d9');
+    new Chart(ctxWh, { type: 'bar',
+      data: { labels: warehouses.map(w => w.warehouse), datasets: [{ label: 'Daromad', data: warehouses.map(w => w.revenue), backgroundColor: gradWh, borderColor: '#4039a8', borderWidth: 1, borderRadius: 5, borderSkipped: false }] },
+      options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { tooltip: { callbacks: { title: (i) => '🏬 ' + i[0].label, label: (i) => '  Daromad: ' + fmtMoney(i.parsed.x),
+          afterLabel: (i) => { const w = warehouses[i.dataIndex]; return ['  Sotuvlar: ' + fmt(w.sold_qty) + ' dona', '  Qaytarish: ' + fmt(w.returns_qty) + ' (' + fmtPercent(w.return_pct) + ')', '  Ulush: ' + fmtPercent(w.share_pct)]; } } } },
+        scales: { x: { ticks: { callback: (v) => fmtK(v) } }, y: { grid: { display: false }, ticks: { font: { size: 11 }, autoSkip: false } } } } });
+  }
+
+  // 6: Oylik trend
+  if (months.length > 0) {
+    const ctxM = document.getElementById('chartMonthly').getContext('2d');
+    const gradM1 = ctxM.createLinearGradient(0, 0, 0, 320);
+    gradM1.addColorStop(0, 'rgba(24, 95, 165, 0.25)'); gradM1.addColorStop(1, 'rgba(24, 95, 165, 0)');
+    new Chart(ctxM, { type: 'line',
+      data: { labels: months.map(m => m.month), datasets: [
+        { label: 'Daromad', data: months.map(m => m.revenue), borderColor: '#185FA5', backgroundColor: gradM1, borderWidth: 3, tension: 0.4, pointRadius: 5, pointBackgroundColor: '#185FA5', pointBorderColor: '#fff', pointBorderWidth: 2, fill: true },
+        { label: 'Toza foyda', data: months.map(m => m.profit), borderColor: '#0F6E56', backgroundColor: 'transparent', borderWidth: 3, tension: 0.4, pointRadius: 5, pointBackgroundColor: '#0F6E56', pointBorderColor: '#fff', pointBorderWidth: 2 } ] },
+      options: { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' },
+        plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 8, usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 11, weight: '600' } } },
+          tooltip: { callbacks: { title: (i) => '📅 ' + i[0].label, label: (i) => '  ' + i.dataset.label + ': ' + fmtMoney(i.parsed.y) } } },
+        scales: { x: { grid: { display: false } }, y: { ticks: { callback: (v) => fmtK(v) } } } } });
+  }
+</script>
+{% endif %}
+{% endblock %}
