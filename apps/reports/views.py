@@ -135,6 +135,55 @@ def _list_csv(reports, loaded):
 
 
 @login_required
+def report_export(request):
+    """Download one weekly report (by report_num) as .xlsx — a KPI summary plus a
+    per-product sales & profit/loss sheet. Query param: ?report=<report_num>.
+
+    Requires the Подробный отчёт (БАЗА rows) for that report to be loaded; without
+    it there is no per-product detail to export."""
+    from django.http import Http404
+    from django.utils.text import slugify
+
+    from apps.analytics.excel import build_report_workbook
+
+    profile = get_active_profile(request)
+    report_num = request.GET.get('report') or ''
+    lr = ListReport.objects.filter(profile=profile, report_num=report_num).first()
+    if not lr or not BaseRow.objects.filter(profile=profile, report_num=report_num).exists():
+        raise Http404("Bu achot uchun Подробный отчёт yuklanmagan")
+
+    period = ''
+    if lr.date_from and lr.date_to:
+        period = f"{lr.date_from:%d.%m.%Y} – {lr.date_to:%d.%m.%Y}"
+        week = lr.date_from.isocalendar()[1]
+        period = f"{period}  ·  {week}-hafta"
+
+    wb = build_report_workbook(
+        title=f'Haftalik hisobot — № {report_num}',
+        kpi=analytics_services.compute_kpi(profile, report_num=report_num),
+        products=analytics_services.by_product(profile, report_num=report_num),
+        currency=profile.currency,
+        subtitle=period or profile.currency,
+    )
+    # Name the file by the period it covers (from–to). Fall back to the report
+    # number when the report has no dates.
+    if lr.date_from and lr.date_to:
+        fname = f'aira-haftalik-{lr.date_from:%d.%m.%Y}-{lr.date_to:%d.%m.%Y}.xlsx'
+    else:
+        fname = f'aira-achot-{slugify(report_num)}.xlsx'
+    return _xlsx_response(wb, fname)
+
+
+def _xlsx_response(wb, filename):
+    """Serialize an openpyxl Workbook into an attachment HttpResponse."""
+    resp = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    resp['Content-Disposition'] = f'attachment; filename="{filename}"'
+    wb.save(resp)
+    return resp
+
+
+@login_required
 @require_POST
 def delete_report(request):
     """Delete a single ListReport and (if loaded) its БАЗА rows."""

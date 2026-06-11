@@ -12,6 +12,7 @@ urlpatterns = [
     path('fines/', views.fines, name='fines'),
     path('pnl/', views.pnl, name='pnl'),
     path('monthly/', views.monthly, name='monthly'),
+    path('monthly/export/', views.monthly_export, name='monthly_export'),
     path('abc/', views.abc, name='abc'),
     path('products/', views.products, name='products'),
     path('capitalization/', reports_views.capitalization_page, name='capitalization'),

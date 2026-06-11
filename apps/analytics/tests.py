@@ -172,3 +172,38 @@ class CalculatorViewTest(TestCase):
         self.assertIn('kpi_json', resp.context)
         self.assertEqual(resp.context['calc_ctx_json']['tax_rate'], 2.0)
         self.assertEqual(resp.context['calc_ctx_json']['base_count'], 0)
+
+
+class MonthlyExportTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('s6', password='pw')
+        self.profile = Profile.objects.create(user=self.user, name='ИП', tax_type=1, tax_rate=2)
+        Cost.objects.create(profile=self.profile, code='12345', cost=235)
+        ingest_detail(self.profile, {
+            'sales': [{'srid': 'A', 'operation_type': 'Продажа', 'operation_reason': 'Продажа',
+                       'qty': 1, 'price_with_discount': 772.21, 'revenue_wb': 668.61,
+                       'to_pay': 531.71, 'wb_article': '12345', 'article': 'ART-1',
+                       'sale_date': '2025-03-07'}],
+            'info': {'filename': 'r_1.xlsx', 'reportNum': '1',
+                     'dateFrom': '2025-03-07', 'dateTo': '2025-03-07'},
+        })
+        self.client.force_login(self.user)
+
+    def test_export_returns_xlsx(self):
+        import io
+        import openpyxl
+        from django.urls import reverse
+        resp = self.client.get(reverse('analytics:monthly_export'), {'month': '2025-03'})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp['Content-Type'],
+                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        self.assertIn('attachment', resp['Content-Disposition'])
+        wb = openpyxl.load_workbook(io.BytesIO(resp.content))
+        self.assertEqual(wb.sheetnames, ['Hisobot', 'Tovarlar'])
+        # Product sheet has a header + one product row + JAMI row
+        self.assertEqual(wb['Tovarlar']['A2'].value, 'ART-1')
+
+    def test_export_unknown_month_404(self):
+        from django.urls import reverse
+        resp = self.client.get(reverse('analytics:monthly_export'), {'month': '1999-01'})
+        self.assertEqual(resp.status_code, 404)

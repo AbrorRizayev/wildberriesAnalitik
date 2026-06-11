@@ -1,0 +1,6 @@
+# Development / test only dependencies.
+# Install with:  pip install -r requirements-dev.txt
+-r requirements.txt
+
+# Used to build .xlsx fixtures in the test suite.
+openpyxl>=3.1

@@ -11,6 +11,7 @@ urlpatterns = [
         redirect_authenticated_user=True,
     ), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('subscription/expired/', views.subscription_expired, name='subscription_expired'),
     path('profile/switch/<int:profile_id>/', views.switch_profile, name='switch_profile'),
     path('profile/create/', views.profile_create, name='profile_create'),
     path('settings/', views.settings_page, name='settings'),

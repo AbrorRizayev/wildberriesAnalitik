@@ -50,11 +50,17 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # WhiteNoise serves static files efficiently straight from the app process
+    # (gzip/brotli + far-future caching). Must sit right after SecurityMiddleware.
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # Blocks logged-in customers whose subscription has expired/been disabled.
+    # Must come after AuthenticationMiddleware (needs request.user).
+    'apps.accounts.middleware.SubscriptionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -91,7 +97,10 @@ DATABASES = {
         'PASSWORD': env('DB_PASSWORD', 'aira'),
         'HOST': env('DB_HOST', '127.0.0.1'),
         'PORT': env('DB_PORT', '5432'),
-        'CONN_MAX_AGE': 60,
+        # Persist connections across requests; verify they are alive before reuse
+        # so a recycled DB container doesn't surface stale-connection errors.
+        'CONN_MAX_AGE': int(env('DB_CONN_MAX_AGE', '60')),
+        'CONN_HEALTH_CHECKS': True,
     }
 }
 
@@ -132,6 +141,22 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# In production hash + compress static files (cache-busting) and serve them via
+# WhiteNoise. In DEBUG keep the plain backend so collectstatic isn't required.
+if not DEBUG:
+    STORAGES = {
+        'default': {
+            'BACKEND': 'django.core.files.storage.FileSystemStorage',
+        },
+        'staticfiles': {
+            # Compresses static assets (gzip/brotli) and lets WhiteNoise serve
+            # them with long-lived caching. The non-manifest variant is used
+            # because the vendored minified libs reference missing .map files,
+            # which the strict manifest backend rejects during collectstatic.
+            'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
+        },
+    }
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ============ Uploads (temporary — files are NEVER stored permanently) ============
@@ -149,3 +174,39 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     X_FRAME_OPTIONS = 'DENY'
+
+    # Refuse to boot in production with the insecure development SECRET_KEY.
+    if SECRET_KEY == 'django-insecure-dev-only-change-me':
+        raise RuntimeError(
+            'SECRET_KEY is not set. Provide a strong SECRET_KEY env var when DEBUG=False.'
+        )
+
+
+# ============ Logging (to stdout/stderr for container log collection) ============
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '[{asctime}] {levelname} {name}: {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': env('LOG_LEVEL', 'INFO'),
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': env('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
+    },
+}

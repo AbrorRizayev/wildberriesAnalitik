@@ -1,6 +1,22 @@
+import calendar
+from datetime import timedelta
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 
+
+def add_months(d, months):
+    """Return ``d`` shifted forward by ``months`` whole calendar months.
+
+    Day is clamped to the last valid day of the target month (e.g. Jan 31 + 1m
+    → Feb 28/29) so we never build an invalid date.
+    """
+    index = d.month - 1 + months
+    year = d.year + index // 12
+    month = index % 12 + 1
+    day = min(d.day, calendar.monthrange(year, month)[1])
+    return d.replace(year=year, month=month, day=day)
 
 
 class User(AbstractUser):
@@ -10,13 +26,41 @@ class User(AbstractUser):
     without a painful migration.
     """
 
-    # Billing / access control (room to grow; not enforced yet in MVP)
+    # Preset subscription durations the admin can grant. The value encodes the
+    # length; ``period_end`` turns it into an expiry moment relative to a start.
+    SUBSCRIPTION_PLANS = [
+        ('3d', '3 kunlik'),
+        ('1m', '1 oylik'),
+        ('3m', '3 oylik'),
+        ('6m', '6 oylik'),
+        ('1y', '1 yillik'),
+    ]
+
+    # Billing / access control. Enforced by SubscriptionMiddleware: a user whose
+    # subscription is off or past its end date is logged in but blocked from the app.
     is_active_subscription = models.BooleanField(
         default=True,
         help_text="Obuna faol. False bo'lsa, login bo'lsa ham ma'lumotlarga kira olmaydi.",
     )
-    subscription_until = models.DateField(null=True, blank=True)
+    subscription_plan = models.CharField(
+        max_length=8,
+        choices=SUBSCRIPTION_PLANS,
+        blank=True,
+        help_text="Tanlangan obuna muddati. O'zgartirilganda tugash vaqti shu paytdan qayta hisoblanadi.",
+    )
+    subscription_until = models.DateTimeField(null=True, blank=True)
     note = models.CharField(max_length=255, blank=True, help_text='Admin uchun izoh')
+
+    @staticmethod
+    def period_end(plan, start=None):
+        """Expiry moment for ``plan`` counting from ``start`` (default: now)."""
+        start = start or timezone.now()
+        if plan == '3d':
+            return start + timedelta(days=3)
+        months = {'1m': 1, '3m': 3, '6m': 6, '1y': 12}.get(plan)
+        if months is None:
+            return None
+        return add_months(start, months)
 
     class Meta:
         verbose_name = 'Foydalanuvchi'
@@ -24,6 +68,20 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.get_full_name() or self.username
+
+    @property
+    def subscription_active(self):
+        """True when the user is allowed into the app.
+
+        Off if the admin disabled the subscription, or if ``subscription_until``
+        is set and already in the past. A null ``subscription_until`` means no
+        expiry date (unlimited while ``is_active_subscription`` stays True).
+        """
+        if not self.is_active_subscription:
+            return False
+        if self.subscription_until is not None:
+            return self.subscription_until >= timezone.now()
+        return True
 
 
 class Profile(models.Model):

@@ -40,11 +40,3 @@ def percent(num):
     if not _is_num(num):
         return '—'
     return f'{num:.1f}%'
-
-
-@register.filter
-def signed_money(num, currency='₽'):
-    if not _is_num(num):
-        return '—'
-    sign = '+' if num > 0 else ''
-    return f'{sign}{money(num, currency)}'

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static aira l10n i18n %}
 
-{% block title %}AIRA — {% trans "Отчёт по месяцам" %}{% endblock %}
+{% block title %}airastats.uz — {% trans "Отчёт по месяцам" %}{% endblock %}
 
 {% block head %}
 <style>
@@ -68,6 +68,7 @@
       .map(m => ({ ymKey: m.ymKey, kpi: m.kpi, rows: { length: m.row_count },
                    productCount: m.product_count, topProduct: m.top_product }));
     const dashboardUrl = "{% url 'analytics:dashboard' %}";
+    const exportUrl = "{% url 'analytics:monthly_export' %}";
 
     function fmt(n) { if (typeof n !== 'number' || isNaN(n)) return '—'; return Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' '); }
     function fmtMoney(n, c) { if (typeof n !== 'number' || isNaN(n)) return '—'; return fmt(n) + ' ' + (c || cur); }
@@ -153,7 +154,12 @@
                     <div class="month-card-title">${fmtMonth(m.ymKey)}</div>
                     <div style="font-size: 11px; color: var(--text-tertiary); margin-top: 2px;">${fmt(m.rows.length)} qator · ${m.productCount} ta tovar</div>
                   </div>
-                  <div class="month-card-badge">${fmt(m.kpi.sales_qty)} sotuv</div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <div class="month-card-badge">${fmt(m.kpi.sales_qty)} sotuv</div>
+                    <button class="btn btn-outline" title="Excel yuklab olish"
+                            onclick="event.stopPropagation(); downloadMonth('${m.ymKey}')"
+                            style="font-size: 11px; padding: 4px 10px; white-space: nowrap;">📥 Excel</button>
+                  </div>
                 </div>
 
                 <div class="month-metric">
@@ -274,6 +280,11 @@
       window.filterByMonth = function(ymKey) {
         // Dashboard'ga o'tib filtrlash
         window.location.href = `${dashboardUrl}?month=${ymKey}`;
+      };
+
+      window.downloadMonth = function(ymKey) {
+        // Tanlangan oy bo'yicha Excel (.xlsx) faylni yuklab olish
+        window.location.href = `${exportUrl}?month=${encodeURIComponent(ymKey)}`;
       };
 
       window.exportMonthlyCsv = function() {

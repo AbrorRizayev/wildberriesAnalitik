@@ -12,6 +12,7 @@ urlpatterns = [
     path('upload/backup/', views.backup, name='backup'),
 
     path('list-reports/', views.list_reports_page, name='list_reports'),
+    path('list-reports/export/', views.report_export, name='report_export'),
     path('list-reports/delete/', views.delete_report, name='delete_report'),
     path('list-reports/clear/', views.clear_list, name='clear_list'),
     path('base/', views.base_page, name='base'),

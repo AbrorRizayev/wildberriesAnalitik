@@ -1,0 +1,26 @@
+# Virtual envs
+venv/
+.venv/
+env/
+
+# Python caches
+__pycache__/
+*.py[cod]
+
+# Local secrets — provided at runtime via env_file / environment
+.env
+
+# Collected static (regenerated in the image)
+staticfiles/
+media/
+
+# VCS / IDE / OS
+.git/
+.gitignore
+.idea/
+.vscode/
+.DS_Store
+
+# Docs / build artifacts not needed in the image
+*.log
+*.md

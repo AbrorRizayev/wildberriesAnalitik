@@ -1,7 +1,24 @@
 {% extends 'base.html' %}
 {% load static aira i18n %}
 
-{% block title %}AIRA — {% trans "Tovarlar" %}{% endblock %}
+{% block title %}airastats.uz — {% trans "Tovarlar" %}{% endblock %}
+
+{% block head %}
+<style>
+  /* Chapga "pin" qilinadigan ustunlar: gorizontal surganda joyida turadi */
+  .pin-col { position: sticky; z-index: 5; }
+  .pin-num { left: 0; width: 36px; min-width: 36px; }
+  .pin-art { left: 36px; }
+  .pin-art::after, .pin-num::after {
+    content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 1px;
+    background: var(--border);
+  }
+  .table thead .pin-col { z-index: 20; background: var(--gray-100); }
+  .table tbody .pin-col { background: #fff; }
+  .table tbody tr:hover .pin-col { background: var(--bg-alt); }
+  .table tfoot .pin-col { z-index: 6; background: var(--gray-100); }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -192,13 +209,11 @@ function renderInner() {
     `${filtered.length} ta ${groupMode ? 'guruh' : 'tovar'}`;
 
   document.getElementById('tableWrapper').innerHTML = `
-    <table class="table" style="font-size: 11px; min-width: 1600px;">
+    <table class="table" style="font-size: 11px; min-width: 1320px;">
       <thead style="position: sticky; top: 0; z-index: 10;">
         <tr>
-          <th rowspan="2" style="background: var(--gray-100); color: var(--text); border-bottom: 1px solid var(--border); width: 36px;">#</th>
-          <th rowspan="2" style="background: var(--gray-100); color: var(--text); border-bottom: 1px solid var(--border); min-width: 90px;">Brend</th>
-          <th rowspan="2" style="background: var(--gray-100); color: var(--text); border-bottom: 1px solid var(--border); min-width: 130px;">${groupMode ? "Guruh" : "Artikul"}</th>
-          <th rowspan="2" style="background: var(--gray-100); color: var(--text); border-bottom: 1px solid var(--border); min-width: 200px;">Tovar</th>
+          <th rowspan="2" class="pin-col pin-num" style="color: var(--text); border-bottom: 1px solid var(--border);">#</th>
+          <th rowspan="2" class="pin-col pin-art" style="color: var(--text); border-bottom: 1px solid var(--border); min-width: 130px;">${groupMode ? "Guruh" : "Artikul"}</th>
           <th colspan="12" style="background: linear-gradient(135deg, #0F6E56, #095440); color: white; text-align: center; padding: 10px; font-size: 12px; font-weight: 700; letter-spacing: 0.3px;">📦 ПРОДАЖИ</th>
           <th colspan="5" style="background: linear-gradient(135deg, #A32D2D, #6E1F1F); color: white; text-align: center; padding: 10px; font-size: 12px; font-weight: 700; letter-spacing: 0.3px;">📦 WB УШЛАНМАЛАРИ</th>
           <th colspan="5" style="background: linear-gradient(135deg, #185FA5, #042C53); color: white; text-align: center; padding: 10px; font-size: 12px; font-weight: 700; letter-spacing: 0.3px;">💰 ФОЙДА</th>
@@ -239,10 +254,8 @@ function renderInner() {
           const groupBadge = groupMode && p.variant_count > 1 ? `<span style="display: inline-block; padding: 1px 6px; background: var(--blue-bg); color: var(--blue); border-radius: 4px; font-size: 9px; font-weight: 700; margin-left: 4px;">${p.variant_count}×</span>` : '';
           return `
           <tr>
-            <td>${i + 1}</td>
-            <td style="font-size: 10px;">${p.brand || '—'}</td>
-            <td><strong style="color: var(--blue);">${p.article}</strong>${groupBadge}</td>
-            <td style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${p.product || ''}">${(p.product || '').substring(0, 30)}${p.product && p.product.length > 30 ? '…' : ''}</td>
+            <td class="pin-col pin-num">${i + 1}</td>
+            <td class="pin-col pin-art"><strong style="color: var(--blue);">${p.article}</strong>${groupBadge}</td>
             <td class="num" style="background: var(--green-light);">${fmt(p.buyouts_qty)}</td>
             <td class="num">${fmtMoney(p.revenue + (p.returns_rub || 0), cur)}</td>
             <td class="num" style="color: var(--red-dark);">${fmt(p.returns_qty)}</td>
@@ -273,7 +286,7 @@ function renderInner() {
       </tbody>
       <tfoot style="position: sticky; bottom: 0; background: var(--gray-100); font-weight: 700;">
         <tr>
-          <td colspan="4">JAMI (${filtered.length} ta ${groupMode ? 'guruh' : 'tovar'})</td>
+          <td colspan="2" class="pin-col pin-num">JAMI (${filtered.length} ta ${groupMode ? 'guruh' : 'tovar'})</td>
           <td class="num">${fmt(filtered.reduce((s,p) => s + (p.buyouts_qty || 0), 0))}</td>
           <td class="num">${fmtMoney(filtered.reduce((s,p) => s + p.revenue + (p.returns_rub || 0), 0), cur)}</td>
           <td class="num">${fmt(filtered.reduce((s,p) => s + p.returns_qty, 0))}</td>

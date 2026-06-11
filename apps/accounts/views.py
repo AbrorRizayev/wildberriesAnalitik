@@ -7,6 +7,19 @@ from .models import Profile
 SESSION_KEY = 'active_profile_id'
 
 
+@login_required
+def subscription_expired(request):
+    """Notice shown to a logged-in user whose subscription has lapsed.
+
+    Active subscribers have no reason to be here, so bounce them back to the app.
+    """
+    if request.user.subscription_active:
+        return redirect('analytics:dashboard')
+    return render(request, 'accounts/subscription_expired.html', {
+        'subscription_until': request.user.subscription_until,
+    })
+
+
 def get_active_profile(request):
     """Return the request user's active profile, creating a default one if none exist.
 

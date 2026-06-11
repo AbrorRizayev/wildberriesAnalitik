@@ -5,21 +5,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>{% trans "AIRA — аналитика и финансы для продавцов Wildberries" %}</title>
-<meta name="description" content="{% trans "AIRA — сервис аналитики Wildberries: загрузите отчёт WB и получите точный P&L, ABC-анализ, себестоимость, юнит-экономику и капитализацию склада. Считаем вашу чистую прибыль автоматически." %}">
-<meta name="keywords" content="AIRA, аналитика Wildberries, WB аналитика, отчёт Wildberries, прибыль WB, P&L Wildberries, юнит экономика, ABC анализ, себестоимость WB">
+<title>{% trans "airastats.uz — аналитика и финансы для продавцов Wildberries" %}</title>
+<meta name="description" content="{% trans "airastats.uz — сервис аналитики Wildberries: загрузите отчёт WB и получите точный P&L, ABC-анализ, себестоимость, юнит-экономику и капитализацию склада. Считаем вашу чистую прибыль автоматически." %}">
+<meta name="keywords" content="airastats.uz, аналитика Wildberries, WB аналитика, отчёт Wildberries, прибыль WB, P&L Wildberries, юнит экономика, ABC анализ, себестоимость WB">
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#042C53">
 <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}/">
 
 <!-- Open Graph / social preview -->
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="AIRA">
-<meta property="og:title" content="{% trans "AIRA — аналитика и финансы для продавцов Wildberries" %}">
+<meta property="og:site_name" content="airastats.uz">
+<meta property="og:title" content="{% trans "airastats.uz — аналитика и финансы для продавцов Wildberries" %}">
 <meta property="og:description" content="{% trans "Загрузите отчёт WB — получите готовый P&L, ABC-анализ, себестоимость и реальную чистую прибыль." %}">
 <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}/">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{% trans "AIRA — аналитика Wildberries" %}">
+<meta name="twitter:title" content="{% trans "airastats.uz — аналитика Wildberries" %}">
 <meta name="twitter:description" content="{% trans "Реальная прибыль с Wildberries без таблиц. Загрузите отчёт — получите аналитику." %}">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,7 +31,7 @@
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  "name": "AIRA",
+  "name": "airastats.uz",
   "applicationCategory": "BusinessApplication",
   "operatingSystem": "Web",
   "description": "Сервис аналитики и финансового учёта для продавцов Wildberries: P&L, ABC-анализ, себестоимость, юнит-экономика и капитализация.",
@@ -179,6 +179,8 @@
   .foot .flinks{display:flex; gap:22px;}
   .foot .flinks a{font-size:14px; color:var(--muted);}
   .foot .flinks a:hover{color:var(--navy);}
+  .foot .flinks a.dev-link{font-weight:700; color:var(--blue);}
+  .foot .flinks a.dev-link:hover{color:var(--navy);}
 
   /* responsive */
   @media (max-width:900px){
@@ -204,7 +206,7 @@
 <!-- NAVBAR -->
 <header class="nav">
   <div class="container nav-inner">
-    <a href="/" class="logo"><span class="logo-mark">AIRA</span> AIRA</a>
+    <a href="/" class="logo"><span class="logo-mark">AS</span> airastats.uz</a>
     <nav class="nav-links" id="navLinks">
       <a class="link" href="#features">{% trans "Возможности" %}</a>
       <a class="link" href="#how">{% trans "Как это работает" %}</a>
@@ -240,7 +242,7 @@
       <div>
         <span class="pill"><span class="dot"></span> {% trans "Аналитика Wildberries нового поколения" %}</span>
         <h1 class="hero-title">{% blocktranslate %}Реальная <span class="grad">прибыль</span> с Wildberries — без таблиц{% endblocktranslate %}</h1>
-        <p class="hero-sub">{% trans "Загрузите отчёт WB — и AIRA сама посчитает себестоимость, комиссии, логистику, штрафы и налоги. Вы видите чистую прибыль, P&L, ABC-анализ и юнит-экономику в один клик." %}</p>
+        <p class="hero-sub">{% trans "Загрузите отчёт WB — и airastats.uz сама посчитает себестоимость, комиссии, логистику, штрафы и налоги. Вы видите чистую прибыль, P&L, ABC-анализ и юнит-экономику в один клик." %}</p>
         <div class="hero-actions">
           {% if is_authed %}
             <a class="btn btn-primary" href="{% url 'analytics:dashboard' %}">{% trans "Перейти в кабинет →" %}</a>
@@ -309,11 +311,11 @@
     <div class="sec-head">
       <div class="sec-tag">{% trans "Как это работает" %}</div>
       <h2>{% trans "Три шага до точной прибыли" %}</h2>
-      <p>{% trans "Без сложных таблиц и ручных расчётов. AIRA делает всю работу за вас." %}</p>
+      <p>{% trans "Без сложных таблиц и ручных расчётов. airastats.uz делает всю работу за вас." %}</p>
     </div>
     <div class="steps">
       <div class="step"><div class="n">1</div><h3>{% trans "Загрузите отчёт WB" %}</h3>
-        <p>{% trans "Выгрузите детальный отчёт из личного кабинета Wildberries и загрузите его в AIRA. Файл не хранится на сервере." %}</p></div>
+        <p>{% trans "Выгрузите детальный отчёт из личного кабинета Wildberries и загрузите его в airastats.uz. Файл не хранится на сервере." %}</p></div>
       <div class="step"><div class="n">2</div><h3>{% trans "Автоматический расчёт" %}</h3>
         <p>{% trans "51 формула пересчитывает себестоимость, комиссии, логистику, штрафы и налоги по каждой строке." %}</p></div>
       <div class="step"><div class="n">3</div><h3>{% trans "Готовая аналитика" %}</h3>
@@ -327,7 +329,7 @@
   <div class="container">
     <div class="split">
       <div>
-        <div class="sec-tag">{% trans "Почему AIRA" %}</div>
+        <div class="sec-tag">{% trans "Почему airastats.uz" %}</div>
         <h2 style="font-size:clamp(28px,3.2vw,38px); font-weight:800; color:var(--navy); letter-spacing:-.6px; margin:12px 0 26px;">
           {% trans "Считаем как бухгалтер, показываем как аналитик" %}</h2>
         <ul class="blist">
@@ -370,13 +372,14 @@
 <!-- FOOTER -->
 <footer>
   <div class="container foot">
-    <a href="/" class="logo" style="font-size:17px;"><span class="logo-mark" style="width:32px;height:32px;font-size:11px;">AIRA</span> AIRA</a>
+    <a href="/" class="logo" style="font-size:17px;"><span class="logo-mark" style="width:32px;height:32px;font-size:11px;">AS</span> airastats.uz</a>
     <div class="flinks">
       <a href="#features">{% trans "Возможности" %}</a>
       <a href="#how">{% trans "Как это работает" %}</a>
       <a href="{% url 'accounts:login' %}">{% trans "Войти" %}</a>
+      <a href="https://t.me/abrzyv" target="_blank" rel="noopener" class="dev-link">{% trans "Связь с разработчиком" %} — @abrzyv</a>
     </div>
-    <div class="muted">{% trans "© AIRA — аналитика Wildberries" %}</div>
+    <div class="muted">{% trans "© airastats.uz — аналитика Wildberries" %}</div>
   </div>
 </footer>
 

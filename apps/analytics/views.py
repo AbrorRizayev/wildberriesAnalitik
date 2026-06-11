@@ -1,10 +1,26 @@
 from django.contrib.auth.decorators import login_required
+from django.http import Http404, HttpResponse
 from django.shortcuts import render
 
 from apps.accounts.views import get_active_profile
 from apps.reports.models import BaseRow
 
 from . import services
+
+_MONTH_NAMES_UZ = {
+    '01': 'Yanvar', '02': 'Fevral', '03': 'Mart', '04': 'Aprel',
+    '05': 'May', '06': 'Iyun', '07': 'Iyul', '08': 'Avgust',
+    '09': 'Sentabr', '10': 'Oktabr', '11': 'Noyabr', '12': 'Dekabr',
+}
+
+
+def _fmt_month_uz(ym):
+    """'YYYY-MM' -> 'Avgust 2025'."""
+    try:
+        y, m = ym.split('-')
+        return f"{_MONTH_NAMES_UZ.get(m, m)} {y}"
+    except (ValueError, AttributeError):
+        return ym
 
 
 def _has_data(profile):
@@ -179,6 +195,48 @@ def monthly(request):
         'currency': profile.currency,
         'has_data': bool(months),
     })
+
+
+def _xlsx_response(wb, filename):
+    """Serialize an openpyxl Workbook into an attachment HttpResponse."""
+    resp = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    resp['Content-Disposition'] = f'attachment; filename="{filename}"'
+    wb.save(resp)
+    return resp
+
+
+@login_required
+def monthly_export(request):
+    """Download a single month's report as .xlsx: a KPI summary sheet (the same
+    monthly expense breakdown shown on the cards) plus a per-product profit/loss
+    sheet. Query param: ?month=YYYY-MM."""
+    from .excel import build_report_workbook
+
+    profile = get_active_profile(request)
+    month = request.GET.get('month') or None
+    if not month or month not in services.month_keys(profile):
+        raise Http404('Bunday oy uchun maʼlumot topilmadi')
+
+    import calendar
+    from datetime import date
+
+    month_label = _fmt_month_uz(month)
+    # Calendar bounds of the month (1st → last day) for the filename + subtitle,
+    # so the user sees exactly which dates the report covers.
+    year, mon = (int(x) for x in month.split('-'))
+    start = date(year, mon, 1)
+    end = date(year, mon, calendar.monthrange(year, mon)[1])
+    period = f'{start:%d.%m.%Y} – {end:%d.%m.%Y}'
+
+    wb = build_report_workbook(
+        title=f'Oylik hisobot — {month_label}',
+        kpi=services.compute_kpi(profile, month=month),
+        products=services.by_product(profile, month=month),
+        currency=profile.currency,
+        subtitle=period,
+    )
+    return _xlsx_response(wb, f'aira-oylik-{start:%d.%m.%Y}-{end:%d.%m.%Y}.xlsx')
 
 
 @login_required

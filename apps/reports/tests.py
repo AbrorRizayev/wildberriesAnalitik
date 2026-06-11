@@ -357,3 +357,35 @@ class CapitalizationTest(TestCase):
         self.client.force_login(other)
         resp = self.client.get(reverse('analytics:capitalization'))
         self.assertEqual(len(resp.context['cap_stock_json']), 0)
+
+
+class ReportExportTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('rexp', password='pw12345')
+        self.profile = Profile.objects.create(user=self.user, name='ИП Тест', tax_type=1, tax_rate=2)
+        Cost.objects.create(profile=self.profile, code='12345', cost=235, name='Товар')
+        self.client.force_login(self.user)
+        # Load both the Список row and a Подробный (БАЗА) row for report 692179585.
+        self.client.post(reverse('reports:upload_list'), {'file': make_list_xlsx()})
+        self.client.post(reverse('reports:upload_detail'), {'file': make_detail_xlsx([DETAIL_ROW])})
+
+    def test_export_returns_xlsx(self):
+        import openpyxl
+        resp = self.client.get(reverse('reports:report_export'), {'report': '692179585'})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp['Content-Type'],
+                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        self.assertIn('attachment', resp['Content-Disposition'])
+        wb = openpyxl.load_workbook(io.BytesIO(resp.content))
+        self.assertEqual(wb.sheetnames, ['Hisobot', 'Tovarlar'])
+        self.assertEqual(wb['Tovarlar']['A2'].value, 'ART-1')
+
+    def test_export_unloaded_report_404(self):
+        # A Список row with no Подробный data → no per-product detail to export.
+        ListReport.objects.create(profile=self.profile, report_num='999')
+        resp = self.client.get(reverse('reports:report_export'), {'report': '999'})
+        self.assertEqual(resp.status_code, 404)
+
+    def test_export_unknown_report_404(self):
+        resp = self.client.get(reverse('reports:report_export'), {'report': 'nope'})
+        self.assertEqual(resp.status_code, 404)
