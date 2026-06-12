@@ -396,6 +396,21 @@
     color: var(--navy);
     font-weight: 700;
   }
+  .cap-export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--navy, #1b2a4a);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+  .cap-export-btn:hover { opacity: 0.85; }
   .cap-table-scroll {
     overflow-x: auto;
     max-height: 600px;
@@ -570,6 +585,7 @@
     cost: "{% url 'reports:cap_cost_set' %}",
   };
 </script>
+<script src="{% static 'js/lib/xlsx.full.min.js' %}"></script>
 {% verbatim %}
 <script>
 
@@ -743,6 +759,7 @@ window.initPage = function() {
             <span>Jami SKU: <strong>${computed.rows.length}</strong></span>
             <span>Sklad: <strong>${escapeHtml(params.selected_warehouse)}</strong></span>
             <span>Стоимость закупки: <strong>${fmt(Math.round(computed.totalPurchaseCost))} ₽</strong></span>
+            <button class="cap-export-btn" onclick="exportCapToExcel()">📥 Excel</button>
           </div>
         </div>
         <div class="cap-table-scroll">
@@ -1121,6 +1138,61 @@ window.initPage = function() {
   function escapeHtml(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
+
+  // ============ Excel eksport ============
+  function signalLabel(signal) {
+    if (signal === 'red') return 'Tezda tugaydi';
+    if (signal === 'amber') return 'Yetmaydi';
+    if (signal === 'green') return 'Yetadi';
+    if (signal === 'no-orders') return 'Sotilmayapti';
+    return '—';
+  }
+
+  window.exportCapToExcel = function() {
+    const stock = Storage.getCapStock() || [];
+    const sales = Storage.getCapSales() || [];
+    if (stock.length === 0 || sales.length === 0) {
+      notify('Eksport uchun maʼlumot yoʻq', 'warning');
+      return;
+    }
+    const params = Storage.getCapParams();
+    const computed = computeCapitalization(stock, sales, Storage.getCapNomenclature() || [], params);
+    const rows = computed.rows;
+
+    const wb = XLSX.utils.book_new();
+    const aoa = [['№', 'Бренд', 'Артикул', 'Размер', 'Баркод', 'Тannarx', 'Остатки',
+      'Заказано', 'Сред/день', 'Запас (кун)', 'Капитализация', 'Ост. посл. пост.',
+      'Сколько поставить', 'Стоимость закупки', 'Signal']];
+    rows.forEach((r, i) => aoa.push([
+      i + 1,
+      r.brand || '',
+      r.article || '',
+      r.size || '',
+      String(r.barcode || ''),
+      Math.round(r.cost || 0),
+      r.stock || 0,
+      r.ordered || 0,
+      r.avgPerDay > 0 ? Number(r.avgPerDay.toFixed(1)) : 0,
+      r.daysLeft === null ? '' : Math.round(r.daysLeft),
+      Math.round(r.capitalization || 0),
+      Math.round(r.stockAfterDelivery || 0),
+      Math.round(r.toSupply || 0),
+      Math.round(r.purchaseCost || 0),
+      signalLabel(r.signal),
+    ]));
+    // Yakuniy jami qatori
+    aoa.push([]);
+    aoa.push(['', '', '', '', 'JAMI', '', computed.totalStock, computed.totalOrders, '', '',
+      Math.round(computed.totalCapitalization), '', '', Math.round(computed.totalPurchaseCost), '']);
+
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    ws['!cols'] = [{ wch: 5 }, { wch: 14 }, { wch: 22 }, { wch: 10 }, { wch: 16 }, { wch: 12 },
+      { wch: 10 }, { wch: 10 }, { wch: 11 }, { wch: 11 }, { wch: 15 }, { wch: 16 },
+      { wch: 17 }, { wch: 17 }, { wch: 14 }];
+    XLSX.utils.book_append_sheet(wb, ws, 'Капитализация');
+    XLSX.writeFile(wb, `aira-kapitalizatsiya-${new Date().toISOString().substring(0, 10)}.xlsx`);
+    notify(`✓ ${rows.length} ta SKU Excel'ga eksport qilindi`, 'success');
+  };
 
   // ============ MODAL — tezda tugaydigan tovarlar ============
   window.showLowStockModal = function() {
