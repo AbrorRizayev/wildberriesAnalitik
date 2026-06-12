@@ -632,6 +632,11 @@ window.initPage = function() {
 
   // ============ Render boshlash ============
   function renderPage() {
+    // Joriy scroll holatini eslab qolamiz — qayta render qilingach o'rniga qaytaramiz
+    // (masalan tannarx tahrirlangach foydalanuvchini tepaga sakratib yubormaslik uchun).
+    const _prevScrollEl = content.querySelector('.cap-table-scroll');
+    const _prevScroll = { table: _prevScrollEl ? _prevScrollEl.scrollTop : 0, win: window.scrollY };
+
     const stock = Storage.getCapStock() || [];
     const sales = Storage.getCapSales() || [];
     const nomenclature = Storage.getCapNomenclature() || [];
@@ -690,6 +695,11 @@ window.initPage = function() {
     bindUploadZones();
     bindParamInputs();
     bindCostEdits();
+
+    // Saqlangan scroll holatini tiklash
+    const _newScrollEl = content.querySelector('.cap-table-scroll');
+    if (_newScrollEl) _newScrollEl.scrollTop = _prevScroll.table;
+    window.scrollTo(0, _prevScroll.win);
   }
 
   // ============ Zone HTML ============
@@ -959,6 +969,11 @@ window.initPage = function() {
     //       4) no-orders (sotilmagan — eng oxirgi)
     const priority = { red: 0, amber: 1, green: 2, none: 3, 'no-orders': 4 };
     rows.sort((a, b) => {
+      // Tannarxi yo'q mahsulotlar har doim eng tepada (tannarx yozilganlari pastda tartibli turadi)
+      const aNoCost = (a.cost || 0) > 0 ? 1 : 0;
+      const bNoCost = (b.cost || 0) > 0 ? 1 : 0;
+      if (aNoCost !== bNoCost) return aNoCost - bNoCost;
+
       const pa = priority[a.signal] !== undefined ? priority[a.signal] : 5;
       const pb = priority[b.signal] !== undefined ? priority[b.signal] : 5;
       if (pa !== pb) return pa - pb;
@@ -1159,36 +1174,50 @@ window.initPage = function() {
     const computed = computeCapitalization(stock, sales, Storage.getCapNomenclature() || [], params);
     const rows = computed.rows;
 
+    // Tovar nomi va guruhni costs'dan topish uchun xarita (barkod ustun, kod zaxira)
+    const costByBarcode = {}, costByCode = {};
+    for (const c of (Storage.getCosts() || [])) {
+      if (c.barcode) costByBarcode[String(c.barcode)] = c;
+      if (c.code) costByCode[String(c.code)] = c;
+    }
+    const infoFor = (r) => costByBarcode[String(r.barcode)] || costByCode[String(r.code)] || {};
+
     const wb = XLSX.utils.book_new();
-    const aoa = [['№', 'Бренд', 'Артикул', 'Размер', 'Баркод', 'Тannarx', 'Остатки',
-      'Заказано', 'Сред/день', 'Запас (кун)', 'Капитализация', 'Ост. посл. пост.',
-      'Сколько поставить', 'Стоимость закупки', 'Signal']];
-    rows.forEach((r, i) => aoa.push([
-      i + 1,
-      r.brand || '',
-      r.article || '',
-      r.size || '',
-      String(r.barcode || ''),
-      Math.round(r.cost || 0),
-      r.stock || 0,
-      r.ordered || 0,
-      r.avgPerDay > 0 ? Number(r.avgPerDay.toFixed(1)) : 0,
-      r.daysLeft === null ? '' : Math.round(r.daysLeft),
-      Math.round(r.capitalization || 0),
-      Math.round(r.stockAfterDelivery || 0),
-      Math.round(r.toSupply || 0),
-      Math.round(r.purchaseCost || 0),
-      signalLabel(r.signal),
-    ]));
+    const aoa = [['№', 'Бренд', 'Артикул поставщика', 'Размер', 'Товар', 'Код номенклатуры',
+      'Баркод', 'Тannarx', 'Остатки', 'Заказано', 'Сред/день', 'Запас (кун)', 'Капитализация',
+      'Ост. посл. пост.', 'Сколько поставить', 'Стоимость закупки', 'Группа', 'Signal']];
+    rows.forEach((r, i) => {
+      const info = infoFor(r);
+      aoa.push([
+        i + 1,
+        r.brand || '',
+        r.article || '',
+        r.size || '',
+        info.name || '',
+        r.code || '',
+        String(r.barcode || ''),
+        Math.round(r.cost || 0),
+        r.stock || 0,
+        r.ordered || 0,
+        r.avgPerDay > 0 ? Number(r.avgPerDay.toFixed(1)) : 0,
+        r.daysLeft === null ? '' : Math.round(r.daysLeft),
+        Math.round(r.capitalization || 0),
+        Math.round(r.stockAfterDelivery || 0),
+        Math.round(r.toSupply || 0),
+        Math.round(r.purchaseCost || 0),
+        info.group || '',
+        signalLabel(r.signal),
+      ]);
+    });
     // Yakuniy jami qatori
     aoa.push([]);
-    aoa.push(['', '', '', '', 'JAMI', '', computed.totalStock, computed.totalOrders, '', '',
-      Math.round(computed.totalCapitalization), '', '', Math.round(computed.totalPurchaseCost), '']);
+    aoa.push(['', '', '', '', '', '', 'JAMI', '', computed.totalStock, computed.totalOrders, '', '',
+      Math.round(computed.totalCapitalization), '', '', Math.round(computed.totalPurchaseCost), '', '']);
 
     const ws = XLSX.utils.aoa_to_sheet(aoa);
-    ws['!cols'] = [{ wch: 5 }, { wch: 14 }, { wch: 22 }, { wch: 10 }, { wch: 16 }, { wch: 12 },
-      { wch: 10 }, { wch: 10 }, { wch: 11 }, { wch: 11 }, { wch: 15 }, { wch: 16 },
-      { wch: 17 }, { wch: 17 }, { wch: 14 }];
+    ws['!cols'] = [{ wch: 5 }, { wch: 14 }, { wch: 22 }, { wch: 10 }, { wch: 50 }, { wch: 16 },
+      { wch: 16 }, { wch: 12 }, { wch: 10 }, { wch: 10 }, { wch: 11 }, { wch: 11 }, { wch: 15 },
+      { wch: 16 }, { wch: 17 }, { wch: 17 }, { wch: 12 }, { wch: 14 }];
     XLSX.utils.book_append_sheet(wb, ws, 'Капитализация');
     XLSX.writeFile(wb, `aira-kapitalizatsiya-${new Date().toISOString().substring(0, 10)}.xlsx`);
     notify(`✓ ${rows.length} ta SKU Excel'ga eksport qilindi`, 'success');
