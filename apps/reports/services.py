@@ -377,6 +377,51 @@ def import_costs(profile, rows):
     return {'added': added, 'updated': updated}
 
 
+def import_costs_fill_missing(profile, rows):
+    """Fill costs from an uploaded tannarx file ONLY for products that have no
+    cost yet (cost == 0). Products that already have a cost are left untouched.
+    Matched by code (fallback article), same as import_costs."""
+    existing = {}
+    for c in Cost.objects.filter(profile=profile):
+        existing[c.code or c.article] = c
+    added = filled = skipped = 0
+    to_create, to_update = [], []
+    for nc in rows:
+        new_cost = nc['cost']
+        if not new_cost or new_cost <= 0:
+            continue  # uploaded row has no usable cost
+        key = nc['code'] or nc['article']
+        cur = existing.get(key)
+        if cur:
+            if (cur.cost or 0) > 0:
+                skipped += 1  # already priced — keep the existing cost
+                continue
+            cur.cost = new_cost
+            cur.cost_future = cur.cost_future or new_cost
+            # Backfill descriptive fields only when empty.
+            cur.brand = cur.brand or _trunc('brand', nc['brand'])
+            cur.article = cur.article or _trunc('article', nc['article'])
+            cur.name = cur.name or _trunc('name', nc['name'])
+            cur.group = cur.group or _trunc('group', nc['group'])
+            to_update.append(cur)
+            filled += 1
+        else:
+            obj = Cost(profile=profile, brand=_trunc('brand', nc['brand']),
+                       article=_trunc('article', nc['article']), name=_trunc('name', nc['name']),
+                       code=_trunc('code', nc['code']), group=_trunc('group', nc['group']),
+                       cost=new_cost, cost_future=new_cost, kluch=_trunc('kluch', nc['code']))
+            to_create.append(obj)
+            existing[key] = obj
+            added += 1
+    if to_create:
+        Cost.objects.bulk_create(to_create)
+    if to_update:
+        Cost.objects.bulk_update(to_update, ['brand', 'article', 'name',
+                                             'group', 'cost', 'cost_future'])
+    recompute_profile(profile)
+    return {'added': added, 'filled': filled, 'skipped': skipped}
+
+
 def base_code_info(profile):
     """Map код номенклатуры -> {brand, article, product, sizes[]} from БАЗА.
 

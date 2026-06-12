@@ -496,6 +496,24 @@ def cap_cost_set(request):
     return JsonResponse(result)
 
 
+@login_required
+@require_POST
+def cap_costs_import(request):
+    """Bulk-fill costs from an uploaded tannarx Excel — only for products that
+    currently have no cost. Existing costs stay as they are."""
+    profile = get_active_profile(request)
+    uploaded = request.FILES.get('file')
+    err = _validate(uploaded, COST_EXTS)
+    if err:
+        return JsonResponse({'ok': False, 'error': err}, status=400)
+    try:
+        rows = services.parse_costs_file(uploaded)
+        result = services.import_costs_fill_missing(profile, rows)
+    except Exception as e:  # noqa: BLE001
+        return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+    return JsonResponse({'ok': True, **result})
+
+
 # ============================================================
 # Хранение (storage) — read-only aggregation over BaseRow.storage
 # ============================================================

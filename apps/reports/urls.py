@@ -31,6 +31,7 @@ urlpatterns = [
     path('capitalization/clear/', views.cap_clear, name='cap_clear'),
     path('capitalization/params/', views.cap_params_save, name='cap_params_save'),
     path('capitalization/cost/', views.cap_cost_set, name='cap_cost_set'),
+    path('capitalization/costs-import/', views.cap_costs_import, name='cap_costs_import'),
     path('self-purchase/', views.self_purchase_page, name='self_purchase'),
     path('self-purchase/save/', views.self_purchase_save, name='self_purchase_save'),
     path('self-purchase/delete/', views.self_purchase_delete, name='self_purchase_delete'),

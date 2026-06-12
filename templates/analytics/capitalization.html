@@ -411,6 +411,10 @@
     transition: opacity 0.15s ease;
   }
   .cap-export-btn:hover { opacity: 0.85; }
+  .cap-export-btn--ghost {
+    background: transparent;
+    color: var(--navy, #1b2a4a);
+  }
   .cap-table-scroll {
     overflow-x: auto;
     max-height: 600px;
@@ -583,6 +587,7 @@
     clear: "{% url 'reports:cap_clear' %}",
     params: "{% url 'reports:cap_params_save' %}",
     cost: "{% url 'reports:cap_cost_set' %}",
+    costsImport: "{% url 'reports:cap_costs_import' %}",
   };
 </script>
 <script src="{% static 'js/lib/xlsx.full.min.js' %}"></script>
@@ -769,7 +774,10 @@ window.initPage = function() {
             <span>Jami SKU: <strong>${computed.rows.length}</strong></span>
             <span>Sklad: <strong>${escapeHtml(params.selected_warehouse)}</strong></span>
             <span>Стоимость закупки: <strong>${fmt(Math.round(computed.totalPurchaseCost))} ₽</strong></span>
+            <button class="cap-export-btn" onclick="document.getElementById('capCostImport').click()" title="Excel'dan tannarx yuklash — faqat tannarxi yo'q mahsulotlarга yoziladi">📤 Tannarx yuklash</button>
+            <button class="cap-export-btn cap-export-btn--ghost" onclick="downloadCapCostTemplate()" title="Bo'sh shablon Excel">📋 Shablon</button>
             <button class="cap-export-btn" onclick="exportCapToExcel()">📥 Excel</button>
+            <input type="file" id="capCostImport" accept=".xlsx,.xls,.csv" style="display:none" onchange="importCapCostsFromExcel(event)">
           </div>
         </div>
         <div class="cap-table-scroll">
@@ -1162,6 +1170,48 @@ window.initPage = function() {
     if (signal === 'no-orders') return 'Sotilmayapti';
     return '—';
   }
+
+  // Excel'dan tannarx yuklash — faqat tannarxi yo'q mahsulotlarga yoziladi (server).
+  window.importCapCostsFromExcel = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('file', file);
+    notify('Tannarx yuklanmoqda...', 'info');
+    try {
+      const r = await fetch(CAP_URLS.costsImport, {
+        method: 'POST', headers: { 'X-CSRFToken': _csrf() }, body: fd });
+      const res = await r.json();
+      if (res.ok) {
+        const written = (res.added || 0) + (res.filled || 0);
+        let msg = `✓ ${written} ta mahsulotga tannarx yozildi`;
+        if (res.skipped) msg += `, ${res.skipped} ta o'zgarmadi (tannarxi bor edi)`;
+        notify(msg, 'success');
+        setTimeout(() => location.reload(), 900);
+      } else {
+        notify('Import xatosi: ' + (res.error || ''), 'error');
+      }
+    } catch (err) {
+      notify('Import xatosi: ' + err.message, 'error');
+    } finally {
+      event.target.value = '';
+    }
+  };
+
+  // Bo'sh tannarx shabloni (mijoz tomonida, tannarx bo'limidagi kabi).
+  window.downloadCapCostTemplate = function() {
+    const wb = XLSX.utils.book_new();
+    const aoa = [
+      ['№', 'Бренд', 'Артикул поставщика', 'Размер', 'Товар', 'Код номенклатуры', 'Себестоимость', 'Группа'],
+      ['1', 'Piccino', 'dvoyka-persik', '1yosh', 'Костюм для новорожденных', '452443644', 235, ''],
+      ['2', 'Piccino', 'dvoyka-persik', '2yosh', 'Костюм для новорожденных', '452443645', 235, ''],
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    ws['!cols'] = [{ wch: 5 }, { wch: 12 }, { wch: 22 }, { wch: 16 }, { wch: 50 }, { wch: 16 }, { wch: 14 }, { wch: 12 }];
+    XLSX.utils.book_append_sheet(wb, ws, 'Себестоимость');
+    XLSX.writeFile(wb, 'aira-tannarx-shablon.xlsx');
+    notify('Shablon yuklab olindi', 'success');
+  };
 
   window.exportCapToExcel = function() {
     const stock = Storage.getCapStock() || [];
