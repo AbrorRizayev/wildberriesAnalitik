@@ -165,7 +165,7 @@
           </div>
           <button class="btn btn-primary"
                   onclick="quickAdd('{{ m.code }}', this)"
-                  data-article="{{ m.article }}" data-product="{{ m.product }}" data-brand="{{ m.brand|default:'Piccino' }}"
+                  data-article="{{ m.article }}" data-product="{{ m.product }}" data-brand="{{ m.brand|default:profile.brand }}"
                   style="font-size: 11px; padding: 5px 10px; flex-shrink: 0;">+ {% trans "Qo'shish" %}</button>
         </div>
       {% endfor %}
@@ -178,7 +178,7 @@
 <div id="costModal" class="modal-overlay" style="display: none;">
   <div class="modal">
     <h3 style="margin: 0 0 16px; font-size: 16px;">{% trans "Yangi tovar qo'shish" %}</h3>
-    <div class="form-row"><label>{% trans "Бренд" %}</label><input type="text" id="newBrand" class="input" value="Piccino"></div>
+    <div class="form-row"><label>{% trans "Бренд" %}</label><input type="text" id="newBrand" class="input" value="{{ profile.brand }}"></div>
     <div class="form-row"><label>{% trans "Артикул" %} *</label><input type="text" id="newArticle" class="input"></div>
     <div class="form-row"><label>{% trans "Товар" %}</label><input type="text" id="newProduct" class="input"></div>
     <div class="form-row"><label>{% trans "Код номенклатуры" %} *</label><input type="text" id="newCode" class="input"></div>
@@ -243,7 +243,7 @@
     else notify(res.error || 'Xato', 'error');
   };
   window.quickAdd = function(code, btn) {
-    document.getElementById('newBrand').value = btn.getAttribute('data-brand') || 'Piccino';
+    document.getElementById('newBrand').value = btn.getAttribute('data-brand') || '';
     document.getElementById('newArticle').value = btn.getAttribute('data-article') || '';
     document.getElementById('newProduct').value = btn.getAttribute('data-product') || '';
     document.getElementById('newCode').value = code || '';

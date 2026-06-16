@@ -229,6 +229,8 @@ def base_page(request):
     params.pop('page', None)
     querystring = params.urlencode()
 
+    total_rows = BaseRow.objects.filter(profile=profile).count()
+
     return render(request, 'reports/base.html', {
         'active_page': 'base',
         'profile': profile,
@@ -236,14 +238,16 @@ def base_page(request):
         'kpi': kpi,
         'rows': rows,
         'page_obj': page,
-        'total_rows': BaseRow.objects.filter(profile=profile).count(),
+        # base_count drives the topbar "✓ N qator" / "⚠ База bo'sh" badge (base page only).
+        'base_count': total_rows,
+        'total_rows': total_rows,
         'filtered_count': paginator.count,
         'reports': analytics_services.list_filters(profile)['reports'],
         'articles': analytics_services.base_articles(profile),
         'sel_report': report or '', 'sel_article': article or '',
         'sel_type': op_type or '', 'search': search or '',
         'querystring': querystring,
-        'has_data': BaseRow.objects.filter(profile=profile).exists(),
+        'has_data': total_rows > 0,
     })
 
 

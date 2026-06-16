@@ -17,6 +17,11 @@
   .table tbody .pin-col { background: #fff; }
   .table tbody tr:hover .pin-col { background: var(--bg-alt); }
   .table tfoot .pin-col { z-index: 6; background: var(--gray-100); }
+
+  /* Artikulni tanlash: bir qator bosilsa, o'sha artikulning barcha qatorlari belgilanadi */
+  .table tbody tr[data-article] { cursor: pointer; }
+  .table tbody tr.row-selected > td { background: #FCE9C6 !important; }
+  .table tbody tr.row-selected .pin-art strong { color: var(--amber-dark); }
 </style>
 {% endblock %}
 
@@ -62,6 +67,11 @@ const content = document.getElementById('content');
 let searchText = '';
 let sortBy = 'revenue';
 let groupMode = false;
+let selectedArticle = null;  // tanlangan artikul (shu artikulning hamma qatorlari belgilanadi)
+
+function escapeAttr(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
 
 function getGroup(article) {
   if (!article) return 'unknown';
@@ -162,8 +172,26 @@ groupBtn.addEventListener('click', () => {
   groupBtn.style.background = groupMode ? 'var(--blue-bg)' : 'white';
   groupBtn.style.color = groupMode ? 'var(--blue)' : 'var(--text-secondary)';
   groupBtn.style.borderColor = groupMode ? 'var(--blue)' : 'var(--border)';
+  selectedArticle = null;  // ko'rinish o'zgarganda tanlovni tozalaymiz
   renderInner();
 });
+
+// Qatorni bosish — o'sha artikulni tanlash/bekor qilish. tableWrapper bir marta
+// yaratiladi (faqat innerHTML yangilanadi), shuning uchun delegatsiya bilan ulaymiz.
+const tableWrapper = document.getElementById('tableWrapper');
+tableWrapper.addEventListener('click', (e) => {
+  const tr = e.target.closest('tr[data-article]');
+  if (!tr) return;
+  const art = tr.getAttribute('data-article');
+  selectedArticle = (selectedArticle === art) ? null : art;
+  applySelection();
+});
+
+function applySelection() {
+  tableWrapper.querySelectorAll('tbody tr[data-article]').forEach(tr => {
+    tr.classList.toggle('row-selected', selectedArticle !== null && tr.getAttribute('data-article') === selectedArticle);
+  });
+}
 
 function renderInner() {
   const source = groupMode ? groupProducts(products) : products;
@@ -252,8 +280,9 @@ function renderInner() {
           const marjaPerPiece = p.qty > 0 ? p.profit / p.qty : 0;
           const marjaPctColor = p.margin_pct >= 0 ? 'var(--green-dark)' : 'var(--red-dark)';
           const groupBadge = groupMode && p.variant_count > 1 ? `<span style="display: inline-block; padding: 1px 6px; background: var(--blue-bg); color: var(--blue); border-radius: 4px; font-size: 9px; font-weight: 700; margin-left: 4px;">${p.variant_count}×</span>` : '';
+          const isSel = selectedArticle !== null && String(p.article) === selectedArticle;
           return `
-          <tr>
+          <tr data-article="${escapeAttr(p.article)}" class="${isSel ? 'row-selected' : ''}">
             <td class="pin-col pin-num">${i + 1}</td>
             <td class="pin-col pin-art"><strong style="color: var(--blue);">${p.article}</strong>${groupBadge}</td>
             <td class="num" style="background: var(--green-light);">${fmt(p.buyouts_qty)}</td>

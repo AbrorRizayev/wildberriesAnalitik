@@ -628,9 +628,19 @@ window.initPage = function() {
       selected_warehouse: p.selected_warehouse }); },
     getCosts: () => EMBED.costs,
     setCosts: (c) => { EMBED.costs = c; },
-    findCostForRow: (barcode, code) => {
+    findCostForRow: (barcode, code, article) => {
+      // 1) Barkod bo'yicha — inline tahrirda yoziladigan eng aniq mos.
       let c = EMBED.costs.find(x => x.barcode && String(x.barcode) === String(barcode));
-      if (!c) c = EMBED.costs.find(x => String(x.code) === String(code));
+      // 2) Код номенклатуры / Артикул WB bo'yicha.
+      if (!c && code) c = EMBED.costs.find(x => x.code && String(x.code) === String(code));
+      // 3) Артикул поставщика bo'yicha — tannarx (Себестоимость) sahifasida mahsulot
+      //    aynan shu nom bilan turadi. Barkod/код mos kelmasa ham shu yerdan topiladi.
+      //    Bir artikulda bir nechta o'lcham bo'lsa — tannarxi borini afzal ko'ramiz.
+      if (!c && article) {
+        const a = String(article).trim().toLowerCase();
+        const sameArticle = EMBED.costs.filter(x => x.article && String(x.article).trim().toLowerCase() === a);
+        c = sameArticle.find(x => (x.cost || 0) > 0) || sameArticle[0];
+      }
       return c ? { cost: c.cost || 0, cost_future: c.cost_future || c.cost || 0 } : { cost: 0, cost_future: 0 };
     },
   };
@@ -910,8 +920,8 @@ window.initPage = function() {
       const salesInfo = salesByBarcode[barcode] || { total: 0, perSklad: {} };
       const ordered = sklad === 'Все склады' ? salesInfo.total : (salesInfo.perSklad[sklad] || 0);
 
-      // Cost lookup: barkod priority, code fallback
-      const costInfo = Storage.findCostForRow(barcode, s.code) || { cost: 0, cost_future: 0 };
+      // Cost lookup: barkod → код → артикул (tannarx sahifasidan to'liq qidiriladi)
+      const costInfo = Storage.findCostForRow(barcode, s.code, s.article) || { cost: 0, cost_future: 0 };
       const cost = costInfo.cost || 0;
       const costFuture = costInfo.cost_future || cost;
 
@@ -971,31 +981,14 @@ window.initPage = function() {
       });
     }
 
-    // Sort: 1) red signal (eng tezda tugaydigan birinchi),
-    //       2) amber (yetmaydiganlar),
-    //       3) green (yetadi — kapitalizatsiya bo'yicha katta birinchi),
-    //       4) no-orders (sotilmagan — eng oxirgi)
-    const priority = { red: 0, amber: 1, green: 2, none: 3, 'no-orders': 4 };
+    // Sort: 1) tannarxi yo'q mahsulotlar har doim eng tepada,
+    //       2) qolganlari artikul bo'yicha (A→Z, raqamlarni hisobga olgan tabiiy tartib).
     rows.sort((a, b) => {
-      // Tannarxi yo'q mahsulotlar har doim eng tepada (tannarx yozilganlari pastda tartibli turadi)
       const aNoCost = (a.cost || 0) > 0 ? 1 : 0;
       const bNoCost = (b.cost || 0) > 0 ? 1 : 0;
       if (aNoCost !== bNoCost) return aNoCost - bNoCost;
 
-      const pa = priority[a.signal] !== undefined ? priority[a.signal] : 5;
-      const pb = priority[b.signal] !== undefined ? priority[b.signal] : 5;
-      if (pa !== pb) return pa - pb;
-
-      // Red bo'lsa — eng kam kun qolgan birinchi
-      if (a.signal === 'red' && b.signal === 'red') {
-        return (a.daysLeft || 999) - (b.daysLeft || 999);
-      }
-      // Amber bo'lsa — eng ko'p yetkazish kerak birinchi
-      if (a.signal === 'amber' && b.signal === 'amber') {
-        return (b.toSupply || 0) - (a.toSupply || 0);
-      }
-      // Green/qolganlari — kapitalizatsiya bo'yicha
-      return (b.capitalization || 0) - (a.capitalization || 0);
+      return String(a.article || '').localeCompare(String(b.article || ''), 'ru', { numeric: true, sensitivity: 'base' });
     });
 
     return {

@@ -100,6 +100,7 @@ via {% trans %}; the UZ/RU switch posts to set_language.{% endcomment %}
   </div>
 </div>
 <div class="topbar-right">
+  {% if active_page == 'base' %}
   <div class="data-status">
     {% if base_count %}
       <span class="badge badge-success">✓ {{ base_count|fmt }} {% trans "qator" %}</span>
@@ -107,6 +108,7 @@ via {% trans %}; the UZ/RU switch posts to set_language.{% endcomment %}
       <a href="{% url 'reports:upload' %}" class="badge badge-warning" style="text-decoration: none;">⚠ {% trans "База bo'sh" %}</a>
     {% endif %}
   </div>
+  {% endif %}
   <div class="lang-switch">
     <form method="post" action="{% url 'set_language' %}" style="display: inline;">
       {% csrf_token %}
