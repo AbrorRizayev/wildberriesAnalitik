@@ -1,5 +1,7 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from .models import Profile
@@ -64,6 +66,16 @@ def profile_create(request):
     Each profile owns its own data (base rows, costs, reports, ...), so the new
     company starts empty with its own separate accounting.
     """
+    # Enforce the per-user company limit set by the admin (User.max_companies).
+    limit = request.user.max_companies
+    active_count = request.user.profiles.filter(is_active=True).count()
+    if active_count >= limit:
+        messages.error(request, _(
+            "Siz maksimal %(limit)s ta kompaniya ocha olasiz. "
+            "Ko'proq kerak bo'lsa, administrator bilan bog'laning."
+        ) % {'limit': limit})
+        return redirect('accounts:settings')
+
     name = (request.POST.get('name') or '').strip()
     if not name:
         return redirect(request.META.get('HTTP_REFERER') or 'analytics:dashboard')

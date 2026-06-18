@@ -74,20 +74,22 @@ class UserCreateForm(AdminUserCreationForm):
 class UserAdmin(BaseUserAdmin):
     form = UserAdminForm
     add_form = UserCreateForm
-    list_display = ('username', 'get_full_name', 'subscription_plan',
+    list_display = ('username', 'get_full_name', 'subscription_plan', 'max_companies',
                     'is_active_subscription', 'subscription_until', 'subscription_active', 'is_staff')
-    list_filter = ('is_active_subscription', 'subscription_plan', 'is_staff', 'is_active')
+    list_filter = ('is_active_subscription', 'subscription_plan', 'max_companies', 'is_staff', 'is_active')
     fieldsets = BaseUserAdmin.fieldsets + (
         ('Obuna / billing', {
-            'fields': ('subscription_plan', 'subscription_until', 'is_active_subscription', 'note'),
+            'fields': ('subscription_plan', 'subscription_until', 'is_active_subscription',
+                       'max_companies', 'note'),
             'description': "Obuna muddatini tanlang — tugash sanasi bugundan boshlab hisoblanadi. "
-                           "Muddat tugagach foydalanuvchi tizimga kira olmaydi.",
+                           "Muddat tugagach foydalanuvchi tizimga kira olmaydi. "
+                           "Kompaniyalar limiti — foydalanuvchi maksimal nechta kompaniya ocha oladi.",
         }),
     )
-    # Same plan picker is available right on the create form, so the admin sets
-    # the subscription duration together with the new login/password.
+    # Same plan + company-limit pickers are available right on the create form, so
+    # the admin sets them together with the new login/password.
     add_fieldsets = BaseUserAdmin.add_fieldsets + (
-        ('Obuna / billing', {'fields': ('subscription_plan',)}),
+        ('Obuna / billing', {'fields': ('subscription_plan', 'max_companies')}),
     )
 
     @admin.display(boolean=True, description='Hozir faol?')

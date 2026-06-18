@@ -19,6 +19,16 @@
       {% include "partials/topbar.html" %}
     </header>
     <main class="page">
+      {% if messages %}
+        {% for message in messages %}
+          <div style="margin-bottom: 14px; padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+                      {% if message.tags == 'error' %}background: #FDE8E8; color: #9B1C1C; border: 1px solid #F8B4B4;
+                      {% elif message.tags == 'success' %}background: #E6F4EA; color: #1E6B33; border: 1px solid #A7D7B4;
+                      {% else %}background: var(--gray-100); color: var(--text); border: 1px solid var(--border-light);{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
       {% block content %}{% endblock %}
     </main>
   </div>

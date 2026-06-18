@@ -2347,3 +2347,26 @@ msgstr "%(n)s товаров без себестоимости"
 #: templates/analytics/dashboard.html
 msgid "Bu tovarlarga tannarx kiriting, aks holda foyda noto'g'ri hisoblanadi."
 msgstr "Укажите себестоимость для этих товаров, иначе прибыль считается неверно."
+
+#: templates/partials/topbar.html
+#, python-format
+msgid "%(used)s / %(total)s kompaniya"
+msgstr "%(used)s / %(total)s компаний"
+
+#: templates/partials/topbar.html
+#, python-format
+msgid "Limit: %(total)s ta kompaniya"
+msgstr "Лимит: %(total)s компаний"
+
+#: templates/partials/topbar.html
+msgid "Ko'proq kerak bo'lsa, administrator bilan bog'laning."
+msgstr "Нужно больше — обратитесь к администратору."
+
+#: apps/accounts/views.py
+#, python-format
+msgid ""
+"Siz maksimal %(limit)s ta kompaniya ocha olasiz. Ko'proq kerak bo'lsa, "
+"administrator bilan bog'laning."
+msgstr ""
+"Вы можете создать максимум %(limit)s компаний. Нужно больше — обратитесь к "
+"администратору."

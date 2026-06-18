@@ -32,9 +32,17 @@ via {% trans %}; the UZ/RU switch posts to set_language.{% endcomment %}
       {% endfor %}
     </div>
     <div style="padding: 10px 16px; border-top: 1px solid var(--border-light);">
+      {% if can_add_company %}
       <button type="button" onclick="openAddCompany(event)" style="display: block; width: 100%; padding: 8px; background: var(--blue-bg); color: var(--blue); border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center;">
         <span style="font-size: 16px;">+</span> {% trans "Добавить компанию" %}
       </button>
+      <div style="text-align: center; font-size: 10px; color: var(--text-tertiary); margin-top: 6px;">{% blocktrans with used=profiles|length total=company_limit %}{{ used }} / {{ total }} kompaniya{% endblocktrans %}</div>
+      {% else %}
+      <div style="text-align: center; font-size: 11px; color: var(--text-tertiary); padding: 4px 0;">
+        {% blocktrans with total=company_limit %}Limit: {{ total }} ta kompaniya{% endblocktrans %}<br>
+        <span style="font-size: 10px;">{% trans "Ko'proq kerak bo'lsa, administrator bilan bog'laning." %}</span>
+      </div>
+      {% endif %}
     </div>
   </div>
 </div>

@@ -36,6 +36,19 @@ class User(AbstractUser):
         ('1y', '1 yillik'),
     ]
 
+    # How many companies (Profiles) this account may create. The admin grants
+    # this when creating/editing the user; profile_create enforces it.
+    COMPANY_LIMITS = [
+        (1, '1 ta kompaniya'),
+        (3, '3 ta kompaniya'),
+    ]
+    max_companies = models.PositiveSmallIntegerField(
+        choices=COMPANY_LIMITS,
+        default=1,
+        verbose_name='Kompaniyalar limiti',
+        help_text='Bu foydalanuvchi maksimal nechta kompaniya (profil) ocha oladi.',
+    )
+
     # Billing / access control. Enforced by SubscriptionMiddleware: a user whose
     # subscription is off or past its end date is logged in but blocked from the app.
     is_active_subscription = models.BooleanField(

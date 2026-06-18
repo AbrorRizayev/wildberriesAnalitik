@@ -2334,3 +2334,26 @@ msgstr "%(n)s ta tovar tannarxsiz"
 #: templates/analytics/dashboard.html
 msgid "Bu tovarlarga tannarx kiriting, aks holda foyda noto'g'ri hisoblanadi."
 msgstr "Bu tovarlarga tannarx kiriting, aks holda foyda noto'g'ri hisoblanadi."
+
+#: templates/partials/topbar.html
+#, python-format
+msgid "%(used)s / %(total)s kompaniya"
+msgstr "%(used)s / %(total)s kompaniya"
+
+#: templates/partials/topbar.html
+#, python-format
+msgid "Limit: %(total)s ta kompaniya"
+msgstr "Limit: %(total)s ta kompaniya"
+
+#: templates/partials/topbar.html
+msgid "Ko'proq kerak bo'lsa, administrator bilan bog'laning."
+msgstr "Ko'proq kerak bo'lsa, administrator bilan bog'laning."
+
+#: apps/accounts/views.py
+#, python-format
+msgid ""
+"Siz maksimal %(limit)s ta kompaniya ocha olasiz. Ko'proq kerak bo'lsa, "
+"administrator bilan bog'laning."
+msgstr ""
+"Siz maksimal %(limit)s ta kompaniya ocha olasiz. Ko'proq kerak bo'lsa, "
+"administrator bilan bog'laning."
