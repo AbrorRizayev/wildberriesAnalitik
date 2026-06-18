@@ -2321,3 +2321,29 @@ msgstr "База пуста"
 #, python-format
 msgid "%(rc)s ta qator"
 msgstr "%(rc)s строк"
+
+#: templates/analytics/dashboard.html
+#, python-format
+msgid "Tezda tugaydi: %(n)s ta artikul"
+msgstr "Скоро закончится: %(n)s арт."
+
+#: templates/analytics/dashboard.html
+msgid "kun"
+msgstr "дн."
+
+#: templates/analytics/dashboard.html
+msgid "ta..."
+msgstr "ещё…"
+
+#: templates/analytics/dashboard.html
+msgid "Buyurtma"
+msgstr "Заказать"
+
+#: templates/analytics/dashboard.html
+#, python-format
+msgid "%(n)s ta tovar tannarxsiz"
+msgstr "%(n)s товаров без себестоимости"
+
+#: templates/analytics/dashboard.html
+msgid "Bu tovarlarga tannarx kiriting, aks holda foyda noto'g'ri hisoblanadi."
+msgstr "Укажите себестоимость для этих товаров, иначе прибыль считается неверно."

@@ -91,7 +91,7 @@
   <div style="background: linear-gradient(135deg, #A32D2D 0%, #6E1F1F 100%); color: white; border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 18px; box-shadow: 0 4px 12px rgba(163, 45, 45, 0.2);">
     <div style="font-size: 30px; line-height: 1;">⚠️</div>
     <div style="flex: 1; min-width: 0;">
-      <div style="font-size: 14px; font-weight: 700; margin-bottom: 6px;">{% blocktrans count n=warnings.low_stock_count %}Tezda tugaydi: {{ n }} ta artikul{% plural %}Tezda tugaydi: {{ n }} ta artikul{% endblocktrans %}</div>
+      <div style="font-size: 14px; font-weight: 700; margin-bottom: 6px;">{% blocktrans with n=warnings.low_stock_count %}Tezda tugaydi: {{ n }} ta artikul{% endblocktrans %}</div>
       <div style="font-size: 11px; opacity: 0.95;">
         {% for it in warnings.low_stock_preview %}
           <span style="background: rgba(255,255,255,0.18); padding: 3px 8px; border-radius: 4px; margin: 4px 6px 0 0; display: inline-block;">{{ it.article }}{% if it.size %} ({{ it.size }}){% endif %} — {{ it.days_left }} {% trans "kun" %}</span>
@@ -107,7 +107,7 @@
   <div style="background: linear-gradient(135deg, var(--amber-dark) 0%, var(--amber) 100%); color: white; border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 18px; box-shadow: 0 4px 12px rgba(180, 120, 0, 0.18);">
     <div style="font-size: 30px; line-height: 1;">🏷️</div>
     <div style="flex: 1; min-width: 0;">
-      <div style="font-size: 14px; font-weight: 700; margin-bottom: 6px;">{% blocktrans count n=warnings.missing_cost_count %}{{ n }} ta tovar tannarxsiz{% plural %}{{ n }} ta tovar tannarxsiz{% endblocktrans %}</div>
+      <div style="font-size: 14px; font-weight: 700; margin-bottom: 6px;">{% blocktrans with n=warnings.missing_cost_count %}{{ n }} ta tovar tannarxsiz{% endblocktrans %}</div>
       <div style="font-size: 11px; opacity: 0.95;">
         {% trans "Bu tovarlarga tannarx kiriting, aks holda foyda noto'g'ri hisoblanadi." %}<br>
         {% for it in warnings.missing_cost_preview %}

@@ -2308,3 +2308,29 @@ msgstr "Baza bo'sh"
 #, python-format
 msgid "%(rc)s ta qator"
 msgstr "%(rc)s ta qator"
+
+#: templates/analytics/dashboard.html
+#, python-format
+msgid "Tezda tugaydi: %(n)s ta artikul"
+msgstr "Tezda tugaydi: %(n)s ta artikul"
+
+#: templates/analytics/dashboard.html
+msgid "kun"
+msgstr "kun"
+
+#: templates/analytics/dashboard.html
+msgid "ta..."
+msgstr "ta..."
+
+#: templates/analytics/dashboard.html
+msgid "Buyurtma"
+msgstr "Buyurtma"
+
+#: templates/analytics/dashboard.html
+#, python-format
+msgid "%(n)s ta tovar tannarxsiz"
+msgstr "%(n)s ta tovar tannarxsiz"
+
+#: templates/analytics/dashboard.html
+msgid "Bu tovarlarga tannarx kiriting, aks holda foyda noto'g'ri hisoblanadi."
+msgstr "Bu tovarlarga tannarx kiriting, aks holda foyda noto'g'ri hisoblanadi."
