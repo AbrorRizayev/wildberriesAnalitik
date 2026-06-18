@@ -4,6 +4,7 @@ from django.shortcuts import render
 
 from apps.accounts.views import get_active_profile
 from apps.reports.models import BaseRow
+from apps.reports import services as report_services
 
 from . import services
 
@@ -37,6 +38,7 @@ def dashboard(request):
     filters = services.list_filters(profile)
     products = services.by_product(profile, report_num=report_num, month=month, limit=10)
     weeks = services.by_week(profile, report_num=report_num, month=month)
+    warnings = report_services.dashboard_warnings(profile)
 
     return render(request, 'analytics/dashboard.html', {
         'active_page': 'dashboard',
@@ -44,6 +46,7 @@ def dashboard(request):
         'kpi': kpi,
         'products': products,
         'weeks': weeks,
+        'warnings': warnings,
         'currency': profile.currency,
         'filter_reports': filters['reports'],
         'selected_report': report_num or '',

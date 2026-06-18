@@ -83,6 +83,46 @@
   </div>
 </div>
 
+<!-- OGOHLANTIRISHLAR: kam qolgan + tannarxsiz tovarlar -->
+{% if warnings.low_stock_count or warnings.missing_cost_count %}
+<div style="display: grid; gap: 10px; margin-bottom: 16px;">
+
+  {% if warnings.low_stock_count %}
+  <div style="background: linear-gradient(135deg, #A32D2D 0%, #6E1F1F 100%); color: white; border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 18px; box-shadow: 0 4px 12px rgba(163, 45, 45, 0.2);">
+    <div style="font-size: 30px; line-height: 1;">⚠️</div>
+    <div style="flex: 1; min-width: 0;">
+      <div style="font-size: 14px; font-weight: 700; margin-bottom: 6px;">{% blocktrans count n=warnings.low_stock_count %}Tezda tugaydi: {{ n }} ta artikul{% plural %}Tezda tugaydi: {{ n }} ta artikul{% endblocktrans %}</div>
+      <div style="font-size: 11px; opacity: 0.95;">
+        {% for it in warnings.low_stock_preview %}
+          <span style="background: rgba(255,255,255,0.18); padding: 3px 8px; border-radius: 4px; margin: 4px 6px 0 0; display: inline-block;">{{ it.article }}{% if it.size %} ({{ it.size }}){% endif %} — {{ it.days_left }} {% trans "kun" %}</span>
+        {% endfor %}
+        {% if warnings.low_stock_extra %}<span style="opacity: 0.7; margin-left: 4px;">+{{ warnings.low_stock_extra }} {% trans "ta..." %}</span>{% endif %}
+      </div>
+    </div>
+    <a href="{% url 'analytics:capitalization' %}" style="background: white; color: #A32D2D; padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 12px; text-decoration: none; white-space: nowrap;">📦 {% trans "Buyurtma" %} →</a>
+  </div>
+  {% endif %}
+
+  {% if warnings.missing_cost_count %}
+  <div style="background: linear-gradient(135deg, var(--amber-dark) 0%, var(--amber) 100%); color: white; border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 18px; box-shadow: 0 4px 12px rgba(180, 120, 0, 0.18);">
+    <div style="font-size: 30px; line-height: 1;">🏷️</div>
+    <div style="flex: 1; min-width: 0;">
+      <div style="font-size: 14px; font-weight: 700; margin-bottom: 6px;">{% blocktrans count n=warnings.missing_cost_count %}{{ n }} ta tovar tannarxsiz{% plural %}{{ n }} ta tovar tannarxsiz{% endblocktrans %}</div>
+      <div style="font-size: 11px; opacity: 0.95;">
+        {% trans "Bu tovarlarga tannarx kiriting, aks holda foyda noto'g'ri hisoblanadi." %}<br>
+        {% for it in warnings.missing_cost_preview %}
+          <span style="background: rgba(255,255,255,0.20); padding: 3px 8px; border-radius: 4px; margin: 4px 6px 0 0; display: inline-block;">{{ it.article|default:it.code }}</span>
+        {% endfor %}
+        {% if warnings.missing_cost_extra %}<span style="opacity: 0.7; margin-left: 4px;">+{{ warnings.missing_cost_extra }} {% trans "ta..." %}</span>{% endif %}
+      </div>
+    </div>
+    <a href="{% url 'reports:costs' %}" style="background: white; color: var(--amber-dark); padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 12px; text-decoration: none; white-space: nowrap;">🏷️ {% trans "Tannarx" %} →</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endif %}
+
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 12px;">
 
   <!-- Sotuvlar bloki -->

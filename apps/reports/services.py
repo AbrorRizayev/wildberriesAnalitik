@@ -558,6 +558,75 @@ def cap_data(profile):
     }
 
 
+def dashboard_warnings(profile, limit=8):
+    """Dashboard ogohlantirishlari: kam qolgan tovarlar + tannarxsiz tovarlar.
+
+    Kam qolgan (low stock): kapitalizatsiya sahifasidagi 'red' signalning aynan
+    o'zi — ordered>0 va daysLeft<delivery_days (computeCapitalization bilan bir xil).
+    Tannarxsiz: costs sahifasidagi "База da N ta tovar tannарxsiz" mantig'i —
+    БАЗА da sotilgan, ammo Cost jadvalida tannarxi yo'q kодlar.
+    """
+    params = cap_params_dict(profile)
+    days = params['days_of_sales'] or 7
+    delivery_days = params['delivery_days'] or 7
+    sklad = params['selected_warehouse'] or 'Все склады'
+
+    # --- Kam qolgan tovarlar (kapitalizatsiya logikasi) ---
+    sales_by_barcode = {}
+    for s in CapSales.objects.filter(profile=profile).values_list('raw', flat=True):
+        bc = str(s.get('barcode') or '')
+        if not bc:
+            continue
+        d = sales_by_barcode.setdefault(bc, {'total': 0.0, 'per': {}})
+        ordered = num(s.get('ordered'))
+        d['total'] += ordered
+        skl = s.get('sklad') or ''
+        d['per'][skl] = d['per'].get(skl, 0.0) + ordered
+
+    low = []
+    stock_rows = list(CapStock.objects.filter(profile=profile).values_list('raw', flat=True))
+    for s in stock_rows:
+        bc = str(s.get('barcode') or '')
+        if not bc:
+            continue
+        if sklad == 'Все склады':
+            stock = num(s.get('returns_en_route')) + num(s.get('total_in_warehouses'))
+        else:
+            stock = num((s.get('warehouses') or {}).get(sklad))
+        info = sales_by_barcode.get(bc) or {'total': 0.0, 'per': {}}
+        ordered = info['total'] if sklad == 'Все склады' else info['per'].get(sklad, 0.0)
+        if ordered <= 0:
+            continue
+        avg_per_day = ordered / days
+        if avg_per_day <= 0:
+            continue
+        days_left = stock / avg_per_day
+        if days_left < delivery_days:
+            low.append({
+                'article': s.get('article') or '',
+                'size': s.get('size') or '',
+                'days_left': int(round(days_left)),
+                'stock': int(round(stock)),
+            })
+    low.sort(key=lambda x: x['days_left'])
+
+    # --- Tannarxsiz tovarlar (costs sahifasi logikasi) ---
+    code_info = base_code_info(profile)
+    defined_codes = {str(c) for c in Cost.objects.filter(profile=profile)
+                     .exclude(code='').values_list('code', flat=True)}
+    missing = [code_info[c] for c in code_info if c not in defined_codes]
+    missing.sort(key=lambda d: (d.get('article') or d.get('code') or ''))
+
+    return {
+        'low_stock_count': len(low),
+        'low_stock_preview': low[:limit],
+        'low_stock_extra': max(0, len(low) - limit),
+        'missing_cost_count': len(missing),
+        'missing_cost_preview': missing[:limit],
+        'missing_cost_extra': max(0, len(missing) - limit),
+    }
+
+
 def set_cost_by_barcode(profile, barcode, code, cost):
     """Inline cost edit from the capitalization table (barcode priority, code fallback).
 
